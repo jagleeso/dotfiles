@@ -1,4 +1,3 @@
-cd ~/workspace
 syntax on
 " set expandtab smarttab shiftwidth=4 softtabstop=4 tabstop=8 ts=4 
 " set hlsearch
@@ -14,7 +13,7 @@ set number
 :map! <C-s> <Esc>:w<Enter>
 
 :syntax on
-:set tabstop=4
+":set tabstop=4
 ":set cindent
 ":set smartindent
 ":set bs=2
@@ -107,4 +106,4 @@ vnoremap <C-C> "+y
 vnoremap <C-V>		"+gP
 inoremap <C-V> <Esc>"+gP<Return>i
 
-set t_Co=256
+" set t_Co=256
