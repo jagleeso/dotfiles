@@ -1,6 +1,9 @@
 # Path to your oh-my-zsh configuration.
 ZSH=$HOME/.oh-my-zsh
 
+# fix bug where updates don't work
+export ZSH=$HOME/.oh-my-zsh
+
 # Set name of the theme to load.
 # Look in ~/.oh-my-zsh/themes/
 # Optionally, if you set this to "random", it'll load a random theme each
@@ -40,3 +43,12 @@ stty -ixon
 
 alias ainstall="sudo apt-get install"
 alias asearch="apt-cache search"
+
+gitdiff() {
+    git diff --quiet "$@" ||
+        git diff "$@" | vim -
+}
+
+svndiff() {
+    svn diff "$@" | vim -
+}
