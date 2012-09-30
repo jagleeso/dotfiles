@@ -1,7 +1,6 @@
 syntax on
 " set expandtab smarttab shiftwidth=4 softtabstop=4 tabstop=8 ts=4 
 " set hlsearch
-"set autoindent
 :map <C-v> "+gP
 :map <C-c> "+y
 :map <C-x> "+x
@@ -9,17 +8,21 @@ set backspace=2
 set tabpagemax=20
 set number
 :map <C-n> <Esc>:tabn<Enter>
-:map <C-p> <Esc>:tabp<Enter>
+:noremap <C-p> <Esc>:tabp<Enter>
 :map! <C-s> <Esc>:w<Enter>
 
 :syntax on
-":set tabstop=4
+set autoindent
+" set tabstop=4
+set expandtab
+" set shiftwidth=4
+" set softtabstop=4
+set backspace=indent,eol,start
 ":set cindent
 ":set smartindent
-":set bs=2
 :set shiftwidth=4
 :set expandtab
-colorscheme desert
+colorscheme torte 
 
 " ctags
 map <C-\> :tab split<CR>:exec("tag ".expand("<cword>"))<CR>
@@ -32,9 +35,16 @@ filetype indent on
 
 :let mapleader = ','
 map <Leader>n :NERDTreeToggle<CR>
-let g:CommandTCancelMap='<Esc>'
-let g:CommandTSelectNextMap=['<Tab>', '<Down>']
-let g:CommandTSelectPrevMap=['<S-x>', '<Up>']
+map <Leader>N :NERDTreeFind<CR>
+" let g:CommandTCancelMap='<Esc>'
+" let g:CommandTSelectNextMap=['<Tab>', '<Down>']
+" let g:CommandTSelectPrevMap=['<S-x>', '<Up>']
+
+nnoremap <silent> <Leader>t :CtrlP<CR>
+let g:ctrlp_map = '<Leader>t'
+" nnoremap <silent> <Leader>b :CommandTBuffer<CR>
+
+
 " to fix issues with command-t <Up> and <Down> terminal keys (see :h vt100-cursor-keys)
 "set notimeout		" don't timeout on mappings
 "set ttimeout		" do timeout on terminal key codes
@@ -83,17 +93,31 @@ function! ToggleList(bufname, pfx)
   endif
 endfunction
 
-nmap <silent> <leader>l :call ToggleList("Location List", 'l')<CR>
+" nmap <silent> <leader>l :call ToggleList("Location List", 'l')<CR>
 nmap <silent> <leader>e :call ToggleList("Quickfix List", 'c')<CR>
 
 set ofu=syntaxcomplete#Complete
+" let g:SuperTabDefaultCompletionType = "<c-p>"
+" "<C-X><C-O>"
+let g:SuperTabDefaultCompletionType = "context"
+
+" inoremap <expr> <Esc>      pumvisible() ? "\<C-e>" : "\<Esc>"
+" inoremap <expr> <CR>       pumvisible() ? "\<C-y>" : "\<CR>"
+" inoremap <expr> <Down>     pumvisible() ? "\<C-n>" : "\<Down>"
+" inoremap <expr> <Up>       pumvisible() ? "\<C-p>" : "\<Up>"
+" inoremap <expr> <PageDown> pumvisible() ? "\<PageDown>\<C-p>\<C-n>" : "\<PageDown>"
+" inoremap <expr> <PageUp>   pumvisible() ? "\<PageUp>\<C-p>\<C-n>" : "\<PageUp>"
+" inoremap <silent> <Esc> <C-r>=pumvisible() ? "\<C-y>" : "\<Esc>"<CR>
+" inoremap <expr> <C-d> pumvisible() ? "\<PageDown>\<C-p>\<C-n>" : "\<C-d>"
+" inoremap <expr> <C-u> pumvisible() ? "\<PageUp>\<C-p>\<C-n>" : "\<C-u>"
+set completeopt+=longest
 
 autocmd! bufwritepost .vimrc source ~/.vimrc
 
 " Use CTRL-S for saving, also in Insert mode
-noremap <C-S>		:update<CR>
-vnoremap <C-S>		<C-C>:update<CR>
-inoremap <C-S>		<C-O>:update<CR>
+noremap <C-S>		:update<CR><Esc>
+vnoremap <C-S>		<C-C>:update<CR><Esc>
+inoremap <C-S>		<C-O>:update<CR><Esc>
 
 " CTRL-X and SHIFT-Del are Cut
 vnoremap <C-X> "+x
@@ -107,3 +131,87 @@ vnoremap <C-V>		"+gP
 inoremap <C-V> <Esc>"+gP<Return>i
 
 " set t_Co=256
+"
+noremap <C-Q> :q<CR>
+vnoremap <C-Q> :q<CR>
+inoremap <C-Q> <Esc>:q<CR>
+
+noremap <Leader>m <Esc>:make<Up><CR>
+
+set wildmode=longest,list,full
+set wildmenu
+
+vnoremap <C-r> "hy:%s/<C-r>h//gc<left><left><left>
+
+nmap <LocalLeader>sv <Plug>RSendSelection
+imap <LocalLeader>sv <Plug>RSendSelection
+vmap <LocalLeader>sv <Plug>RSendSelection
+
+nmap <LocalLeader>sl <Plug>RSendLine
+imap <LocalLeader>sl <Plug>RSendLine
+vmap <LocalLeader>sl <Plug>RSendLine
+
+nmap <LocalLeader>sf <Plug>RSendFile
+imap <LocalLeader>sf <Plug>RSendFile
+vmap <LocalLeader>sf <Plug>RSendFile
+let vimrplugin_underscore = 0
+
+set diffopt=filler,iwhite
+au BufEnter *.hs compiler ghc
+let g:ghc="/usr/bin/ghc"
+let g:haddock_browser="/usr/bin/firefox"
+
+" set verbose=9
+" let loaded_matchparen = 0
+" DoMatchParen
+
+let g:ctrlp_working_path_mode = ''
+
+nmap <Leader>l :TagbarToggle<CR>
+
+set runtimepath+=~/.vim/vim-addon-manager
+" "vim-scala@behaghel"
+
+" call vam#ActivateAddons(["ack", "Align%294", "IndentAnything", "matchit.zip", "The_NERD_tree", "Rename%1928", "vim-addon-sbt", "screen", "snipmate", "SuperTab_continued.", "surround", "tComment", "ctrlp"])
+
+" setting up EnVim
+fun SetupVAM()
+  let g:vim_addon_manager = {}
+  let g:vim_addon_manager.plugin_sources = {}
+  let g:vim_addon_manager.plugin_sources['ensime'] = {"type": "git", "url": "git://github.com/aemoncannon/ensime.git", "branch" : "scala-2.9"}
+  let g:vim_addon_manager.plugin_sources['envim'] = {"type": "git", "url": "git://github.com/jlc/envim.git", "branch" : "master"}
+  let g:vim_addon_manager.plugin_sources['ensime-common'] = {"type": "git", "url": "git://github.com/jlc/ensime-common.git", "branch" : "master"}
+  let g:vim_addon_manager.plugin_sources['vim-async-beans'] = {"type": "git", "url": "git://github.com/jlc/vim-async-beans.git", "branch" : "master"}
+  let g:vim_addon_manager.plugin_sources['vim-addon-async'] = {"type": "git", "url": "git://github.com/jlc/vim-addon-async.git", "branch" : "master"}
+  let g:vim_addon_manager.plugin_sources['vim-scala-behaghel'] = {'type': 'git', 'url': 'git://github.com/behaghel/vim-scala.git'}
+
+  let plugins = [
+    \ 'ensime',
+    \ 'vim-addon-async',
+    \ 'vim-async-beans',
+    \ 'ensime-common',
+    \ 'envim',
+    \ 'vim-scala-behaghel',
+    \ "ack",
+    \ "Align%294",
+    \ "IndentAnything",
+    \ "matchit.zip",
+    \ "The_NERD_tree",
+    \ "Rename%1928",
+    \ "vim-addon-sbt",
+    \ "screen",
+    \ "snipmate",
+    \ "SuperTab_continued.",
+    \ "surround",
+    \ "tComment",
+    \ "xml",
+    \ "indenthtml",
+    \ "Tagbar",
+    \ "ctrlp"
+    \ ]
+
+  call vam#ActivateAddons(plugins,{'auto_install' : 0})
+endf
+call SetupVAM()
+
+

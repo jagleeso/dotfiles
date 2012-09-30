@@ -35,14 +35,24 @@ source $ZSH/oh-my-zsh.sh
 export TERM=xterm-256color
 
 # Customize to your needs...
-export PATH=/home/james/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games
+export PATH=/home/james/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:~/smlnj/bin
 
 export PYTHONPATH=".:~/python"
 # disable xoff ctrl-s shortcut that locks up vi
-stty -ixon
+# stty -ixon
+stty stop '' -ixoff
+
+bindkey ^e backward-delete-word
+bindkey ^f backward-word
+bindkey ^k forward-word
 
 alias ainstall="sudo apt-get install"
 alias asearch="apt-cache search"
+alias ashow="apt-cache show"
+if [ -x `which ack-grep` ]; then
+    alias ack="ack-grep"
+fi
+alias gopen="gnome-open"
 
 gitdiff() {
     git diff --quiet "$@" ||
@@ -52,3 +62,12 @@ gitdiff() {
 svndiff() {
     svn diff "$@" | vim -
 }
+
+# source ~/.school
+
+# disable ctrl-s scroll locking
+stty -ixon
+
+alias sml="socat READLINE EXEC:sml"
+
+alias vim="nocorrect vim"
