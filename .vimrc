@@ -1,28 +1,26 @@
-syntax on
-" set expandtab smarttab shiftwidth=4 softtabstop=4 tabstop=8 ts=4 
-" set hlsearch
 :map <C-v> "+gP
 :map <C-c> "+y
 :map <C-x> "+x
 set backspace=2
 set tabpagemax=20
 set number
+set colorcolumn=100
 :map <C-n> <Esc>:tabn<Enter>
 :noremap <C-p> <Esc>:tabp<Enter>
 :map! <C-s> <Esc>:w<Enter>
 
 :syntax on
 set autoindent
-" set tabstop=4
 set expandtab
-" set shiftwidth=4
-" set softtabstop=4
+set tabstop=4
+set shiftwidth=4
+set softtabstop=4
 set backspace=indent,eol,start
 ":set cindent
 ":set smartindent
 :set shiftwidth=4
 :set expandtab
-colorscheme torte 
+colorscheme jellybeans
 
 " ctags
 map <C-\> :tab split<CR>:exec("tag ".expand("<cword>"))<CR>
@@ -33,15 +31,16 @@ filetype on
 filetype plugin on 
 filetype indent on
 
-:let mapleader = ','
+let g:mapleader = ','
+let g:maplocalleader = ','
 map <Leader>n :NERDTreeToggle<CR>
 map <Leader>N :NERDTreeFind<CR>
 " let g:CommandTCancelMap='<Esc>'
 " let g:CommandTSelectNextMap=['<Tab>', '<Down>']
 " let g:CommandTSelectPrevMap=['<S-x>', '<Up>']
 
-nnoremap <silent> <Leader>t :CtrlP<CR>
-let g:ctrlp_map = '<Leader>t'
+nnoremap <silent> <Leader>p :CtrlP<CR>
+let g:ctrlp_map = '<Leader>p'
 " nnoremap <silent> <Leader>b :CommandTBuffer<CR>
 
 
@@ -93,8 +92,19 @@ function! ToggleList(bufname, pfx)
   endif
 endfunction
 
+command -bang -nargs=? QFix call QFixToggle(<bang>0)
+function! QFixToggle(forced)
+  if exists("g:qfix_win") && a:forced == 0
+    cclose
+    unlet g:qfix_win
+  else
+    copen 10
+    let g:qfix_win = bufnr("$")
+  endif
+endfunction
+
 " nmap <silent> <leader>l :call ToggleList("Location List", 'l')<CR>
-nmap <silent> <leader>e :call ToggleList("Quickfix List", 'c')<CR>
+nmap <silent> <leader>d :call ToggleList("Quickfix List", 'c')<CR>
 
 set ofu=syntaxcomplete#Complete
 " let g:SuperTabDefaultCompletionType = "<c-p>"
@@ -112,6 +122,7 @@ let g:SuperTabDefaultCompletionType = "context"
 " inoremap <expr> <C-u> pumvisible() ? "\<PageUp>\<C-p>\<C-n>" : "\<C-u>"
 set completeopt+=longest
 
+" auto reload of vimrc on change
 autocmd! bufwritepost .vimrc source ~/.vimrc
 
 " Use CTRL-S for saving, also in Insert mode
@@ -136,7 +147,7 @@ noremap <C-Q> :q<CR>
 vnoremap <C-Q> :q<CR>
 inoremap <C-Q> <Esc>:q<CR>
 
-noremap <Leader>m <Esc>:make<Up><CR>
+map <Leader>m <Esc>:make<Up><CR>
 
 set wildmode=longest,list,full
 set wildmenu
@@ -167,7 +178,19 @@ let g:haddock_browser="/usr/bin/firefox"
 
 let g:ctrlp_working_path_mode = ''
 
+"
+" Tagbar
+" 
+
 nmap <Leader>l :TagbarToggle<CR>
+
+" let g:tagbar_type_javascript = {
+"     \ 'ctagsbin' : '~/bin/jsctags'
+" \ }
+
+"
+" Vim Addon Manager
+"
 
 set runtimepath+=~/.vim/vim-addon-manager
 " "vim-scala@behaghel"
@@ -200,6 +223,7 @@ fun SetupVAM()
     \ "Rename%1928",
     \ "vim-addon-sbt",
     \ "screen",
+    \ "snipmate-snippets",
     \ "snipmate",
     \ "SuperTab_continued.",
     \ "surround",
@@ -214,4 +238,7 @@ fun SetupVAM()
 endf
 call SetupVAM()
 
-
+" vim-addon-sbt
+fun SBT_JAR()
+    return "/usr/share/sbt/0.11.3/sbt-launch.jar"
+endfun

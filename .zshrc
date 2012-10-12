@@ -32,7 +32,11 @@ ZSH_THEME="james"
 plugins=(git svn zsh-syntax-highlighting)
 
 source $ZSH/oh-my-zsh.sh
-export TERM=xterm-256color
+if [ -n "$TMUX" ]; then
+    export TERM=screen-256color 
+else
+    export TERM=xterm-256color
+fi
 
 # Customize to your needs...
 export PATH=/home/james/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:~/smlnj/bin
@@ -46,12 +50,17 @@ bindkey ^e backward-delete-word
 bindkey ^f backward-word
 bindkey ^k forward-word
 
+# apt-get/apt-cache/apt-file aliases
 alias ainstall="sudo apt-get install"
 alias asearch="apt-cache search"
 alias ashow="apt-cache show"
 if [ -x `which ack-grep` ]; then
     alias ack="ack-grep"
 fi
+afiles() {
+    # $1 == exact package name
+    apt-file list --regexp  "^$1\$" | sed "s/^$1:\s*//"
+}
 alias gopen="gnome-open"
 
 gitdiff() {
@@ -71,3 +80,6 @@ stty -ixon
 alias sml="socat READLINE EXEC:sml"
 
 alias vim="nocorrect vim"
+
+# jsctags
+export NODE_PATH=~/.jsctags/lib/jsctags/:$NODE_PATH
