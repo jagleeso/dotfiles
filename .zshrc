@@ -27,6 +27,9 @@ ZSH_THEME="james"
 # Uncomment following line if you want red dots to be displayed while waiting for completion
 # COMPLETION_WAITING_DOTS="true"
 
+# add user defined locations for completion scripts
+fpath=($HOME/.zsh/completion $fpath)
+
 # Which plugins would you like to load? (plugins can be found in ~/.oh-my-zsh/plugins/*)
 # Example format: plugins=(rails git textmate ruby lighthouse)
 plugins=(git svn zsh-syntax-highlighting)
