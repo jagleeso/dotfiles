@@ -59,7 +59,7 @@ bindkey ^k forward-word
 alias ainstall="sudo apt-get install"
 alias asearch="apt-cache search"
 alias ashow="apt-cache show"
-if [ -x `which ack-grep` ]; then
+if [ -x "`which ack-grep`" ]; then
     alias ack="ack-grep"
 fi
 afiles() {

@@ -1,4 +1,4 @@
-:map <C-v> "+gP
+" :map <C-v> "+gP
 :map <C-c> "+y
 :map <C-x> "+x
 set backspace=2
@@ -9,6 +9,7 @@ set colorcolumn=100
 :noremap <C-p> <Esc>:tabp<Enter>
 :map! <C-s> <Esc>:w<Enter>
 
+set hlsearch
 :syntax on
 set autoindent
 set expandtab
@@ -25,11 +26,22 @@ colorscheme jellybeans
 " ctags
 map <C-\> :tab split<CR>:exec("tag ".expand("<cword>"))<CR>
 
+" if we visually select text, search for that text from our current cursor
+vmap <C-f> y/<C-r>"<CR>
+
 :set ruler
 
 filetype on
 filetype plugin on 
 filetype indent on
+
+" map keys for window resizing
+if bufwinnr(1)
+    " map <C--> <C-W>+ " inc height
+    " map <C-=> <C-W>- " dec height
+    map _ <C-W>< " inc height
+    map + <C-W>> " dec height
+endif
 
 let g:mapleader = ','
 let g:maplocalleader = ','
@@ -40,9 +52,13 @@ map <Leader>N :NERDTreeFind<CR>
 " let g:CommandTSelectPrevMap=['<S-x>', '<Up>']
 
 nnoremap <silent> <Leader>p :CtrlP<CR>
+nnoremap <silent> <Leader>P :CtrlPMRUFiles<CR>
 let g:ctrlp_map = '<Leader>p'
 " nnoremap <silent> <Leader>b :CommandTBuffer<CR>
-
+let g:ctrlp_custom_ignore = {
+    \ 'dir':  '\v[\/]\.(git|hg|svn)$',
+    \ 'file': '\v\.(exe|so|dll|class)$',
+    \ }
 
 " to fix issues with command-t <Up> and <Down> terminal keys (see :h vt100-cursor-keys)
 "set notimeout		" don't timeout on mappings
@@ -57,7 +73,11 @@ let php_folding = 1
 :set nofoldenable
 :set foldmethod=syntax
 
-set textwidth=90
+" http://vim.runpaint.org/display/working-with-long-lines/
+" 'when a line is more than four characters away from the right-hand margin, it is broken'
+set wrapmargin=4
+" hardline wrap text past 90 characters
+" set textwidth=90
 " automatically re-adjust paragraphs on edits (a), but dont mess up pasted comments (w)
 set formatoptions+=w 
 
@@ -106,10 +126,17 @@ endfunction
 " nmap <silent> <leader>l :call ToggleList("Location List", 'l')<CR>
 nmap <silent> <leader>d :call ToggleList("Quickfix List", 'c')<CR>
 
-set ofu=syntaxcomplete#Complete
+" set ofu=syntaxcomplete#Complete
 " let g:SuperTabDefaultCompletionType = "<c-p>"
 " "<C-X><C-O>"
+" let g:SuperTabDefaultCompletionType = "context"
+" let g:SuperTabDefaultCompletionType = "<C-X><C-O>"
+
 let g:SuperTabDefaultCompletionType = "context"
+let g:SuperTabContextTextOmniPrecedence = ['&omnifunc', '&completefunc']
+
+let g:ftplugin_sql_omni_key_right = '<Right>'
+let g:ftplugin_sql_omni_key_left  = '<Left>'
 
 " inoremap <expr> <Esc>      pumvisible() ? "\<C-e>" : "\<Esc>"
 " inoremap <expr> <CR>       pumvisible() ? "\<C-y>" : "\<CR>"
@@ -138,8 +165,8 @@ inoremap <C-X> <Esc>"+x<Return>i
 vnoremap <C-C> "+y
 
 " CTRL-V and SHIFT-Insert are Paste
-vnoremap <C-V>		"+gP
-inoremap <C-V> <Esc>"+gP<Return>i
+" vnoremap <C-V>		"+gP
+" inoremap <C-V> <Esc>"+gP<Return>i
 
 " set t_Co=256
 "
@@ -199,40 +226,50 @@ set runtimepath+=~/.vim/vim-addon-manager
 
 " setting up EnVim
 fun SetupVAM()
-  let g:vim_addon_manager = {}
-  let g:vim_addon_manager.plugin_sources = {}
-  let g:vim_addon_manager.plugin_sources['ensime'] = {"type": "git", "url": "git://github.com/aemoncannon/ensime.git", "branch" : "scala-2.9"}
-  let g:vim_addon_manager.plugin_sources['envim'] = {"type": "git", "url": "git://github.com/jlc/envim.git", "branch" : "master"}
-  let g:vim_addon_manager.plugin_sources['ensime-common'] = {"type": "git", "url": "git://github.com/jlc/ensime-common.git", "branch" : "master"}
-  let g:vim_addon_manager.plugin_sources['vim-async-beans'] = {"type": "git", "url": "git://github.com/jlc/vim-async-beans.git", "branch" : "master"}
-  let g:vim_addon_manager.plugin_sources['vim-addon-async'] = {"type": "git", "url": "git://github.com/jlc/vim-addon-async.git", "branch" : "master"}
-  let g:vim_addon_manager.plugin_sources['vim-scala-behaghel'] = {'type': 'git', 'url': 'git://github.com/behaghel/vim-scala.git'}
+  " let g:vim_addon_manager = {}
+  " let g:vim_addon_manager.plugin_sources = {}
+  " let g:vim_addon_manager.plugin_sources['ensime'] = {"type": "git", "url": "git://github.com/aemoncannon/ensime.git", "branch" : "scala-2.9"}
+  " let g:vim_addon_manager.plugin_sources['envim'] = {"type": "git", "url": "git://github.com/jlc/envim.git", "branch" : "master"}
+  " let g:vim_addon_manager.plugin_sources['ensime-common'] = {"type": "git", "url": "git://github.com/jlc/ensime-common.git", "branch" : "master"}
+  " let g:vim_addon_manager.plugin_sources['vim-async-beans'] = {"type": "git", "url": "git://github.com/jlc/vim-async-beans.git", "branch" : "master"}
+  " let g:vim_addon_manager.plugin_sources['vim-addon-async'] = {"type": "git", "url": "git://github.com/jlc/vim-addon-async.git", "branch" : "master"}
+  " let g:vim_addon_manager.plugin_sources['vim-scala-behaghel'] = {'type': 'git', 'url': 'git://github.com/behaghel/vim-scala.git'}
+"    \ 'ensime',
+"    \ 'vim-addon-async',
+"    \ 'vim-async-beans',
+"    \ 'ensime-common',
+"    \ 'envim',
+"    \ 'vim-scala-behaghel',
+"    \ 'Rename%1928',
+"    \ 'screen',
+"    \ 'vim-addon-sbt',
 
   let plugins = [
-    \ 'ensime',
-    \ 'vim-addon-async',
-    \ 'vim-async-beans',
-    \ 'ensime-common',
-    \ 'envim',
-    \ 'vim-scala-behaghel',
-    \ "ack",
-    \ "Align%294",
-    \ "IndentAnything",
-    \ "matchit.zip",
-    \ "The_NERD_tree",
-    \ "Rename%1928",
-    \ "vim-addon-sbt",
-    \ "screen",
-    \ "snipmate-snippets",
-    \ "snipmate",
-    \ "SuperTab_continued.",
-    \ "surround",
-    \ "tComment",
-    \ "xml",
-    \ "indenthtml",
-    \ "Tagbar",
-    \ "ctrlp"
+    \ 'ack',
+    \ 'Align%294',
+    \ 'IndentAnything',
+    \ 'matchit.zip',
+    \ 'The_NERD_tree',
+    \ 'snipmate-snippets',
+    \ 'snipmate',
+    \ 'SuperTab_continued.',
+    \ 'surround',
+    \ 'tComment',
+    \ 'xml',
+    \ 'indenthtml',
+    \ 'Tagbar',
+    \ 'groovyindent',
+    \ 'Simple_Javascript_Indenter',
+    \ 'fugitive',
+    \ 'dbext',
+    \ 'SQLComplete',
+    \ 'SmartCase',
+    \ 'easytags',
+    \ 'marvim',
+    \ 'ctrlp'
     \ ]
+
+    " \ 'SearchComplete',
 
   call vam#ActivateAddons(plugins,{'auto_install' : 0})
 endf
@@ -242,3 +279,19 @@ call SetupVAM()
 fun SBT_JAR()
     return "/usr/share/sbt/0.11.3/sbt-launch.jar"
 endfun
+
+let g:SimpleJsIndenter_BriefMode = 1
+
+" let g:dbext_default_profile_DBNAME = 'type=MYSQL:user=root:dbname=DBNAME'
+" let g:dbext_default_profile = 'DBNAME'
+" let g:omni_sql_include_owner = 0
+
+" clipboard integration
+" http://vim.wikia.com/wiki/Mac_OS_X_clipboard_sharing#Comments
+if has('win64')|| has('win32') || has('mac')
+    " mac/windows
+    set clipboard=unnamed
+else
+    " linux
+    set clipboard=unnamedplus
+endif
