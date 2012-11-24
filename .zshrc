@@ -41,6 +41,8 @@ else
     export TERM=xterm-256color
 fi
 
+export EDITOR=vim
+
 # Customize to your needs...
 export PATH=/home/james/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:~/smlnj/bin
 
