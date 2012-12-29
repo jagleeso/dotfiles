@@ -244,6 +244,7 @@ fun SetupVAM()
 "    \ 'screen',
 "    \ 'vim-addon-sbt',
 
+    " \ 'SQLComplete',
   let plugins = [
     \ 'ack',
     \ 'Align%294',
@@ -262,10 +263,11 @@ fun SetupVAM()
     \ 'Simple_Javascript_Indenter',
     \ 'fugitive',
     \ 'dbext',
-    \ 'SQLComplete',
     \ 'SmartCase',
     \ 'easytags',
     \ 'marvim',
+    \ 'fugitive',
+    \ 'perlomni',
     \ 'ctrlp'
     \ ]
 
@@ -294,4 +296,13 @@ if has('win64')|| has('win32') || has('mac')
 else
     " linux
     set clipboard=unnamedplus
+endif
+
+" make ctrl+arrow work in vim when we're attached to tmux
+if &term =~ '^screen'
+    " tmux will send xterm-style keys when its xterm-keys option is on
+    execute "set <xUp>=\e[1;*A"
+    execute "set <xDown>=\e[1;*B"
+    execute "set <xRight>=\e[1;*C"
+    execute "set <xLeft>=\e[1;*D"
 endif

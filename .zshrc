@@ -88,3 +88,23 @@ alias vim="nocorrect vim"
 
 # jsctags
 export NODE_PATH=~/.jsctags/lib/jsctags/:$NODE_PATH
+
+# set tmux options requiring if-statement checks (tmux.conf doesn't support this)
+if [ -n "$TMUX" ]; then
+
+    # platform specific options
+    
+    ##CLIPBOARD selection integration
+    ##Requires prefix key before the command key
+    if uname | grep --quiet -i darwin; then
+        tmux set-option -g default-command "reattach-to-user-namespace -l zsh" # or bash...
+        tmux bind C-f run "tmux save-buffer - | reattach-to-user-namespace pbcopy"
+        tmux bind C-v run "reattach-to-user-namespace pbpaste | tmux load-buffer - && tmux paste-buffer"
+    else
+        #Copy tmux paste buffer to CLIPBOARD
+        tmux bind-key C-f run "tmux show-buffer | xclip -i -selection clipboard"
+        #Copy CLIPBOARD to tmux paste buffer and paste tmux paste buffer
+        tmux bind-key C-v run "tmux set-buffer \"$(xclip -o -selection clipboard)\"; tmux paste-buffer"
+    fi
+
+fi

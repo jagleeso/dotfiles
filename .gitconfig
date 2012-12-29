@@ -12,3 +12,4 @@
     st = status
     checkout = co
     l = log --name-status
+    b = branch -v
