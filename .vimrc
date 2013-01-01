@@ -7,7 +7,7 @@ set number
 set colorcolumn=100
 :map <C-n> <Esc>:tabn<Enter>
 :noremap <C-p> <Esc>:tabp<Enter>
-:map! <C-s> <Esc>:w<Enter>
+:map! <C-s> <Esc><Esc>:w<Enter>
 
 set hlsearch
 :syntax on
@@ -123,14 +123,18 @@ function! QFixToggle(forced)
   endif
 endfunction
 
-" nmap <silent> <leader>l :call ToggleList("Location List", 'l')<CR>
-nmap <silent> <leader>d :call ToggleList("Quickfix List", 'c')<CR>
+nmap <silent> <leader>d :call ToggleList("Location List", 'l')<CR>:syntax on<CR>
+nmap <silent> <leader>c :call ToggleList("Quickfix List", 'c')<CR>:syntax on<CR>
 
 " set ofu=syntaxcomplete#Complete
 " let g:SuperTabDefaultCompletionType = "<c-p>"
 " "<C-X><C-O>"
 " let g:SuperTabDefaultCompletionType = "context"
 " let g:SuperTabDefaultCompletionType = "<C-X><C-O>"
+
+" Completion using a syntax file: http://vim.wikia.com/wiki/VimTip498
+set complete+=k
+au FileType * exe('setl dict+='.$VIMRUNTIME.'/syntax/'.&filetype.'.vim')
 
 let g:SuperTabDefaultCompletionType = "context"
 let g:SuperTabContextTextOmniPrecedence = ['&omnifunc', '&completefunc']
@@ -179,7 +183,9 @@ map <Leader>m <Esc>:make<Up><CR>
 set wildmode=longest,list,full
 set wildmenu
 
+" replace visually selected text in the whole buffer
 vnoremap <C-r> "hy:%s/<C-r>h//gc<left><left><left>
+vnoremap <C-t> "hy:%s/\c<C-r>h/\=SmartCase('')/gc<left><left><left><left><left>
 
 nmap <LocalLeader>sv <Plug>RSendSelection
 imap <LocalLeader>sv <Plug>RSendSelection
@@ -244,7 +250,13 @@ fun SetupVAM()
 "    \ 'screen',
 "    \ 'vim-addon-sbt',
 
-    " \ 'SQLComplete',
+    " some kind of bug with setting up python path by jedi plugin when 
+    " installed use vim_addon_manager
+
+    " let g:vim_addon_manager.plugin_sources['jedi'] = {"type": "git", "url": "git://github.com/davidhalter/jedi-vim", "branch" : "master"}
+
+    " \ 'jedi',
+
   let plugins = [
     \ 'ack',
     \ 'Align%294',
@@ -268,6 +280,7 @@ fun SetupVAM()
     \ 'marvim',
     \ 'fugitive',
     \ 'perlomni',
+    \ 'Super_Shell_Indent',
     \ 'ctrlp'
     \ ]
 
@@ -306,3 +319,10 @@ if &term =~ '^screen'
     execute "set <xRight>=\e[1;*C"
     execute "set <xLeft>=\e[1;*D"
 endif
+
+call tcomment#DefineType("gsp_block", "<%%--%s--%%>\n     ")
+call tcomment#DefineType("gsp", "<%%-- %s --%%>")
+
+call tcomment#DefineType('cmake',               '# %s'             )
+
+set keywordprg=~/.vim/bin/imfeelinglucky.py

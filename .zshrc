@@ -46,7 +46,7 @@ export EDITOR=vim
 # Customize to your needs...
 export PATH=/home/james/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:~/smlnj/bin
 
-export PYTHONPATH=".:~/python"
+export PYTHONPATH=".:$HOME/python:$HOME/.vim/src/python"
 # disable xoff ctrl-s shortcut that locks up vi
 # stty -ixon
 stty stop '' -ixoff
@@ -57,6 +57,7 @@ bindkey ^k forward-word
 
 # apt-get/apt-cache/apt-file aliases
 alias ainstall="sudo apt-get install"
+alias aremove="sudo apt-get remove"
 alias asearch="apt-cache search"
 alias ashow="apt-cache show"
 if [ -x "`which ack-grep`" ]; then

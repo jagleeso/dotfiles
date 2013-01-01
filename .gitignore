@@ -4,3 +4,6 @@
 
 # ctags
 tags
+
+# python
+*.pyc
