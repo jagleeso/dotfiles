@@ -42,6 +42,11 @@ else
 fi
 
 export EDITOR=vim
+if [ -x "`which vimpager`" ]; then
+    export PAGER="`which vimpager`"
+    alias less=$PAGER 
+    alias zless=$PAGER
+fi
 
 # Customize to your needs...
 export PATH=/home/james/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:~/smlnj/bin

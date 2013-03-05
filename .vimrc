@@ -1,6 +1,6 @@
 " :map <C-v> "+gP
-:map <C-c> "+y
-:map <C-x> "+x
+" :map <C-c> "+y
+" :map <C-x> "+x
 set backspace=2
 set tabpagemax=20
 set number
@@ -162,11 +162,11 @@ vnoremap <C-S>		<C-C>:update<CR><Esc>
 inoremap <C-S>		<C-O>:update<CR><Esc>
 
 " CTRL-X and SHIFT-Del are Cut
-vnoremap <C-X> "+x
-inoremap <C-X> <Esc>"+x<Return>i
+" vnoremap <C-X> "+x
+" inoremap <C-X> <Esc>"+x<Return>i
 
 " CTRL-C and CTRL-Insert are Copy
-vnoremap <C-C> "+y
+" vnoremap <C-C> "+y
 
 " CTRL-V and SHIFT-Insert are Paste
 " vnoremap <C-V>		"+gP
@@ -232,8 +232,8 @@ set runtimepath+=~/.vim/vim-addon-manager
 
 " setting up EnVim
 fun SetupVAM()
-  " let g:vim_addon_manager = {}
-  " let g:vim_addon_manager.plugin_sources = {}
+  let g:vim_addon_manager = {}
+  let g:vim_addon_manager.plugin_sources = {}
   " let g:vim_addon_manager.plugin_sources['ensime'] = {"type": "git", "url": "git://github.com/aemoncannon/ensime.git", "branch" : "scala-2.9"}
   " let g:vim_addon_manager.plugin_sources['envim'] = {"type": "git", "url": "git://github.com/jlc/envim.git", "branch" : "master"}
   " let g:vim_addon_manager.plugin_sources['ensime-common'] = {"type": "git", "url": "git://github.com/jlc/ensime-common.git", "branch" : "master"}
@@ -256,6 +256,8 @@ fun SetupVAM()
     " let g:vim_addon_manager.plugin_sources['jedi'] = {"type": "git", "url": "git://github.com/davidhalter/jedi-vim", "branch" : "master"}
 
     " \ 'jedi',
+  let g:vim_addon_manager.plugin_sources['togglelist'] = {"type": "git", "url": "git://github.com/milkypostman/vim-togglelist", "branch" : "master"}
+  let g:vim_addon_manager.plugin_sources['puppet-syntax'] = {"type": "git", "url": "git://github.com/puppetlabs/puppet-syntax-vim", "branch" : "master"}
 
   let plugins = [
     \ 'ack',
@@ -265,7 +267,7 @@ fun SetupVAM()
     \ 'The_NERD_tree',
     \ 'snipmate-snippets',
     \ 'snipmate',
-    \ 'SuperTab_continued.',
+    \ 'SuperTab%1643',
     \ 'surround',
     \ 'tComment',
     \ 'xml',
@@ -279,8 +281,12 @@ fun SetupVAM()
     \ 'easytags',
     \ 'marvim',
     \ 'fugitive',
+    \ 'togglelist',
     \ 'perlomni',
     \ 'Super_Shell_Indent',
+    \ 'Jinja',
+    \ 'puppet-syntax',
+    \ 'vimpager',
     \ 'ctrlp'
     \ ]
 
@@ -324,5 +330,19 @@ call tcomment#DefineType("gsp_block", "<%%--%s--%%>\n     ")
 call tcomment#DefineType("gsp", "<%%-- %s --%%>")
 
 call tcomment#DefineType('cmake',               '# %s'             )
+"
+" to change the macro storage location use the following 
+" let marvim_store = '/usr/local/share/projectX/marvim' 
+let marvim_find_key = '<Leader>r' " change find key from <F2> to 'space'
+let marvim_store_key = '<Leader>d'     " change store key from <F3> to 'ms'
+" let marvim_register = 'c'       " change used register from 'q' to 'c'
+" let marvim_prefix = 0           " disable default syntax based prefix
+
+set t_te= t_ti=
+let g:easytags_auto_update = 0
+set history=200
 
 set keywordprg=~/.vim/bin/imfeelinglucky.py
+
+map + <C-A>
+map _ <C-X>
