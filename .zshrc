@@ -78,6 +78,15 @@ gitdiff() {
     git diff --quiet "$@" ||
         git diff "$@" | vim -
 }
+compdef _git-diff gitdiff
+
+# gitd i => diff between the the i+1-th and i-th commit on the current branch
+# e.g. gitd 0 => show me the diff caused by the latest commit
+gitd() {
+    local i="$1"
+    git d HEAD~$((i+1)) HEAD~$i 
+}
+
 
 svndiff() {
     svn diff "$@" | vim -

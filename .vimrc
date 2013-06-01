@@ -47,6 +47,7 @@ let g:mapleader = ','
 let g:maplocalleader = ','
 map <Leader>n :NERDTreeToggle<CR>
 map <Leader>N :NERDTreeFind<CR>
+let NERDTreeIgnore=['\~$', '\.class$']
 " let g:CommandTCancelMap='<Esc>'
 " let g:CommandTSelectNextMap=['<Tab>', '<Down>']
 " let g:CommandTSelectPrevMap=['<S-x>', '<Up>']
@@ -85,46 +86,53 @@ set noincsearch
 
 cmap <C-v> <C-r>"
 
-function! GetBufferList()
-  redir =>buflist
-  silent! ls
-  redir END
-  return buflist
-endfunction
+" function! GetBufferList()
+"   redir =>buflist
+"   silent! ls
+"   redir END
+"   return buflist
+" endfunction
+" 
+" function! ToggleList(bufname, pfx)
+"   let buflist = GetBufferList()
+"   for bufnum in map(filter(split(buflist, '\n'), 'v:val =~ "'.a:bufname.'"'), 'str2nr(matchstr(v:val, "\\d\\+"))')
+"     if bufwinnr(bufnum) != -1
+"       exec(a:pfx.'close')
+"       return
+"     endif
+"   endfor
+"   if a:pfx == 'l' && len(getloclist(0)) == 0
+"       echohl ErrorMsg
+"       echo "Location List is Empty."
+"       return
+"   endif
+"   let winnr = winnr()
+"   exec(a:pfx.'open')
+"   if winnr() != winnr
+"     wincmd p
+"   endif
+" endfunction
+" 
+" command -bang -nargs=? QFix call QFixToggle(<bang>0)
+" function! QFixToggle(forced)
+"   if exists("g:qfix_win") && a:forced == 0
+"     cclose
+"     unlet g:qfix_win
+"   else
+"     copen 10
+"     let g:qfix_win = bufnr("$")
+"   endif
+" endfunction
 
-function! ToggleList(bufname, pfx)
-  let buflist = GetBufferList()
-  for bufnum in map(filter(split(buflist, '\n'), 'v:val =~ "'.a:bufname.'"'), 'str2nr(matchstr(v:val, "\\d\\+"))')
-    if bufwinnr(bufnum) != -1
-      exec(a:pfx.'close')
-      return
-    endif
-  endfor
-  if a:pfx == 'l' && len(getloclist(0)) == 0
-      echohl ErrorMsg
-      echo "Location List is Empty."
-      return
-  endif
-  let winnr = winnr()
-  exec(a:pfx.'open')
-  if winnr() != winnr
-    wincmd p
-  endif
-endfunction
+" nmap <silent> <leader>l :call ToggleList("Location List", 'l')<CR>
+" nmap <silent> <leader>d :call ToggleList("Quickfix List", 'c')<CR>
 
-command -bang -nargs=? QFix call QFixToggle(<bang>0)
-function! QFixToggle(forced)
-  if exists("g:qfix_win") && a:forced == 0
-    cclose
-    unlet g:qfix_win
-  else
-    copen 10
-    let g:qfix_win = bufnr("$")
-  endif
-endfunction
-
-nmap <silent> <leader>d :call ToggleList("Location List", 'l')<CR>:syntax on<CR>
-nmap <silent> <leader>c :call ToggleList("Quickfix List", 'c')<CR>:syntax on<CR>
+" nmap <script> <silent> <leader>d :call ToggleLocationList()<CR>
+nmap <script> <silent> <leader>q :copen<CR>
+" aug QFClose
+"   au!
+"   au WinEnter * if winnr('$') == 1 && getbufvar(winbufnr(winnr()), "&buftype") == "quickfix"|q|endif
+" aug END
 
 " set ofu=syntaxcomplete#Complete
 " let g:SuperTabDefaultCompletionType = "<c-p>"
@@ -250,15 +258,19 @@ fun SetupVAM()
 "    \ 'screen',
 "    \ 'vim-addon-sbt',
 
-    " some kind of bug with setting up python path by jedi plugin when 
-    " installed use vim_addon_manager
 
-    " let g:vim_addon_manager.plugin_sources['jedi'] = {"type": "git", "url": "git://github.com/davidhalter/jedi-vim", "branch" : "master"}
-
-    " \ 'jedi',
   let g:vim_addon_manager.plugin_sources['togglelist'] = {"type": "git", "url": "git://github.com/milkypostman/vim-togglelist", "branch" : "master"}
   let g:vim_addon_manager.plugin_sources['puppet-syntax'] = {"type": "git", "url": "git://github.com/puppetlabs/puppet-syntax-vim", "branch" : "master"}
+  " let g:vim_addon_manager.plugin_sources['vim-css-color'] = {"type": "git", "url": "git://github.com/skammer/vim-css-color", "branch" : "master"}
+  " faster startup: https://github.com/skammer/vim-css-color/issues/3
+  let g:vim_addon_manager.plugin_sources['vim-css-color'] = {"type": "git", "url": "git://github.com/ap/vim-css-color", "branch" : "master"}
+  let g:vim_addon_manager.plugin_sources['vim-backbone'] = {"type": "git", "url": "git://github.com/mklabs/vim-backbone", "branch" : "master"}
+  let g:vim_addon_manager.plugin_sources['vim-dustjs'] = {"type": "git", "url": "git://github.com/jimmyhchan/dustjs.vim", "branch" : "master"}
+  let g:vim_addon_manager.plugin_sources['vim-clojure-static'] = {"type": "git", "url": "git://github.com/guns/vim-clojure-static", "branch" : "master"}
+  let g:vim_addon_manager.plugin_sources['vim-fireplace'] = {"type": "git", "url": "git://github.com/tpope/vim-fireplace", "branch" : "master"}
+  let g:vim_addon_manager.plugin_sources['vim-classpath'] = {"type": "git", "url": "git://github.com/tpope/vim-classpath", "branch" : "master"}
 
+  " \ 'easytags',
   let plugins = [
     \ 'ack',
     \ 'Align%294',
@@ -277,16 +289,22 @@ fun SetupVAM()
     \ 'Simple_Javascript_Indenter',
     \ 'fugitive',
     \ 'dbext',
+    \ 'SQLComplete',
     \ 'SmartCase',
-    \ 'easytags',
     \ 'marvim',
     \ 'fugitive',
     \ 'togglelist',
-    \ 'perlomni',
     \ 'Super_Shell_Indent',
     \ 'Jinja',
     \ 'puppet-syntax',
     \ 'vimpager',
+    \ 'github_theme',
+    \ 'vim-dustjs',
+    \ 'vim-css-color',
+    \ 'vim-clojure-static',
+    \ 'vim-fireplace',
+    \ 'vim-classpath',
+    \ 'rainbow_parentheses',
     \ 'ctrlp'
     \ ]
 
@@ -315,6 +333,13 @@ if has('win64')|| has('win32') || has('mac')
 else
     " linux
     set clipboard=unnamedplus
+endif
+
+if IsProject("dex")
+    " set wildignore+=upload/*,dump/*
+    let g:ctrlp_custom_ignore['dir'] = '\v[\/]\.(git|hg|svn)|web-app\/upload|dump$'
+elsei IsProject("snpdb")
+    let g:easytags_file = '~/workspace/snpdb/tags'
 endif
 
 " make ctrl+arrow work in vim when we're attached to tmux
@@ -346,3 +371,36 @@ set keywordprg=~/.vim/bin/imfeelinglucky.py
 
 map + <C-A>
 map _ <C-X>
+
+" Use ctrl-[hjkl] to select the active split!
+noremap <silent> <c-k> :wincmd k<CR>                                                                                                                       
+noremap <silent> <c-j> :wincmd j<CR>                                                                                                                       
+noremap <silent> <c-h> :wincmd h<CR>                                                                                                                       
+noremap <silent> <c-l> :wincmd l<CR>
+
+" stolen from vim-clojure
+let g:rbpt_colorpairs = [
+\ ['darkyellow', 'orangered3'],
+\ ['darkgreen', 'orange2'],
+\ ['blue', 'yellow3'],
+\ ['darkmagenta', 'olivedrab4'],
+\ ['red', 'green4'],
+\ ['darkyellow', 'paleturquoise3'],
+\ ['darkgreen', 'deepskyblue4'],
+\ ['blue', 'darkslateblue'],
+\ ['darkmagenta', 'darkviolet'],
+\ ]
+
+au VimEnter * RainbowParenthesesToggle
+au Syntax * RainbowParenthesesLoadRound
+au Syntax * RainbowParenthesesLoadSquare
+au Syntax * RainbowParenthesesLoadBraces
+
+" http://vim.wikia.com/wiki/Copy_search_matches
+function! CopyMatches(reg)
+    let hits = []
+    %s//\=len(add(hits, submatch(0))) ? submatch(0) : ''/ge
+    let reg = empty(a:reg) ? '+' : a:reg
+    execute 'let @'.reg.' = join(hits, "\n") . "\n"'
+endfunction
+command! -register CopyMatches call CopyMatches(<q-args>)
