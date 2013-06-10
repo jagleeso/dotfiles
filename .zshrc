@@ -123,3 +123,9 @@ if [ -n "$TMUX" ]; then
     fi
 
 fi
+
+function chpwd() {
+    if [ -r $PWD/.zsh_config ]; then
+        source $PWD/.zsh_config
+    fi
+}
