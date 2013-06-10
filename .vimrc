@@ -279,7 +279,7 @@ fun SetupVAM()
     \ 'The_NERD_tree',
     \ 'snipmate-snippets',
     \ 'snipmate',
-    \ 'SuperTab%1643',
+    \ 'SuperTab_continued.',
     \ 'surround',
     \ 'tComment',
     \ 'xml',
@@ -333,13 +333,6 @@ if has('win64')|| has('win32') || has('mac')
 else
     " linux
     set clipboard=unnamedplus
-endif
-
-if IsProject("dex")
-    " set wildignore+=upload/*,dump/*
-    let g:ctrlp_custom_ignore['dir'] = '\v[\/]\.(git|hg|svn)|web-app\/upload|dump$'
-elsei IsProject("snpdb")
-    let g:easytags_file = '~/workspace/snpdb/tags'
 endif
 
 " make ctrl+arrow work in vim when we're attached to tmux
