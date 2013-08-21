@@ -60,7 +60,6 @@ bindkey ^u undo
 bindkey ^e kill-word
 bindkey ^f forward-word
 bindkey ^s backward-word
-bindkey ^i quoted-insert
 bindkey ^g beginning-of-line
 bindkey ^v end-of-line
 
