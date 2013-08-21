@@ -1,4 +1,9 @@
 # vim files
 *~
-*.swo
-*.swp
+.*.s??
+
+# ctags
+tags
+
+# python
+*.pyc

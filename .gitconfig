@@ -1,0 +1,15 @@
+[user]
+	name = James
+	email = jagleeso@gmail.com
+[core]
+	excludesfile = ~/.gitignore
+[diff]
+    tool = vimdiff
+[difftool]
+    prompt = false
+[alias]
+    d = difftool
+    st = status
+    co = checkout
+    l = log --name-status
+    b = branch -v
