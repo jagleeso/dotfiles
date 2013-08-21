@@ -56,9 +56,13 @@ export PYTHONPATH=".:$HOME/python:$HOME/.vim/src/python"
 # stty -ixon
 stty stop '' -ixoff
 
-bindkey ^e backward-delete-word
-bindkey ^f backward-word
-bindkey ^k forward-word
+bindkey ^u undo
+bindkey ^e kill-word
+bindkey ^f forward-word
+bindkey ^s backward-word
+bindkey ^i quoted-insert
+bindkey ^g beginning-of-line
+bindkey ^v end-of-line
 
 # apt-get/apt-cache/apt-file aliases
 alias ainstall="sudo apt-get install"
@@ -129,3 +133,7 @@ function chpwd() {
         source $PWD/.zsh_config
     fi
 }
+
+if [ -x "`which lein`" ]; then
+    alias iclojure="lein trampoline irepl"
+fi

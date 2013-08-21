@@ -10,6 +10,6 @@
 [alias]
     d = difftool
     st = status
-    checkout = co
+    co = checkout
     l = log --name-status
     b = branch -v

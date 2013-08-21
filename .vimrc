@@ -269,6 +269,8 @@ fun SetupVAM()
   let g:vim_addon_manager.plugin_sources['vim-clojure-static'] = {"type": "git", "url": "git://github.com/guns/vim-clojure-static", "branch" : "master"}
   let g:vim_addon_manager.plugin_sources['vim-fireplace'] = {"type": "git", "url": "git://github.com/tpope/vim-fireplace", "branch" : "master"}
   let g:vim_addon_manager.plugin_sources['vim-classpath'] = {"type": "git", "url": "git://github.com/tpope/vim-classpath", "branch" : "master"}
+  let g:vim_addon_manager.plugin_sources['vim-redl'] = {"type": "git", "url": "git://github.com/dgrnbrg/vim-redl", "branch" : "master"}
+  let g:vim_addon_manager.plugin_sources['ag'] = {"type": "git", "url": "git://github.com/rking/ag.vim", "branch" : "master"}
 
   " \ 'easytags',
   let plugins = [
@@ -301,10 +303,14 @@ fun SetupVAM()
     \ 'github_theme',
     \ 'vim-dustjs',
     \ 'vim-css-color',
+    \ 'rainbow_parentheses',
     \ 'vim-clojure-static',
     \ 'vim-fireplace',
     \ 'vim-classpath',
-    \ 'rainbow_parentheses',
+    \ 'vim-redl',
+    \ 'paredit',
+    \ 'vimpager',
+    \ 'ag',
     \ 'ctrlp'
     \ ]
 
@@ -397,3 +403,27 @@ function! CopyMatches(reg)
     execute 'let @'.reg.' = join(hits, "\n") . "\n"'
 endfunction
 command! -register CopyMatches call CopyMatches(<q-args>)
+
+let g:paredit_mode = 1
+let g:paredit_smartjump = 1
+
+let vimpager_disable_x11 = 1
+
+" http://dysfunctionalprogramming.co.uk/blog/2013/08/15/fight-with-tools/
+
+" Keep cursor away from edges of screen.
+set so=14
+
+" Highlight cursor line.
+augroup CursorLine
+  au!
+  au VimEnter,WinEnter,BufWinEnter * setlocal cursorline
+  au VimEnter,WinEnter,BufWinEnter * setlocal cursorcolumn
+  au WinLeave * setlocal nocursorline
+  au WinLeave * setlocal nocursorcolumn
+augroup END
+
+" Mouse usage enabled in normal mode.
+set mouse=n
+" Set xterm2 mouse mode to allow resizing of splits with mouse inside Tmux.
+set ttymouse=xterm2
