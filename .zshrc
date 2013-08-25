@@ -120,7 +120,10 @@ if [ -n "$TMUX" ]; then
         tmux bind C-v run "reattach-to-user-namespace pbpaste | tmux load-buffer - && tmux paste-buffer"
     else
         #Copy tmux paste buffer to CLIPBOARD
-        tmux bind-key C-f run "tmux show-buffer | xclip -i -selection clipboard"
+        # For some reason, xclip is hanging in ubuntu with tmux1.8, until I open vim and yank 
+        # a line, which causes all tmux events to suddenly stream in...just use xsel instead.
+        # tmux bind-key C-f run "tmux show-buffer | xclip -i -selection clipboard"
+        tmux bind-key C-f run "tmux show-buffer | xsel -i --clipboard" 
         #Copy CLIPBOARD to tmux paste buffer and paste tmux paste buffer
         tmux bind-key C-v run "tmux set-buffer \"$(xclip -o -selection clipboard)\"; tmux paste-buffer"
     fi
