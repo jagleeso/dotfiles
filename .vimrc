@@ -25,6 +25,7 @@ colorscheme jellybeans
 
 " ctags
 map <C-\> :tab split<CR>:exec("tag ".expand("<cword>"))<CR>
+noremap <Leader>g :tselect<CR>
 
 " if we visually select text, search for that text from our current cursor
 vmap <C-f> y/<C-r>"<CR>
@@ -57,7 +58,7 @@ nnoremap <silent> <Leader>P :CtrlPMRUFiles<CR>
 let g:ctrlp_map = '<Leader>p'
 " nnoremap <silent> <Leader>b :CommandTBuffer<CR>
 let g:ctrlp_custom_ignore = {
-    \ 'dir':  '\v[\/]\.(git|hg|svn)$',
+    \ 'dir':  '\v[\/](target|\.(git|hg|svn))$',
     \ 'file': '\v\.(exe|so|dll|class)$',
     \ }
 
@@ -271,6 +272,7 @@ fun SetupVAM()
   let g:vim_addon_manager.plugin_sources['vim-classpath'] = {"type": "git", "url": "git://github.com/tpope/vim-classpath", "branch" : "master"}
   let g:vim_addon_manager.plugin_sources['vim-redl'] = {"type": "git", "url": "git://github.com/dgrnbrg/vim-redl", "branch" : "master"}
   let g:vim_addon_manager.plugin_sources['ag'] = {"type": "git", "url": "git://github.com/rking/ag.vim", "branch" : "master"}
+  let g:vim_addon_manager.plugin_sources['vim-move'] = {"type": "git", "url": "git://github.com/matze/vim-move", "branch" : "master"}
 
   " \ 'easytags',
   let plugins = [
@@ -311,6 +313,8 @@ fun SetupVAM()
     \ 'paredit',
     \ 'vimpager',
     \ 'ag',
+    \ 'gitignore',
+    \ 'vim-move',
     \ 'ctrlp'
     \ ]
 
@@ -376,6 +380,9 @@ noremap <silent> <c-k> :wincmd k<CR>
 noremap <silent> <c-j> :wincmd j<CR>                                                                                                                       
 noremap <silent> <c-h> :wincmd h<CR>                                                                                                                       
 noremap <silent> <c-l> :wincmd l<CR>
+
+vmap <C-j> <Plug>MoveBlockDown
+vmap <C-k> <Plug>MoveBlockUp
 
 " stolen from vim-clojure
 let g:rbpt_colorpairs = [
