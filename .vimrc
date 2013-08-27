@@ -210,9 +210,6 @@ vmap <LocalLeader>sf <Plug>RSendFile
 let vimrplugin_underscore = 0
 
 set diffopt=filler,iwhite
-au BufEnter *.hs compiler ghc
-let g:ghc="/usr/bin/ghc"
-let g:haddock_browser="/usr/bin/firefox"
 
 " set verbose=9
 " let loaded_matchparen = 0
@@ -273,8 +270,8 @@ fun SetupVAM()
   let g:vim_addon_manager.plugin_sources['vim-redl'] = {"type": "git", "url": "git://github.com/dgrnbrg/vim-redl", "branch" : "master"}
   let g:vim_addon_manager.plugin_sources['ag'] = {"type": "git", "url": "git://github.com/rking/ag.vim", "branch" : "master"}
   let g:vim_addon_manager.plugin_sources['vim-move'] = {"type": "git", "url": "git://github.com/matze/vim-move", "branch" : "master"}
+  let g:vim_addon_manager.plugin_sources['ghcmod-vim'] = {"type": "git", "url": "git://github.com/eagletmt/ghcmod-vim", "branch" : "master"}
 
-  " \ 'easytags',
   let plugins = [
     \ 'ack',
     \ 'Align%294',
@@ -314,11 +311,11 @@ fun SetupVAM()
     \ 'vimpager',
     \ 'ag',
     \ 'gitignore',
+    \ 'vimproc',
     \ 'vim-move',
+    \ 'ghcmod-vim',
     \ 'ctrlp'
     \ ]
-
-    " \ 'SearchComplete',
 
   call vam#ActivateAddons(plugins,{'auto_install' : 0})
 endf

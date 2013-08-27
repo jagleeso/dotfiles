@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import google, web, sys
+import query, web, sys
 import argparse
 
 def main():
@@ -8,10 +8,11 @@ def main():
     interface_options = parser.add_mutually_exclusive_group()
     interface_options.add_argument("--term", action="store_true")
     interface_options.add_argument("--gui", action="store_true")
+    parser.add_argument("--filetype", required=False)
     parser.add_argument("query", nargs="+")
     args = parser.parse_args()
 
-    url = google.imfeelinglucky(' '.join(args.query))
+    url = query.with_filetype(args.filetype, ' '.join(args.query))
     if args.term or (not args.term and not args.gui):
         # either they chose terminal, or provided no interface so default to terminal
         web.browse_terminal(url)
