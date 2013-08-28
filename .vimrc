@@ -271,6 +271,7 @@ fun SetupVAM()
   let g:vim_addon_manager.plugin_sources['ag'] = {"type": "git", "url": "git://github.com/rking/ag.vim", "branch" : "master"}
   let g:vim_addon_manager.plugin_sources['vim-move'] = {"type": "git", "url": "git://github.com/matze/vim-move", "branch" : "master"}
   let g:vim_addon_manager.plugin_sources['ghcmod-vim'] = {"type": "git", "url": "git://github.com/eagletmt/ghcmod-vim", "branch" : "master"}
+  let g:vim_addon_manager.plugin_sources['neocomplete'] = {"type": "git", "url": "git://github.com/Shougo/neocomplete.vim", "branch" : "master"}
 
   let plugins = [
     \ 'ack',
@@ -314,6 +315,8 @@ fun SetupVAM()
     \ 'vimproc',
     \ 'vim-move',
     \ 'ghcmod-vim',
+    \ 'neocomplete',
+    \ 'neco-ghc',
     \ 'ctrlp'
     \ ]
 
