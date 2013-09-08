@@ -1,0 +1,9 @@
+#!/bin/zsh
+
+# add scala
+export SCALA_HOME=$HOME/scala/current
+path=($path $SCALA_HOME/bin)
+
+# add sbt
+SBT_HOME=$HOME/sbt/current
+path=($path $SBT_HOME/bin)

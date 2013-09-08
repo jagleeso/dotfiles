@@ -272,6 +272,7 @@ fun SetupVAM()
   let g:vim_addon_manager.plugin_sources['vim-move'] = {"type": "git", "url": "git://github.com/matze/vim-move", "branch" : "master"}
   let g:vim_addon_manager.plugin_sources['ghcmod-vim'] = {"type": "git", "url": "git://github.com/eagletmt/ghcmod-vim", "branch" : "master"}
   let g:vim_addon_manager.plugin_sources['neocomplete'] = {"type": "git", "url": "git://github.com/Shougo/neocomplete.vim", "branch" : "master"}
+  let g:vim_addon_manager.plugin_sources['vim-scala-derekwyatt'] = {"type": "git", "url": "git://github.com/derekwyatt/vim-scala", "branch" : "master"}
 
   let plugins = [
     \ 'ack',
@@ -317,6 +318,7 @@ fun SetupVAM()
     \ 'ghcmod-vim',
     \ 'neocomplete',
     \ 'neco-ghc',
+    \ 'vim-scala-derekwyatt',
     \ 'ctrlp'
     \ ]
 

@@ -48,10 +48,18 @@ if [ -x "`which vimpager`" ]; then
     alias zless=$PAGER
 fi
 
+LOCAL_INSTALL=~/local
 # Customize to your needs...
-export PATH=/home/james/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:~/smlnj/bin
+export PATH=/home/james/bin:$LOCAL_INSTALL:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games
 
-export PYTHONPATH=".:$HOME/python:$HOME/.vim/src/python"
+export PYTHONPATH
+# http://www.zsh.org/mla/users/2012/msg00785.html
+# -T ties an environment variable to a zsh array
+# -U makes the elements of an array unique (i.e. it's a set)
+typeset -T PYTHONPATH pythonpath
+typeset -U pythonpath
+pythonpath=(. $HOME/python $HOME/.vim/src/python $pythonpath)
+
 # disable xoff ctrl-s shortcut that locks up vi
 # stty -ixon
 stty stop '' -ixoff
@@ -131,6 +139,7 @@ if [ -n "$TMUX" ]; then
 fi
 
 function chpwd() {
+    # Each time we cd into a directory, if there's a .zsh_config file, source it.
     if [ -r $PWD/.zsh_config ]; then
         source $PWD/.zsh_config
     fi
@@ -139,3 +148,8 @@ function chpwd() {
 if [ -x "`which lein`" ]; then
     alias iclojure="lein trampoline irepl"
 fi
+
+# source any computer specific zsh stuff:
+
+# My home desktop
+source ~/.zshrc_mypc
