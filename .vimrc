@@ -163,7 +163,7 @@ let g:ftplugin_sql_omni_key_left  = '<Left>'
 set completeopt+=longest
 
 " auto reload of vimrc on change
-autocmd! bufwritepost .vimrc source ~/.vimrc
+" autocmd! bufwritepost .vimrc source ~/.vimrc
 
 " Use CTRL-S for saving, also in Insert mode
 noremap <C-S>		:update<CR><Esc>
@@ -280,9 +280,7 @@ fun SetupVAM()
     \ 'IndentAnything',
     \ 'matchit.zip',
     \ 'The_NERD_tree',
-    \ 'snipmate-snippets',
-    \ 'snipmate',
-    \ 'SuperTab_continued.',
+    \ 'Supertab',
     \ 'surround',
     \ 'tComment',
     \ 'xml',
@@ -291,8 +289,6 @@ fun SetupVAM()
     \ 'groovyindent',
     \ 'Simple_Javascript_Indenter',
     \ 'fugitive',
-    \ 'dbext',
-    \ 'SQLComplete',
     \ 'SmartCase',
     \ 'marvim',
     \ 'fugitive',
@@ -312,16 +308,22 @@ fun SetupVAM()
     \ 'paredit',
     \ 'vimpager',
     \ 'ag',
-    \ 'gitignore',
-    \ 'vimproc',
+    \ 'gitignore%2557',
     \ 'vim-move',
     \ 'ghcmod-vim',
-    \ 'neocomplete',
-    \ 'neco-ghc',
     \ 'vim-scala-derekwyatt',
     \ 'ctrlp'
     \ ]
 
+    " tired of the snipmate related errors when used tab to autocomplete; not worth it
+    " \ 'snipmate-snippets',
+    " \ 'snipmate',
+
+    " useful haskell plugins that take a little more effort to setup
+    " \ 'neco-ghc',
+    " \ 'neocomplete',
+    " \ 'vimproc',
+    
   call vam#ActivateAddons(plugins,{'auto_install' : 0})
 endf
 call SetupVAM()
