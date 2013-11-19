@@ -273,6 +273,9 @@ fun SetupVAM()
   let g:vim_addon_manager.plugin_sources['ghcmod-vim'] = {"type": "git", "url": "git://github.com/eagletmt/ghcmod-vim", "branch" : "master"}
   let g:vim_addon_manager.plugin_sources['neocomplete'] = {"type": "git", "url": "git://github.com/Shougo/neocomplete.vim", "branch" : "master"}
   let g:vim_addon_manager.plugin_sources['vim-scala-derekwyatt'] = {"type": "git", "url": "git://github.com/derekwyatt/vim-scala", "branch" : "master"}
+  let g:vim_addon_manager.plugin_sources['snippets-good'] = {"type": "git", "url": "git://github.com/garbas/vim-snipmate", "branch" : "master"}
+  " get foldmethod=syntax fix
+  let g:vim_addon_manager.plugin_sources['Rainbow_Parentheses_Improved_Master'] = {"type": "git", "url": "git://github.com/oblitum/rainbow", "branch" : "master"}
 
   let plugins = [
     \ 'ack',
@@ -300,21 +303,27 @@ fun SetupVAM()
     \ 'github_theme',
     \ 'vim-dustjs',
     \ 'vim-css-color',
-    \ 'rainbow_parentheses',
     \ 'vim-clojure-static',
     \ 'vim-fireplace',
     \ 'vim-classpath',
     \ 'vim-redl',
-    \ 'paredit',
     \ 'vimpager',
     \ 'ag',
     \ 'gitignore%2557',
     \ 'vim-move',
     \ 'ghcmod-vim',
     \ 'vim-scala-derekwyatt',
+    \ 'snippets-good',
+    \ 'vim-snippets',
+    \ 'clang_complete',
+    \ 'Rainbow_Parentheses_Improved_Master',
     \ 'ctrlp'
     \ ]
 
+    " \ 'rainbow_parentheses',
+    " \ 'paredit',
+
+    " \ 'better-snipmate-snippet',
     " tired of the snipmate related errors when used tab to autocomplete; not worth it
     " \ 'snipmate-snippets',
     " \ 'snipmate',
@@ -389,22 +398,24 @@ vmap <C-j> <Plug>MoveBlockDown
 vmap <C-k> <Plug>MoveBlockUp
 
 " stolen from vim-clojure
-let g:rbpt_colorpairs = [
-\ ['darkyellow', 'orangered3'],
-\ ['darkgreen', 'orange2'],
-\ ['blue', 'yellow3'],
-\ ['darkmagenta', 'olivedrab4'],
-\ ['red', 'green4'],
-\ ['darkyellow', 'paleturquoise3'],
-\ ['darkgreen', 'deepskyblue4'],
-\ ['blue', 'darkslateblue'],
-\ ['darkmagenta', 'darkviolet'],
-\ ]
+" let g:rbpt_colorpairs = [
+" \ ['darkyellow', 'orangered3'],
+" \ ['darkgreen', 'orange2'],
+" \ ['blue', 'yellow3'],
+" \ ['darkmagenta', 'olivedrab4'],
+" \ ['red', 'green4'],
+" \ ['darkyellow', 'paleturquoise3'],
+" \ ['darkgreen', 'deepskyblue4'],
+" \ ['blue', 'darkslateblue'],
+" \ ['darkmagenta', 'darkviolet'],
+" \ ]
 
-au VimEnter * RainbowParenthesesToggle
-au Syntax * RainbowParenthesesLoadRound
-au Syntax * RainbowParenthesesLoadSquare
-au Syntax * RainbowParenthesesLoadBraces
+" au VimEnter * RainbowParenthesesToggle
+" au Syntax * RainbowParenthesesLoadRound
+" au Syntax * RainbowParenthesesLoadSquare
+" au Syntax * RainbowParenthesesLoadBraces
+
+let g:rainbow_active = 1
 
 " http://vim.wikia.com/wiki/Copy_search_matches
 function! CopyMatches(reg)
@@ -438,3 +449,7 @@ augroup END
 set mouse=n
 " Set xterm2 mouse mode to allow resizing of splits with mouse inside Tmux.
 set ttymouse=xterm2
+
+" have spellcheck on by default (just don't hightlight it)
+set spell
+hi clear SpellBad
