@@ -50,7 +50,7 @@ fi
 
 LOCAL_INSTALL=~/local
 # Customize to your needs...
-export PATH=/home/james/bin:$LOCAL_INSTALL:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games
+export PATH=/home/james/bin:$LOCAL_INSTALL/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games
 
 export PYTHONPATH
 # http://www.zsh.org/mla/users/2012/msg00785.html
