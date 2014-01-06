@@ -1,0 +1,4 @@
+LUNCH_PATH="/usr/lib/jvm/java-6-sun/bin:$HOME/android/aosp_4.2.2/out/host/linux-x86/bin:$HOME/android/aosp_4.2.2/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.6/bin:$HOME/android/aosp_4.2.2/prebuilts/gcc/linux-x86/mips/mipsel-linux-android-4.6/bin:$HOME/android/aosp_4.2.2/development/emulator/qtools:$HOME/android/aosp_4.2.2/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.6/bin:$HOME/android/aosp_4.2.2/prebuilts/gcc/linux-x86/arm/arm-eabi-4.6/bin:$HOME/android/aosp_4.2.2/development/scripts"
+export ANDROID_SWT="$HOME/android/aosp_4.2.2/out/host/linux-x86/framework"
+
+export PATH="$LUNCH_PATH:$PATH"
