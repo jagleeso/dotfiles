@@ -75,6 +75,7 @@ bindkey ^v end-of-line
 alias ainstall="sudo apt-get install"
 alias aremove="sudo apt-get remove"
 alias asearch="apt-cache search"
+alias alist="apt-file list"
 alias ashow="apt-cache show"
 if [ -x "`which ack-grep`" ]; then
     alias ack="ack-grep"
@@ -153,3 +154,7 @@ fi
 
 # My home desktop
 source ~/.zshrc_mypc
+
+source ~/.bashrc_uoftpc
+
+source ~/.zshrc_uoftpc
