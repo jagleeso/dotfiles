@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+python -c 'import sample; import sys; sys.stdout.write(("\n".join(sample.human_bytes_str(int(l.rstrip())) for l in sys.stdin.readlines())) + "\n")'

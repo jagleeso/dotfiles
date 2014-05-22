@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+set -e 
+_r() {
+    RUN_COMMON=yes $EXPR/scripts/sh/common.sh "$@"
+}
+
+_r build_kernel_module final $MEM
+_r copy_kernel_module final $MEM
+_r one_cpu
+_r disable_watchdog
+
+_s() {
+    echo "su -c '$@'"
+}
+
+adb shell "
+$(_s dmesg -c > /dev/null)
+$(_s rmmod final)
+$(_s insmod /data/local/tmp/final.ko $@)
+$(_s dmesg)
+exit
+"

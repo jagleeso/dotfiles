@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+source ~/android/util/motox/build_common.sh
+kernel_make

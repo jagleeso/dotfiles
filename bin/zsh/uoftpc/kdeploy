@@ -1,0 +1,2 @@
+#!/usr/bin/env zsh
+source build_kernel.sh && boot_kernel.sh && adb shell 

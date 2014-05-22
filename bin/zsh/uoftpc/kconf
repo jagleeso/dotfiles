@@ -1,0 +1,8 @@
+#!/usr/bin/env zsh
+# Find the definition of a Kconfig option in all the Kconfig files.
+pattern="$1"
+shift 1
+# remove "CONFIG_"
+set -x
+pattern=${pattern:s/CONFIG_//}
+vim -c 'vimgrep /^\(config\|menuconfig\) \c'"$pattern"'$/ `find -L '"$AOSP/kernel"' -name "Kconfig*"`'

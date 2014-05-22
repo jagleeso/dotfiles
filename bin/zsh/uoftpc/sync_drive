@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+cd ~/Drive
+grive 2>&1 | tee ~/grive.out

@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+set -e
+set -x
+f="$1"
+shift 1
+root=$AOSP/out/target/product/mako
+tmpdst=/data/local/tmp/$f
+adb shell "
+    mkdir -p $(dirname $tmpdst)
+"
+crun adb_sudo mount -o remount,rw /system
+adb push $root/$f $tmpdst
+crun adb_sudo cp $tmpdst $f

@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+if ! ( type mmm 2>&1 ) > /dev/null; then
+    source $AOSP/build/envsetup.sh
+fi
+
+do_mmm() {
+    local prev="$PWD"
+    cd $AOSP
+    mmm "$@" 2>&1
+    cd "$prev"
+}
+
+if [ $# -lt 1 -o ! -d "$1" ]; then
+    do_mmm "$@"
+    exit
+fi
+
+dir="$(realpath "$1")"
+shift 1
+do_mmm "$dir" "$@"

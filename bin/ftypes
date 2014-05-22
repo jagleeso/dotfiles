@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+find "$@" -type f \! -name '*.sw?' -exec file {} \; 2>/dev/null | perl -lane 'print "$1: $2" if /^.*\.([^:]+)?: (.*)/' | sort --unique

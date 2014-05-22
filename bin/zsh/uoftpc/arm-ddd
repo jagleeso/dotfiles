@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+ddd --debugger $(which arm-linux-gdb)

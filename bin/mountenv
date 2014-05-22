@@ -1,0 +1,32 @@
+#!/usr/bin/env python
+import argparse
+import subprocess
+import re
+from os import environ as env
+import os
+
+def ex(*args, **kwargs):
+    subprocess.check_call(*args, **kwargs)
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('environment')
+    args = parser.parse_args()
+    local_path = os.path.join(env['HOME'], args.environment)
+    ex(['mkdir', '-p', local_path])
+    remote_user = get_env_user(args.environment)
+    remote_home = '/home/{remote_user}'.format(**locals())
+    ex(['sshfs', args.environment + ':' + remote_home, local_path])
+
+def get_env_user(environment):
+    with open(env['HOME'] + '/.ssh/config', 'r') as f:
+        for line in f:
+            if line.startswith('Host ' + environment):
+                for line in f:
+                    m = re.search(r'User\s+(?P<user>[^\s]+)', line)
+                    if m:
+                        return m.group('user')
+    return None
+
+if __name__ == '__main__':
+    main()

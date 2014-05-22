@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+for dir in opencl_aes; do
+    # rsyncg uoftpc:$(realpath ~/android/james/$dir)/ ~/android/fresh/james2/$dir/
+    # -n 
+    rsync -avz --delete \
+        $(realpath ~/android/james/$dir)/ apu:~/android/fresh/james/$dir/
+
+done

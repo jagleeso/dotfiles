@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+source $(dirname $0)/common.sh
+
+cat_and_view_errs /proc/last_kmsg last_kmsg.txt

@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+pattern="$1"
+file="$2"
+set -e
+shift 1
+
+run() {
+    pdf="$1"
+    shift 1
+    echo "$pdf"
+    echo "----------------------------------------------------------------------"
+    pdftotext "$pdf" - | ag "$pattern"
+    echo
+}
+
+if [ -d "$file" ] || [ -z "$file" ]; then
+
+    dir="."
+    if [ ! -z "$file" ]; then
+        dir="$file"
+    fi
+    find "$dir" -name '*.pdf' -print0 |
+    while read -r -d $'\0' pdf; do
+        run "$pdf"
+    done
+
+else
+
+    for pdf in "$@"; do
+        run "$pdf"
+    done
+
+fi
+

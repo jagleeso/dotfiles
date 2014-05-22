@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+if [ "$#" -ne 3 ]; then
+  echo "Usage: FILE1 FILE2 OUTPUT_DIRECTORY" >&2
+  exit 1
+fi
+file1="$1"
+file2="$2"
+dir="$3"
+n() {
+    basename $1
+}
+comm -12 <(sort $file1) <(sort $file2) > "$dir/BOTH___$(n $1)___$(n $2)"
+comm -23 <(sort $file1) <(sort $file2) > "$dir/JUST___$(n $1)"
+comm -13 <(sort $file1) <(sort $file2) > "$dir/JUST___$(n $2)"

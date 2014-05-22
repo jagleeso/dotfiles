@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -e
+_s() {
+    crun _sudo_cmd "$@"
+    # echo "su -c '$@'"
+}
+adb shell "
+while true; do
+    sleep 5
+    $(_s rmmod final)
+    $(_s insmod /data/local/tmp/final.ko print-pg-stats $@)
+    $(_s dmesg -c)
+done
+exit
+" | hl 'Page stats'

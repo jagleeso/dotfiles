@@ -1,0 +1,45 @@
+#!/usr/bin/env python
+import argparse
+import subprocess
+import sys
+import pipes
+
+def main():
+    parser = argparse.ArgumentParser(description="find files matching all patterns")
+    args, ag_args = parser.parse_known_args()
+
+    patterns = []
+    while len(ag_args) > 0 and not ag_args[0].startswith('-'):
+        patterns.append(ag_args[0])
+        ag_args.pop(0)
+
+    # if not (len(patterns) > 1):
+    #     parser.error("need at least 2 patterns")
+
+    agall(patterns, ag_args)
+
+def agall(patterns, ag_args):
+    """
+    ag qce -l | grep -v 'tags\|cscope' | xargs ag 8960
+    """
+    def ag_cmd(pat, last=False, agcmd="agfiles"):
+        c = [agcmd, pat] + ag_args
+        if not last:
+            c.append('-l')
+        return c
+    cmd = ag_cmd(patterns[0], agcmd="ag")
+    for pat in patterns[1:]:
+        cmd.extend(["|", "xargs"] + ag_cmd(pat))
+    any_pattern = '|'.join('({0})'.format(pat) for pat in patterns)
+    cmd.extend(["|", "xargs"] + ag_cmd(any_pattern, last=True))
+    cmd_str = ' '.join("|" if arg == "|" else pipes.quote(arg) for arg in cmd)
+
+    # print cmd
+    # print cmd_str
+    # return
+
+    subprocess.check_call(cmd_str, 
+        shell=True, stdout=sys.stdout, stderr=sys.stderr)
+    
+if __name__ == '__main__':
+    main()

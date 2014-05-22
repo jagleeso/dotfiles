@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+source $(dirname $0)/common.sh
+
+# adb shell dmesg > dmesg.txt
+adb_sh dmesg > dmesg.txt
+if [ $# -lt 1 ]; then
+    view_errors dmesg.txt
+else
+    pattern="$1"
+    shift 1
+    view_with_pattern dmesg.txt "$pattern"
+fi

@@ -1,0 +1,40 @@
+#!/usr/bin/env python
+import argparse
+import sys
+import re
+
+def xor(a, b):
+    return bool(a) != bool(b)
+
+def main():
+    p = argparse.ArgumentParser(description="keep some lines --before/--after a pattern")
+    p.add_argument('--after', '-a')
+    p.add_argument('--before', '-b')
+    p.add_argument('--include', '-i', action='store_true',
+            help="include the matching line")
+    args = p.parse_args()
+
+    if not(xor(args.after, args.before)):
+        p.error('need one of --after or --before')
+
+    keep(sys.stdin, sys.stdout, **vars(args))
+
+def keep(input, output, before=None, after=None, include=False):
+    regex = lambda string: r'{0}'.format(string)
+    print_line = 0
+    if before:
+        print_line = 1
+    for line in input:
+        if after is not None and re.search(regex(after), line):
+            print_line = 1
+            if not include:
+                continue
+        elif before is not None and re.search(regex(before), line):
+            print_line = 0
+            if include:
+                sys.stdout.write(line)
+        if print_line:
+            sys.stdout.write(line)
+
+if __name__ == '__main__':
+    main()
