@@ -10,6 +10,7 @@ export ZSH=$HOME/.oh-my-zsh
 # time that oh-my-zsh is loaded.
 #ZSH_THEME="robbyrussell"
 ZSH_THEME="james"
+# ZSH_THEME="james-remote"
 #ZSH_THEME="blinks"
 
 # Set to this to use case-sensitive completion
@@ -42,15 +43,14 @@ else
 fi
 
 export EDITOR=vim
+
+source ~/.zshrc_path
+
 if [ -x "`which vimpager`" ]; then
     export PAGER="`which vimpager`"
     alias less=$PAGER 
     alias zless=$PAGER
 fi
-
-LOCAL_INSTALL=~/local
-# Customize to your needs...
-export PATH=/home/james/bin:$LOCAL_INSTALL/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games
 
 export PYTHONPATH
 # http://www.zsh.org/mla/users/2012/msg00785.html
@@ -70,15 +70,19 @@ bindkey ^f forward-word
 bindkey ^s backward-word
 bindkey ^g beginning-of-line
 bindkey ^v end-of-line
+bindkey ^x^e edit-command-line
 
 # apt-get/apt-cache/apt-file aliases
-alias ainstall="sudo apt-get install"
+alias ainstall="sudo apt-get install --assume-yes"
 alias aremove="sudo apt-get remove"
 alias asearch="apt-cache search"
 alias alist="apt-file list"
 alias ashow="apt-cache show"
-if [ -x "`which ack-grep`" ]; then
-    alias ack="ack-grep"
+alias ainfo="ashow"
+alias afile="apt-file search"
+alias aprovides="apt-file search"
+if [ -x "`which ag`" ]; then
+    alias ack="ag"
 fi
 afiles() {
     # $1 == exact package name
@@ -112,9 +116,18 @@ stty -ixon
 alias sml="socat READLINE EXEC:sml"
 
 alias vim="nocorrect vim"
+alias rsync="rsync -avz"
+
+# rsync with .gitignore files ignored
+# http://stackoverflow.com/questions/13713101/rsync-exclude-according-to-gitignore-hgignore-svnignore-like-filter-c
+rsyncg() {
+    rsync --filter=":- $HOME/.gitignore" --filter=':- .gitignore' "$@"
+}
 
 # jsctags
 export NODE_PATH=~/.jsctags/lib/jsctags/:$NODE_PATH
+
+# alias cboard="xsel -i --clipboard"
 
 # set tmux options requiring if-statement checks (tmux.conf doesn't support this)
 if [ -n "$TMUX" ]; then
@@ -151,10 +164,23 @@ if [ -x "`which lein`" ]; then
 fi
 
 # source any computer specific zsh stuff:
+export ZSH_BIN="$HOME/bin/zsh"
 
 # My home desktop
 source ~/.zshrc_mypc
 
+# My uoft desktop
+__NO_ANDROID_PATH="$PATH"
+source ~/.zshrc_uoftpc
+function android_bash() {
+    PATH="$__NO_ANDROID_PATH" bash "$@"
+}
+
 source ~/.bashrc_uoftpc
 
-source ~/.zshrc_uoftpc
+unset ZSH_BIN
+
+PATH=$PATH:$HOME/.rvm/bin # Add RVM to PATH for scripting
+
+setopt HIST_IGNORE_SPACE
+setopt interactivecomments

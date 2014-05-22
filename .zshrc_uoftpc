@@ -1,4 +1,63 @@
-LUNCH_PATH="/usr/lib/jvm/java-6-sun/bin:$HOME/android/aosp_4.2.2/out/host/linux-x86/bin:$HOME/android/aosp_4.2.2/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.6/bin:$HOME/android/aosp_4.2.2/prebuilts/gcc/linux-x86/mips/mipsel-linux-android-4.6/bin:$HOME/android/aosp_4.2.2/development/emulator/qtools:$HOME/android/aosp_4.2.2/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.6/bin:$HOME/android/aosp_4.2.2/prebuilts/gcc/linux-x86/arm/arm-eabi-4.6/bin:$HOME/android/aosp_4.2.2/development/scripts"
-export ANDROID_SWT="$HOME/android/aosp_4.2.2/out/host/linux-x86/framework"
+ANDROID_DIR="$HOME/android"
 
-export PATH="$LUNCH_PATH:$PATH"
+export \
+    AOSP="$ANDROID_DIR/aosp_4.2.2" \
+    NDK="$ANDROID_DIR/ndk/android-ndk-r9" \
+    CL="$ANDROID_DIR/opencl_aes" \
+    IRAM="$ANDROID_DIR/iram" \
+    DOC="$ANDROID_DIR/doc" \
+    REP="$ANDROID_DIR/report" \
+    UTIL="$ANDROID_DIR/util/motox/tools/more" \
+    EXPR="$ANDROID_DIR/expr" \
+    MOD="$ANDROID_DIR/aosp_mod" \
+    ANDROID_DIR="$HOME/android" \
+    ANDROID_HOME="$ANDROID_DIR/sdk/android-sdk-linux" \
+export \
+    KERN="$AOSP/kernel" \
+    TCR="$CL/tcrypt" \
+
+# make kernel make do what i want (e.g. tags files)
+export \
+    ARCH=arm \
+    SUBARCH=arm \
+    CROSS_COMPILE=arm-linux-androideabi- \
+
+# jiawen's stuff
+
+# Nexus4
+NEXUS_DEVICE=mako
+# INSTALL_MOD_PATH = $(AOSP)/out/target/product/$(KMOD_DEVICE)
+    # NEXUS_KERNEL="$AOSP/out/target/product/$NEXUS_DEVICE/obj/kernel" \
+export \
+    NEXUS_KERNEL="$AOSP/kernel_nexus4" \
+    NUXUS_KERNEL_BUILD="$AOSP/kernel_nexus4" \
+    NEXUS_KERNEL_BUILD="$AOSP/kernel_nexus4" \
+    MEM="$ANDROID_DIR/mem" \
+    HEL="$ANDROID_DIR/hello_memory" \
+
+unset NEXUS_DEVICE
+
+LUNCH_PATH="/usr/lib/jvm/java-6-sun/bin:$ANDROID_DIR/aosp_4.2.2/out/host/linux-x86/bin:$ANDROID_DIR/aosp_4.2.2/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.6/bin:$ANDROID_DIR/aosp_4.2.2/prebuilts/gcc/linux-x86/mips/mipsel-linux-android-4.6/bin:$ANDROID_DIR/aosp_4.2.2/development/emulator/qtools:$ANDROID_DIR/aosp_4.2.2/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.6/bin:$ANDROID_DIR/aosp_4.2.2/prebuilts/gcc/linux-x86/arm/arm-eabi-4.6/bin:$ANDROID_DIR/aosp_4.2.2/development/scripts"
+# LUNCH_PATH=""
+# export ANDROID_SWT="$ANDROID_DIR/aosp_4.2.2/out/host/linux-x86/framework"
+unset ANDROID_SWT
+
+MOTOX_BIN="$ANDROID_DIR/tools/bin/motox"
+KERNEL_ROOT="$AOSP/kernel"
+MOTOX_UTIL="$ANDROID_DIR/util/motox"
+
+SAMPLE_PY="$ANDROID_DIR/opencl_aes/src/python"
+SAMPLE="$SAMPLE_PY:$ANDROID_DIR/opencl_aes/src/sh"
+PLOT_PY="$ANDROID_DIR/report/src/python"
+
+# SAMPLE_PY="$EXPR/scripts/python"
+# SAMPLE="$SAMPLE_PY:$EXPR/scripts/sh:$EXPR/scripts/perl"
+# PLOT_PY="$SAMPLE_PY"
+
+export PATH="$LUNCH_PATH:$MOTOX_BIN:$MOTOX_UTIL:$AOSP:$SAMPLE:$PLOT_PY:$UTIL:$PATH"
+pythonpath=($PLOT_PY $SAMPLE_PY $pythonpath)
+export PYTHONPATH
+
+export USE_CCACHE=1
+export CCACHE_DIR="$ANDROID_DIR/.ccache"
+unset LUNCH_PATH MOTOX_BIN MOTOX_UTIL SAMPLE PLOT_PY

@@ -1,0 +1,3 @@
+LOCAL_INSTALL=~/local
+# Customize to your needs...
+export PATH=$HOME/bin:$LOCAL_INSTALL/bin:$LOCAL_INSTALL/sbin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games

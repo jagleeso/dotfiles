@@ -7,3 +7,14 @@ path=($path $SCALA_HOME/bin)
 # add sbt
 SBT_HOME=$HOME/sbt/current
 path=($path $SBT_HOME/bin)
+
+rmk() {
+    rm "$@"
+    make "$@"
+}
+
+pfind() {
+    regex="$1"
+    shift 1
+    find -type f | perl -lne "/.*$regex$/ && print" 
+}
