@@ -26,21 +26,6 @@ def main():
     if not any(f is not None for f in [args.lastkmsg, args.input]):
         parser.error("need a file")
 
-    if args.lastkmsg is not None:
-        if args.obj is None:
-            mod = d['module']
-            if mod:
-                args.obj = env['HOME'] + "/android/{mod}/{mod}.o".format(**locals())
-
-    if not args.obj:
-        args.obj = args.kernel
-
-    if not args.obj:
-        parser.error("need --obj")
-    if not os.path.isfile(args.obj):
-        obj = args.obj
-        parser.error("{obj} doesn't exist".format(**locals()))
-
     ds = None
     dargs = None
 
@@ -55,11 +40,26 @@ def main():
         ds = parse_input(args.input)
         dargs = vars(args)
 
-    for k in ['lastkmsg', 'input']:
-        del dargs[k]
-
     assert ds is not None and \
             dargs is not None
+
+    if args.lastkmsg is not None:
+        if args.obj is None:
+            mod = ds[0]['module']
+            if mod:
+                args.obj = env['HOME'] + "/android/{mod}/{mod}.o".format(**locals())
+
+    if not args.obj:
+        args.obj = args.kernel
+
+    if not args.obj:
+        parser.error("need --obj")
+    if not os.path.isfile(args.obj):
+        obj = args.obj
+        parser.error("{obj} doesn't exist".format(**locals()))
+
+    for k in ['lastkmsg', 'input']:
+        del dargs[k]
 
     oopsline(ds, **dargs)
 
@@ -70,6 +70,7 @@ def file_handle(string_or_handle):
         return open(string_or_handle)
     return string_or_handle
 
+hex_re = r"(?:[\da-z]{8})"
 offset_re = r"(?:0x[\da-zA-Z]+)"
 function_re = r"(?:[_a-zA-Z][a-zA-Z\d_]*)"
 srcline_re = r"(?:({function_re})\+({offset_re}))".format(**locals())
@@ -106,7 +107,7 @@ def parse_lastkmsg(lastkmsg):
         if m:
             d['module'] = m.group(1)
             continue
-        m = re.search(r"PC is at {srcline_re}/".format(**locals()), line)
+        m = re.search(r"PC is at {srcline_re}/".format(**globals()), line)
         if m:
             function = m.group(1)
             offset = m.group(2)
@@ -115,10 +116,9 @@ def parse_lastkmsg(lastkmsg):
     assert offset
     d['function'] = function
     d['offset'] = offset
-    hex_re = r"(?:[\da-z]{8})"
     trace = []
     for line in f:
-        m = re.search(r"\[<{hex_re}>\] \({function_re}\+{offset_re}".format(**locals()), line)
+        m = re.search(r"\[<{hex_re}>\] \({function_re}\+{offset_re}".format(**globals()), line)
         if m:
             trace.append(line.rstrip())
             continue
@@ -138,9 +138,10 @@ def oopsline(ds, obj, gdb, kernel):
         def write(string, d={}):
             gdbinit.write(textwrap.dedent(
                 string.format(**d)))
+        # list *({function})+{offset}
         for d in ds:
             write("""
-            list *({function})+{offset}
+            list *({function}+{offset})
             """, d)
         write("quit")
 
