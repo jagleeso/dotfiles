@@ -1,5 +1,12 @@
-" <leader>r == re-run kernel module, disassemble iram
-map <buffer> <leader>g ma:%!( cd $IRAM/kmod; make clean; make run ) && crun adb_sudo cat /sys/kernel/debug/iram \| mem_bin.py \| disasm<CR>`a
+" <leader>r == re-run kernel module, disassemble iram + ram
+map <buffer> <leader>g 
+            \ma
+            \:%!( cd $IRAM/kmod; make clean; make run ) && 
+            \( echo "\n>> IRAM:" && crun adb_sudo cat /sys/kernel/debug/iram \| mem_bin.py \| disasm ) && 
+            \( echo "\n>> RAM:"  && crun adb_sudo cat /sys/kernel/debug/ram  \| mem_bin.py \| disasm )
+            \<CR>
+            \`a
+
 " use assembly syntax highlighting
 set filetype=asm
 syntax on
