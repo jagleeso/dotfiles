@@ -1,0 +1,1 @@
+vip:s/^\s*\d€kb€kb[^:]\+:\s*//:€kuvip:s/\s*€kb\+.*//vip:s/^/(unsigned long *) 0xvip:s/$/,vip=

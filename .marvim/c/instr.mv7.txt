@@ -1,0 +1,15 @@
+Disassembler output to C (unsigned long *) hex.
+
+Cursor on "6c:"
+
+  6c:	e8bd0001 	ldmfd	sp!, {r0}
+  70:	e12fff1e 	bx	lr
+  74:	ea0002ca 	b	0xba4
+  78:	deadbeef 	cdple	14, 10, cr11, cr13, cr15, {7}
+
+=>
+
+  (unsigned long *) 0xe8bd0001,
+  (unsigned long *) 0xe12fff1e,
+  (unsigned long *) 0xea0002ca,
+  (unsigned long *) 0xdeadbeef,
