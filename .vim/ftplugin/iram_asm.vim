@@ -1,12 +1,13 @@
 " <leader>r == re-run kernel module, disassemble iram + ram
 map <buffer> <leader>g 
             \ma
-            \:%!( cd $IRAM/kmod; make clean; make run ) && 
-            \   ( echo "\n>> IRAM:"      && crun adb_sudo cat /sys/kernel/debug/iram     \| mem_bin.py \| disasm )
-            \&& ( echo "\n>> COHERENT:"  && crun adb_sudo cat /sys/kernel/debug/coherent \| mem_bin.py \| disasm )
+            \:%!( cd $IRAM/kmod; make clean; make run )
+            \&& ( echo "\n>> TCM_CODE:"  && crun adb_sudo cat /sys/kernel/debug/tcm_code \| mem_bin.py \| disasm )
             \<CR>
             \`a
 
+            " \&& ( echo "\n>> COHERENT:"  && crun adb_sudo cat /sys/kernel/debug/coherent \| mem_bin.py \| disasm )
+            " \&& ( echo "\n>> IRAM:"      && crun adb_sudo cat /sys/kernel/debug/iram     \| mem_bin.py \| disasm )
             " \&& ( echo "\n>> RAM:"       && crun adb_sudo cat /sys/kernel/debug/ram      \| mem_bin.py \| disasm )
             " \&& ( echo "\n>> VEC:"  && crun adb_sudo cat /sys/kernel/debug/vec  \| mem_bin.py \| disasm )
 
