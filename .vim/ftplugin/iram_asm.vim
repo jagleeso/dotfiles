@@ -6,8 +6,8 @@ map <buffer> <leader>g
             \<CR>
             \`a
 
-            " \&& ( echo "\n>> COHERENT:"  && crun adb_sudo cat /sys/kernel/debug/coherent \| mem_bin.py \| disasm )
             " \&& ( echo "\n>> IRAM:"      && crun adb_sudo cat /sys/kernel/debug/iram     \| mem_bin.py \| disasm )
+            " \&& ( echo "\n>> COHERENT:"  && crun adb_sudo cat /sys/kernel/debug/coherent \| mem_bin.py \| disasm )
             " \&& ( echo "\n>> RAM:"       && crun adb_sudo cat /sys/kernel/debug/ram      \| mem_bin.py \| disasm )
             " \&& ( echo "\n>> VEC:"  && crun adb_sudo cat /sys/kernel/debug/vec  \| mem_bin.py \| disasm )
 
