@@ -37,7 +37,19 @@ export \
 
 unset NEXUS_DEVICE
 
-LUNCH_PATH="/usr/lib/jvm/java-6-sun/bin:$ANDROID_DIR/aosp_4.2.2/out/host/linux-x86/bin:$ANDROID_DIR/aosp_4.2.2/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.6/bin:$ANDROID_DIR/aosp_4.2.2/prebuilts/gcc/linux-x86/mips/mipsel-linux-android-4.6/bin:$ANDROID_DIR/aosp_4.2.2/development/emulator/qtools:$ANDROID_DIR/aosp_4.2.2/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.6/bin:$ANDROID_DIR/aosp_4.2.2/prebuilts/gcc/linux-x86/arm/arm-eabi-4.6/bin:$ANDROID_DIR/aosp_4.2.2/development/scripts"
+# git clone https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/arm/arm-eabi-4.6
+PREBUILTS_DIR=~/clone/android/arm-eabi-4.6
+# $ANDROID_DIR/aosp_4.2.2/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.6/bin:
+# $ANDROID_DIR/aosp_4.2.2/prebuilts/gcc/linux-x86/mips/mipsel-linux-android-4.6/bin:
+# $ANDROID_DIR/aosp_4.2.2/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.6/bin:
+# $ANDROID_DIR/aosp_4.2.2/prebuilts/gcc/linux-x86/arm/arm-eabi-4.6/bin:
+LUNCH_PATH="\
+/usr/lib/jvm/java-6-sun/bin:\
+$PREBUILTS_DIR/bin:\
+$ANDROID_DIR/aosp_4.2.2/out/host/linux-x86/bin:\
+$ANDROID_DIR/aosp_4.2.2/development/emulator/qtools:\
+$ANDROID_DIR/aosp_4.2.2/development/scripts\
+"
 # LUNCH_PATH=""
 # export ANDROID_SWT="$ANDROID_DIR/aosp_4.2.2/out/host/linux-x86/framework"
 unset ANDROID_SWT
@@ -54,10 +66,21 @@ PLOT_PY="$ANDROID_DIR/report/src/python"
 # SAMPLE="$SAMPLE_PY:$EXPR/scripts/sh:$EXPR/scripts/perl"
 # PLOT_PY="$SAMPLE_PY"
 
-export PATH="$LUNCH_PATH:$MOTOX_BIN:$MOTOX_UTIL:$AOSP:$SAMPLE:$PLOT_PY:$UTIL:$PATH"
+pythonpath=($IRAM/scripts/python $pythonpath)
+path=($IRAM/scripts/python $IRAM/scripts/sh $path)
+
+PATH="$LUNCH_PATH:$MOTOX_BIN:$MOTOX_UTIL:$AOSP:$SAMPLE:$PLOT_PY:$UTIL:$PATH"
 pythonpath=($PLOT_PY $SAMPLE_PY $pythonpath)
-export PYTHONPATH
+
+export PATH PYTHONPATH
 
 export USE_CCACHE=1
 export CCACHE_DIR="$ANDROID_DIR/.ccache"
-unset LUNCH_PATH MOTOX_BIN MOTOX_UTIL SAMPLE PLOT_PY
+unset \
+    LUNCH_PATH \
+    PREBUILTS_DIR \
+    MOTOX_BIN \
+    MOTOX_UTIL \
+    SAMPLE \
+    PLOT_PY \
+
