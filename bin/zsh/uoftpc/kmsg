@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 source $(dirname $0)/common.sh
 
-adb_sh dmesg > dmesg.txt
-view_errors dmesg.txt
+# adb_sh dmesg > dmesg.txt
+# view_errors dmesg.txt
+
+adb_sh /proc/klast
