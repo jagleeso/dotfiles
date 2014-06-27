@@ -39,10 +39,7 @@ unset NEXUS_DEVICE
 
 # git clone https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/arm/arm-eabi-4.6
 PREBUILTS_DIR=~/clone/android/arm-eabi-4.6
-# $ANDROID_DIR/aosp_4.2.2/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.6/bin:
-# $ANDROID_DIR/aosp_4.2.2/prebuilts/gcc/linux-x86/mips/mipsel-linux-android-4.6/bin:
-# $ANDROID_DIR/aosp_4.2.2/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.6/bin:
-# $ANDROID_DIR/aosp_4.2.2/prebuilts/gcc/linux-x86/arm/arm-eabi-4.6/bin:
+# PREBUILTS_DIR=/usr/bin/arm-linux-gnueabi-
 LUNCH_PATH="\
 /usr/lib/jvm/java-6-sun/bin:\
 $PREBUILTS_DIR/bin:\
@@ -71,6 +68,8 @@ path=($IRAM/scripts/python $IRAM/scripts/sh $path)
 
 PATH="$LUNCH_PATH:$MOTOX_BIN:$MOTOX_UTIL:$AOSP:$SAMPLE:$PLOT_PY:$UTIL:$PATH"
 pythonpath=($PLOT_PY $SAMPLE_PY $pythonpath)
+
+path=($HOME/bin/zsh/uoftpc $path)
 
 export PATH PYTHONPATH
 

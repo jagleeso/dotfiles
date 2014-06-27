@@ -20,8 +20,8 @@ cat_and_view_errs() {
 
 
 adb_sudo() {
-    # adb_sudo_aosp "$@"
-    adb_sudo_supersu "$@"
+    adb_sudo_aosp "$@"
+    # adb_sudo_supersu "$@"
 }
 adb_sudo_supersu() {
     # works with the su command installed by SuperSu
