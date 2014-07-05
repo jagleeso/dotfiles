@@ -19,8 +19,18 @@ cat_and_view_errs() {
 }
 
 
+_test_sudo() {
+    local adb_sudo="$1"
+    local result="$($adb_sudo echo hi | tr -d '\r\n')"
+    [ "$result" = "hi" ]
+}
 adb_sudo() {
-    adb_sudo_aosp "$@"
+    if _test_sudo adb_sudo_aosp; then
+        adb_sudo_aosp "$@"
+    elif _test_sudo adb_sudo_supersu; then
+        adb_sudo_supersu "$@"
+    fi
+    # adb_sudo_aosp "$@"
     # adb_sudo_supersu "$@"
 }
 adb_sudo_supersu() {

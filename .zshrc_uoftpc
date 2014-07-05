@@ -20,7 +20,7 @@ export \
 export \
     ARCH=arm \
     SUBARCH=arm \
-    CROSS_COMPILE=arm-linux-androideabi- \
+    CROSS_COMPILE=arm-eabi- \
 
 # jiawen's stuff
 
@@ -32,6 +32,7 @@ export \
     NEXUS_KERNEL="$AOSP/kernel_nexus4" \
     NUXUS_KERNEL_BUILD="$AOSP/kernel_nexus4" \
     NEXUS_KERNEL_BUILD="$AOSP/kernel_nexus4" \
+    GOLDFISH_KERNEL_BUILD="$HOME/clone/goldfish" \
     MEM="$ANDROID_DIR/mem" \
     HEL="$ANDROID_DIR/hello_memory" \
 
