@@ -43,6 +43,7 @@ PREBUILTS_DIR=~/clone/android/arm-eabi-4.6
 LUNCH_PATH="\
 /usr/lib/jvm/java-6-sun/bin:\
 $PREBUILTS_DIR/bin:\
+$ANDROID_HOME/tools:\
 $ANDROID_DIR/aosp_4.2.2/out/host/linux-x86/bin:\
 $ANDROID_DIR/aosp_4.2.2/development/emulator/qtools:\
 $ANDROID_DIR/aosp_4.2.2/development/scripts\
