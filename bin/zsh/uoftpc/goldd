@@ -1,8 +1,8 @@
 #!/usr/bin/env zsh
-for f in "$@"; do 
+for f in $(echo "$@" | tr ' ' '\n' | grep -v '^$' | sort --unique); do 
     f=${f:s/kernel_msm-android-msm-mako-3.4-jb-mr1.1\///}
     kern_f=$KERN/$f
     gold_f=$GOLD/$f
-    diff $kern_f $gold_f \
+    diff -w $kern_f $gold_f \
         || vimdiff $kern_f $gold_f
 done
