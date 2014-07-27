@@ -317,6 +317,7 @@ fun SetupVAM()
     \ 'vim-snippets',
     \ 'clang_complete',
     \ 'Rainbow_Parentheses_Improved_Master',
+    \ 'Tail_Bundle',
     \ 'ctrlp'
     \ ]
 

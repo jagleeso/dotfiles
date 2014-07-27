@@ -4,12 +4,15 @@ import os
 import textwrap
 import re
 import sys
+import subprocess
 from os import environ as env
 
 def main():
     parser = argparse.ArgumentParser(description="debug kernel module oops by showing last line number")
     parser.add_argument("--lastkmsg",
         help="last kmsg log")
+    parser.add_argument("--input",
+        help="for things like unwind_backtrace+0x0/0xe8, print context")
     parser.add_argument("--obj",
         help="module.o file")
     parser.add_argument("--gdb",
@@ -20,29 +23,78 @@ def main():
         help="gdb command")
     args = parser.parse_args()
 
-    if args.lastkmsg is None:
-        args.lastkmsg = sys.stdin
-    d = parse_lastkmsg(args.lastkmsg)
+    if not any(f is not None for f in [args.lastkmsg, args.input]):
+        parser.error("need a file")
 
-    if args.obj is None:
-        mod = d['module']
-        if mod:
-            args.obj = env['HOME'] + "/android/{mod}/{mod}.o".format(**locals())
+    ds = None
+    dargs = None
 
+    if args.lastkmsg is not None:
+        d = parse_lastkmsg(args.lastkmsg)
+        print "Call trace:"
+        for t in d['trace']:
+            print t
+        ds = [d]
+        dargs = vars(args)
+    elif args.input is not None:
+        ds = parse_input(args.input)
+        dargs = vars(args)
+
+    assert ds is not None and \
+            dargs is not None
+
+    if args.lastkmsg is not None:
+        if args.obj is None:
+            mod = ds[0]['module']
+            if mod:
+                args.obj = env['HOME'] + "/android/{mod}/{mod}.o".format(**locals())
+
+    if not args.obj:
+        args.obj = args.kernel
+
+    if not args.obj:
+        parser.error("need --obj")
     if not os.path.isfile(args.obj):
         obj = args.obj
         parser.error("{obj} doesn't exist".format(**locals()))
-    dargs = vars(args)
-    del dargs['lastkmsg']
-    oopsline(d, **dargs)
+
+    for k in ['lastkmsg', 'input']:
+        del dargs[k]
+
+    oopsline(ds, **dargs)
+
+def file_handle(string_or_handle):
+    if type(string_or_handle) == str:
+        if string_or_handle == '-':
+            return sys.stdin
+        return open(string_or_handle)
+    return string_or_handle
+
+hex_re = r"(?:[\da-z]{8})"
+offset_re = r"(?:0x[\da-zA-Z]+)"
+function_re = r"(?:[_a-zA-Z][a-zA-Z\d_]*)"
+srcline_re = r"(?:({function_re})\+({offset_re}))".format(**locals())
+
+def parse_input(input):
+    ds = []
+    f = file_handle(input)
+    seen = set()
+    for line in f:
+        for m in re.findall(srcline_re, line):
+            function, offset = m
+            if (function, offset) in seen:
+                continue
+            seen.add((function, offset))
+            ds.append({
+                'function': function,
+                'offset': offset,
+                })
+    f.close()
+    return ds
 
 def parse_lastkmsg(lastkmsg):
     d = {}
-    f = None
-    if type(lastkmsg) == str:
-        f = open(lastkmsg)
-    else:
-        f = lastkmsg
+    f = file_handle(lastkmsg)
         
     for line in f:
         m = re.search(r"Internal error: Oops:", line)
@@ -50,14 +102,12 @@ def parse_lastkmsg(lastkmsg):
             break
     function = None
     offset = None
-    offset_re = r"(?:0x[^/]+)"
-    function_re = r"(?:[^+]+)"
     for line in f:
         m = re.search(r"Modules linked in: ([^(]+)\(", line)
         if m:
             d['module'] = m.group(1)
             continue
-        m = re.search(r"PC is at ({function_re})\+({offset_re})/".format(**locals()), line)
+        m = re.search(r"PC is at {srcline_re}/".format(**globals()), line)
         if m:
             function = m.group(1)
             offset = m.group(2)
@@ -66,10 +116,9 @@ def parse_lastkmsg(lastkmsg):
     assert offset
     d['function'] = function
     d['offset'] = offset
-    hex_re = r"(?:[\da-z]{8})"
     trace = []
     for line in f:
-        m = re.search(r"\[<{hex_re}>\] \({function_re}\+{offset_re}".format(**locals()), line)
+        m = re.search(r"\[<{hex_re}>\] \({function_re}\+{offset_re}".format(**globals()), line)
         if m:
             trace.append(line.rstrip())
             continue
@@ -84,17 +133,43 @@ def parse_lastkmsg(lastkmsg):
 
     return d
 
-def oopsline(d, obj, gdb, kernel):
-        # add-symbol-file {kernel}
-    print "Call trace:"
-    for t in d['trace']:
-        print t
+def oopsline(ds, obj, gdb, kernel):
     with open('.gdbinit', 'w') as gdbinit:
-        gdbinit.write(textwrap.dedent("""
-        list *({function})+{offset}
-        """.format(**union(d, locals()))))
-    os.system('{gdb} {obj}'.format(**locals()))
+        def write(string, d={}):
+            gdbinit.write(textwrap.dedent(
+                string.format(**d)))
+        # list *({function})+{offset}
+        for d in ds:
+            write("""
+            list *({function}+{offset})
+            """, d)
+        write("quit")
 
+    skip_lines = [
+        'warning: Source file is more recent than executable.',
+        'Copyright (C)',
+        'GNU gdb (GDB)',
+        'License',
+        'This is free software',
+        'There is NO WARRANTY',
+        'and "show warranty" for details.',
+        'This GDB was configured as',
+        'For bug reporting',
+        '<http://www.gnu.org/software/gdb/bugs/>...',
+        'Reading symbols from',
+    ]
+    def should_skip(line):
+        for sline in skip_lines:
+            if line.startswith(sline):
+                return True
+        return False
+
+    proc = subprocess.Popen([gdb, obj],stdout=subprocess.PIPE)
+    for line in iter(proc.stdout.readline, ''):
+        if should_skip(line):
+            continue
+        print line.rstrip()
+    
 def union(d1, d2):
     return dict(d1.items() + d2.items())
 

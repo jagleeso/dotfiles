@@ -67,13 +67,12 @@ MOTOX_UTIL="$ANDROID_DIR/util/motox"
 SAMPLE_PY="$EXPR/scripts/python"
 SAMPLE="$SAMPLE_PY:$EXPR/scripts/sh:$EXPR/scripts/perl"
 PLOT_PY="$SAMPLE_PY"
+pythonpath=($PLOT_PY $SAMPLE_PY $pythonpath)
 
 pythonpath=($IRAM/scripts/python $pythonpath)
 path=($IRAM/scripts/python $IRAM/scripts/sh $path)
 
 PATH="$LUNCH_PATH:$MOTOX_BIN:$MOTOX_UTIL:$AOSP:$SAMPLE:$PLOT_PY:$UTIL:$NDK:$PATH"
-pythonpath=($PLOT_PY $SAMPLE_PY $pythonpath)
-
 path=($HOME/bin/zsh/uoftpc $path)
 
 export PATH PYTHONPATH
@@ -91,7 +90,7 @@ unset \
 # Random
 
 # ARM FastTools
-MXSETUP_QUIET=yes source $HOME/ARM/FastModelsTools_9.0/source_all.sh
-export \
-    ARMLMD_LICENSE_FILE="$HOME/android/resource/sierra_tee/FastModels_9-0-022_Linux64/license.dat"
+# MXSETUP_QUIET=yes source $HOME/ARM/FastModelsTools_9.0/source_all.sh
+# export \
+#     ARMLMD_LICENSE_FILE="$HOME/android/resource/sierra_tee/FastModels_9-0-022_Linux64/license.dat"
 

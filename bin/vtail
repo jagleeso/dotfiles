@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# "tail -f" a file in vim.
+
+
+set -e
+file="$1"
+shift 1
+
+# default :Tail opens as a split; get rid of it.
+vim \
+    -c "Tail $file"  \
+    -c 'tabnew'  \
+    -c 'tabprev'  \
+    -c 'exe "normal \<C-w>j"'  \
+    -c 'quit'  \
+    -c 'tabnext'  \
+    -c 'quit' \
