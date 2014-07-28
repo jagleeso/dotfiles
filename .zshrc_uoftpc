@@ -22,6 +22,8 @@ export \
     SUBARCH=arm \
     CROSS_COMPILE=arm-eabi- \
 
+    # CROSS_COMPILE=arm-linux-androideabi- \
+
 # jiawen's stuff
 
 # Nexus4
@@ -33,6 +35,7 @@ export \
     NUXUS_KERNEL_BUILD="$AOSP/kernel_nexus4" \
     NEXUS_KERNEL_BUILD="$AOSP/kernel_nexus4" \
     GOLDFISH_KERNEL_BUILD="$HOME/clone/goldfish" \
+    GOLD="$HOME/clone/goldfish" \
     MEM="$ANDROID_DIR/mem" \
     HEL="$ANDROID_DIR/hello_memory" \
 
@@ -57,20 +60,19 @@ MOTOX_BIN="$ANDROID_DIR/tools/bin/motox"
 KERNEL_ROOT="$AOSP/kernel"
 MOTOX_UTIL="$ANDROID_DIR/util/motox"
 
-SAMPLE_PY="$ANDROID_DIR/opencl_aes/src/python"
-SAMPLE="$SAMPLE_PY:$ANDROID_DIR/opencl_aes/src/sh"
-PLOT_PY="$ANDROID_DIR/report/src/python"
+# SAMPLE_PY="$ANDROID_DIR/opencl_aes/src/python"
+# SAMPLE="$SAMPLE_PY:$ANDROID_DIR/opencl_aes/src/sh"
+# PLOT_PY="$ANDROID_DIR/report/src/python"
 
-# SAMPLE_PY="$EXPR/scripts/python"
-# SAMPLE="$SAMPLE_PY:$EXPR/scripts/sh:$EXPR/scripts/perl"
-# PLOT_PY="$SAMPLE_PY"
+SAMPLE_PY="$EXPR/scripts/python"
+SAMPLE="$SAMPLE_PY:$EXPR/scripts/sh:$EXPR/scripts/perl"
+PLOT_PY="$SAMPLE_PY"
+pythonpath=($PLOT_PY $SAMPLE_PY $pythonpath)
 
 pythonpath=($IRAM/scripts/python $pythonpath)
 path=($IRAM/scripts/python $IRAM/scripts/sh $path)
 
-PATH="$LUNCH_PATH:$MOTOX_BIN:$MOTOX_UTIL:$AOSP:$SAMPLE:$PLOT_PY:$UTIL:$PATH"
-pythonpath=($PLOT_PY $SAMPLE_PY $pythonpath)
-
+PATH="$LUNCH_PATH:$MOTOX_BIN:$MOTOX_UTIL:$AOSP:$SAMPLE:$PLOT_PY:$UTIL:$NDK:$PATH"
 path=($HOME/bin/zsh/uoftpc $path)
 
 export PATH PYTHONPATH
@@ -84,4 +86,11 @@ unset \
     MOTOX_UTIL \
     SAMPLE \
     PLOT_PY \
+
+# Random
+
+# ARM FastTools
+# MXSETUP_QUIET=yes source $HOME/ARM/FastModelsTools_9.0/source_all.sh
+# export \
+#     ARMLMD_LICENSE_FILE="$HOME/android/resource/sierra_tee/FastModels_9-0-022_Linux64/license.dat"
 
