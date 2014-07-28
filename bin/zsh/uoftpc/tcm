@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+set -e
+set -x
+# Setup TCM.
+cd $IRAM/kmod
+./run
+# Setup suspend on unlock.
+cd ~/android/team/jiawen/read_proc/
+./run
