@@ -21,6 +21,8 @@ def main():
     parser.add_argument("--kernel",
         default=env['KERN'] + '/vmlinux.o',
         help="gdb command")
+    parser.add_argument("--just-first", action="store_true",
+        help="Just lookup the first function+0x1c in a line")
     args = parser.parse_args()
 
     if not any(f is not None for f in [args.lastkmsg, args.input]):
@@ -37,7 +39,7 @@ def main():
         ds = [d]
         dargs = vars(args)
     elif args.input is not None:
-        ds = parse_input(args.input)
+        ds = parse_input(args.input, args.just_first)
         dargs = vars(args)
 
     assert ds is not None and \
@@ -60,7 +62,8 @@ def main():
 
     for k in ['lastkmsg', 'input']:
         del dargs[k]
-
+    del dargs['just_first']
+    
     oopsline(ds, **dargs)
 
 def file_handle(string_or_handle):
@@ -75,12 +78,16 @@ offset_re = r"(?:0x[\da-zA-Z]+)"
 function_re = r"(?:[_a-zA-Z][a-zA-Z\d_]*)"
 srcline_re = r"(?:({function_re})\+({offset_re}))".format(**locals())
 
-def parse_input(input):
+def parse_input(input, just_first):
     ds = []
     f = file_handle(input)
     seen = set()
+    def srcline_matches(line):
+        if just_first:
+            return [re.search(srcline_re, line).groups()]
+        return re.findall(srcline_re, line)
     for line in f:
-        for m in re.findall(srcline_re, line):
+        for m in srcline_matches(line):
             function, offset = m
             if (function, offset) in seen:
                 continue
