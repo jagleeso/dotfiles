@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+oopsline --input - --just-first --obj $KERN/vmlinux.o
