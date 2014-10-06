@@ -1,7 +1,9 @@
 view_errors() {
     local file="$1"
     shift 1
-    vim "$file" -c 'vimgrep /\c\(err\|reboot\|bug\|Kernel panic\)/ % | copen'
+
+    vim "$file" -c 'vimgrep /kernel BUG at.*!$/ % | exec "normal www" | split | normal gF'
+    # vim "$file" -c 'vimgrep /\c\(err\|reboot\|bug\|Kernel panic\)/ % | copen'
 }
 
 view_with_pattern() {
