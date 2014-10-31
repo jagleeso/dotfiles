@@ -1,2 +1,3 @@
 #!/usr/bin/env bash
-oopsline --input - --just-first --obj $1
+# oopsline --input - --just-first --obj $1
+oopsline --input - --just-first --obj $IRAM/kmod/securecrypt.o 

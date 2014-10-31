@@ -3,8 +3,4 @@ source $(dirname $0)/common.sh
 file="$1"
 shift 1 || exit 1
 
-while true; do
-    adb_sudo cat /proc/kmsg > $file
-    wait_for_boot
-    sleep 1
-done
+tail_piped_file /proc/kmsg $file

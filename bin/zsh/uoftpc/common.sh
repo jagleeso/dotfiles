@@ -68,3 +68,15 @@ wait_for_boot() {
         sleep 1
     done
 }
+
+tail_piped_file() {
+    local file="$1"
+    local outfile="$1"
+    shift 1
+
+    while true; do
+        adb_sudo cat $file > $outfile
+        wait_for_boot
+        sleep 1
+    done
+}

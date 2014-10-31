@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+source $(dirname $0)/common.sh
+file="$1"
+shift 1 || exit 1
+
+SCRIPT_DIR=$(dirname $0)
+# set -x
+fname=$(basename $file)
+adb push $SCRIPT_DIR/resource/busybox /data/local/tmp/busybox
+adb_sudo 'chmod 755 /data/local/tmp/busybox'
+adb_sudo 'echo 1 > /sys/kernel/debug/tracing/tracing_on' 
+adb_sudo "rm /data/local/tmp/$fname"
+adb_sudo "touch /data/local/tmp/$fname"
+# TODO: if this isn't running (we rebooted), do setup again
+adb_sudo "cat /sys/kernel/debug/tracing/trace_pipe > /data/local/tmp/$fname &" &
+
+while true; do
+    adb_sudo "/data/local/tmp/busybox tail -f -n +0 /data/local/tmp/$fname" > $file
+    wait_for_boot
+    sleep 1
+done

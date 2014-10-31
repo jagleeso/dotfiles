@@ -6,6 +6,11 @@ set -e
 file="$1"
 shift 1
 
+# args=""
+# for f in "$@"; do
+#     args="$args -c 'tabnew | Tail $f | exe \"normal \<C-w>j\" | quit'"
+# done
+
 # default :Tail opens as a split; get rid of it.
 vim \
     -c "Tail $file"  \
@@ -15,3 +20,4 @@ vim \
     -c 'quit'  \
     -c 'tabnext'  \
     -c 'quit' \
+    # $args \
