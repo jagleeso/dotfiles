@@ -80,3 +80,25 @@ tail_piped_file() {
         sleep 1
     done
 }
+
+adb_kill() {
+    set -e
+    local process="$1"
+    shift 1
+
+    local pids=$(adb shell ps \
+            | grep "$process" \
+            | perl -lane 'print $F[1]')
+    if [ ! -z "$pids" ]; then
+        echo "kill $pids"
+        adb_sudo "kill $@ $pids"
+    fi
+}
+
+keep_cpu_on() {
+    local keep_cpu_on_apk="$EXPR/scripts/java/KeepCpuOn/bin/KeepCpuOn.apk"
+    local keep_cpu_on_app_name="com.example.keepcpuon2"
+    adb install -r $keep_cpu_on_apk
+    adb_kill "$keep_cpu_on_app_name"
+    adb shell am start -n $keep_cpu_on_app_name/$keep_cpu_on_app_name.MainActivity
+}
