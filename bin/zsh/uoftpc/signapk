@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+apk="$1"
+jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore $KERN/my-release-key.keystore $apk alias_name 

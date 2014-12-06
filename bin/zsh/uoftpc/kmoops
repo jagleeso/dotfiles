@@ -1,3 +1,6 @@
 #!/usr/bin/env bash
 # oopsline --input - --just-first --obj $1
-oopsline --input - --just-first --obj $IRAM/kmod/securecrypt.o 
+# oopsline --input - --just-first --obj $IRAM/kmod/securecrypt.o 
+# oopsline --input - --just-first --obj ~/android/team/jiawen/memencryptModule/mem_encrypt.o
+# oopsline --input - --just-first --obj ~/android/team/jiawen/memencryptModule/mem_encrypt.o
+oopsline --input - --just-first --obj ~/android/team/jiawen/read_proc/freeze_thaw_proc.o 

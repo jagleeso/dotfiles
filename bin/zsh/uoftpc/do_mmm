@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+curdir="$PWD"
+cd $AOSP
+source build/envsetup.sh
+cd "$curdir"
+# mmm .
+lunch full_mako-userdebug
+mm

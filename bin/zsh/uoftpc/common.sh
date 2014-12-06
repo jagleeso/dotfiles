@@ -60,25 +60,47 @@ wait_for_bootloader() {
 }
 
 wait_for_boot() {
+    local f=$(mktemp)
     while true; do
         if adb devices | grep --quiet 'device$'; then
             adb devices
+            local remote=/data/local/tmp/$(basename $f)
+            while ! adb push $f $remote > /dev/null; do
+                sleep 1
+            done
+            adb shell rm $remote
             break
         fi
         sleep 1
     done
+    rm $f
 }
 
 tail_piped_file() {
     local file="$1"
-    local outfile="$1"
+    local outfile="$2"
     shift 1
 
     while true; do
-        adb_sudo cat $file > $outfile
+        adb_sudo "cat $file" > $outfile
         wait_for_boot
         sleep 1
     done
+
+}
+
+on_each_boot() {
+    while true; do
+        wait_for_boot
+        "$@"
+        adb shell # wait for reboot
+        sleep 1
+    done
+}
+
+on_boot() {
+    wait_for_boot
+    "$@"
 }
 
 adb_kill() {
@@ -93,6 +115,11 @@ adb_kill() {
         echo "kill $pids"
         adb_sudo "kill $@ $pids"
     fi
+}
+
+adb_start() {
+    local app_name="$1"
+    adb shell am start -n $app_name/$app_name.MainActivity
 }
 
 keep_cpu_on() {

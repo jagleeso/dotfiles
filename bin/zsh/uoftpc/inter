@@ -3,6 +3,6 @@ set -x
 _runit() {
     RUN_COMMON=yes $EXPR/scripts/sh/common.sh "$@";
 }
-_runit build_ui_expr contacts
+_runit build_ui_expr contacts || exit 1
 _runit copy_ui_expr contacts
 _runit "$@"
