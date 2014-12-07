@@ -1,16 +1,20 @@
 #!/usr/bin/env bash
-( 
-    set -x
-    ( 
-        cd $AOSP/out/target/product/mako/; 
-        find . -type f -print0 | xargs -0 stat --format '%Y :%y %n' | sort -nr | cut -d: -f2- | head | grep '\s\+./system.*.so' | perl -lane 'print $F[-1]' | \
-            while read f; do
-            dst=$(perl -lape 's/^\.//'<<<$f)
-            echo adb push $f $dst
-            adb push $f $dst
-        done
-    ) &&
-        crun adb_sudo kill $(RUN_COMMON=yes $EXPR/scripts/sh/common.sh adb_getpid system_server) &&
-        sleep 3 &&
-        crun adb_sudo dumpsys SurfaceFlinger
-);
+source $(dirname $(realpath $0))/common.sh
+set -x
+set -e
+cd $AOSP/out/target/product/mako/
+
+crun adb_sudo 'mount -o remount,rw /system'
+find . -type f -print0 | xargs -0 stat --format '%Y :%y %n' | sort -nr | cut -d: -f2- | head | grep '\s\+./system.*.so' | perl -lane 'print $F[-1]' | \
+    while read f; do
+    dst=$(perl -lape 's/^\.//'<<<$f)
+    echo adb push $f $dst
+    adb push $f $dst
+done
+
+adb reboot
+# crun adb_sudo kill $(RUN_COMMON=yes $EXPR/scripts/sh/common.sh adb_getpid system_server)
+# sleep 3
+wait_for_boot
+
+crun adb_sudo dumpsys SurfaceFlinger

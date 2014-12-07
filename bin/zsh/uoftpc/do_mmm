@@ -1,8 +1,23 @@
 #!/usr/bin/env bash
-curdir="$PWD"
+# curdir="$PWD"
+target_dir="$AOSP/frameworks/native/libs/ui"
+set -e
 cd $AOSP
+echo $AOSP
 source build/envsetup.sh
-cd "$curdir"
+cd "$target_dir"
 # mmm .
 lunch full_mako-userdebug
 mm
+
+# crun adb_sudo 'mount -o remount,rw /system'
+#
+# cmd() {
+#     echo "$@"
+#     "$@"
+# }
+#
+# find $AOSP/out/target/product/mako/symbols -name '*.so' -type f -printf '%T@ %p\n' | sort -n | tail -1 | cut -f2- -d" " | while read f; do 
+#     remote_f=$(perl -lape 's|.*/system/|/system/|' <<<"$f") 
+#     cmd adb push $f $remote_f
+# done
