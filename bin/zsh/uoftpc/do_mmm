@@ -1,14 +1,21 @@
 #!/usr/bin/env bash
 # curdir="$PWD"
-target_dir="$AOSP/frameworks/native/libs/ui"
 set -e
 cd $AOSP
 echo $AOSP
 source build/envsetup.sh
-cd "$target_dir"
-# mmm .
 lunch full_mako-userdebug
-mm
+
+if [ $# -eq 0 ]; then
+    targets=(
+        "$AOSP/frameworks/native/libs/ui"
+        "$AOSP/frameworks/native/services/surfaceflinger"
+    )
+else
+    targets=("$@")
+fi
+
+mmm "${targets[@]}"
 
 # crun adb_sudo 'mount -o remount,rw /system'
 #
