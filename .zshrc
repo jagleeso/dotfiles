@@ -184,3 +184,9 @@ PATH=$PATH:$HOME/.rvm/bin # Add RVM to PATH for scripting
 
 setopt HIST_IGNORE_SPACE
 setopt interactivecomments
+
+# ohmyzsh broke stuff
+# setopt sharehistory
+# setopt histappend 
+# export HISTSIZE=100000 
+# export HISTFILESIZE=1000000

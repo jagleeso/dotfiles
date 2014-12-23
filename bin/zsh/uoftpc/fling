@@ -4,19 +4,27 @@ set -x
 set -e
 cd $AOSP/out/target/product/mako/
 
-adb root
+# if adb root | grep --quiet restarting; then
+#     sleep 5
+# fi
 crun adb_sudo 'mount -o remount,rw /system'
 # .so files modified in last 24 hours
-find . -type f -mtime -1 -print0 | xargs -0 stat --format '%Y :%y %n' | sort -nr | cut -d: -f2- | grep '\s\+./system.*\.so' | perl -lane 'print $F[-1]' | \
+# grep '\s\+./system.*\.so' \
+find . -type f -mtime -1 -print0 | xargs -0 stat --format '%Y :%y %n' | sort -nr | cut -d: -f2- | \
+    grep '\s\+./system/' \
+    | grep -v 'Exchange' \
+    | perl -lane 'print $F[-1]' | \
     while read f; do
     dst=$(perl -lape 's/^\.//'<<<$f)
+    # ls -lh $f
     echo adb push $f $dst
-    adb push $f $dst
+    # adb push $f $dst
+    adb push $f /data/local/tmp/$(basename $f)
 done
 
-adb reboot
-# crun adb_sudo kill $(RUN_COMMON=yes $EXPR/scripts/sh/common.sh adb_getpid system_server)
-# sleep 3
-wait_for_boot
+# adb reboot
+# # crun adb_sudo kill $(RUN_COMMON=yes $EXPR/scripts/sh/common.sh adb_getpid system_server)
+# # sleep 3
+# wait_for_boot
 
-crun adb_sudo dumpsys SurfaceFlinger "$@"
+# crun adb_sudo dumpsys SurfaceFlinger "$@"
