@@ -8,7 +8,11 @@ adb root
 crun adb_sudo 'mount -o remount,rw /system'
 set +x
 # .so files modified in last 24 hours
-find . -type f -mtime -1 -print0 | xargs -0 stat --format '%Y :%y %n' | sort -nr | cut -d: -f2- | grep '\s\+./system.*\.so' | perl -lane 'print $F[-1]' | \
+# grep '\s\+./system.*\.so' \
+find . -type f -mtime -1 -print0 | xargs -0 stat --format '%Y :%y %n' | sort -nr | cut -d: -f2- | \
+    grep '\s\+./system/' \
+    | grep -v 'Exchange' \
+    | perl -lane 'print $F[-1]' | \
     while read f; do
     dst=$(perl -lape 's/^\.//'<<<$f)
     obj_f=$(perl -lape 's|^\.|./symbols|'<<<$f)
@@ -16,7 +20,8 @@ find . -type f -mtime -1 -print0 | xargs -0 stat --format '%Y :%y %n' | sort -nr
         f="$obj_f"
     fi
     echo adb push $f $dst
-    adb push $f $dst
+    # adb push $f $dst
+    adb push $f /data/local/tmp/$(basename $f)
 done
 
 # adb reboot

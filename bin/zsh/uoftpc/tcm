@@ -5,7 +5,9 @@ set -x
 # adb root
 # crun adb_sudo 'mount -o remount,rw /system' 
 cd $IRAM/kmod
-./run
+if [ -f Makefile ]; then
+    ./run
+fi
 # Setup suspend on unlock.
 cd ~/android/team/jiawen/read_proc/
 ./run
