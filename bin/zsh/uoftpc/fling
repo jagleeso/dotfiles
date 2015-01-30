@@ -1,22 +1,27 @@
 #!/usr/bin/env bash
 source $(dirname $(realpath $0))/common.sh
-set -x
 set -e
 cd $AOSP/out/target/product/mako/
 
+set -x
 adb root
 crun adb_sudo 'mount -o remount,rw /system'
+set +x
 # .so files modified in last 24 hours
 find . -type f -mtime -1 -print0 | xargs -0 stat --format '%Y :%y %n' | sort -nr | cut -d: -f2- | grep '\s\+./system.*\.so' | perl -lane 'print $F[-1]' | \
     while read f; do
     dst=$(perl -lape 's/^\.//'<<<$f)
+    obj_f=$(perl -lape 's|^\.|./symbols|'<<<$f)
+    if [ -f "$obj_f" ]; then
+        f="$obj_f"
+    fi
     echo adb push $f $dst
     adb push $f $dst
 done
 
-adb reboot
-# crun adb_sudo kill $(RUN_COMMON=yes $EXPR/scripts/sh/common.sh adb_getpid system_server)
-# sleep 3
-wait_for_boot
+# adb reboot
+# # crun adb_sudo kill $(RUN_COMMON=yes $EXPR/scripts/sh/common.sh adb_getpid system_server)
+# # sleep 3
+# wait_for_boot
 
-crun adb_sudo dumpsys SurfaceFlinger "$@"
+# crun adb_sudo dumpsys SurfaceFlinger "$@"

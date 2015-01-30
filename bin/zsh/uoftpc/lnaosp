@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+top=$(git rev-parse --show-toplevel)
+cd $top
+# set -x
+set -e
+git ls-files -m | while read f; do
+    if [ ! -f ~/android/team/jiawen/aosp/$f ]; then
+        mkdir -p $(dirname ~/android/team/jiawen/aosp/$(basename $top)/$f)
+        git_f=~/android/team/jiawen/aosp/$(basename $top)/$f
+        aosp_f=$AOSP/$(basename $top)/$f
+        mv $aosp_f $git_f
+        ln -s -T $git_f $aosp_f 
+    fi
+done
