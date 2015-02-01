@@ -4,7 +4,7 @@ set -e
 cd $AOSP/out/target/product/mako/
 
 set -x
-adb root
+# adb root
 crun adb_sudo 'mount -o remount,rw /system'
 set +x
 # .so files modified in last 24 hours
@@ -19,10 +19,18 @@ find . -type f -mtime -1 -print0 | xargs -0 stat --format '%Y :%y %n' | sort -nr
     if [ -f "$obj_f" ]; then
         f="$obj_f"
     fi
-    echo adb push $f $dst
+
+    # echo adb push $f $dst
+
+    crun adb_sudo "mkdir -p /data/local/tmp/fling/$(dirname $dst)"
+    adb push $f "/data/local/tmp/fling/$(dirname $dst)"
+    crun adb_sudo "cp /data/local/tmp/fling/$dst $dst"
+
     # adb push $f $dst
-    adb push $f /data/local/tmp/$(basename $f)
+    # adb push $f /data/local/tmp/$(basename $f)
 done
+
+crun adb_sudo "rm -rf /data/local/tmp/fling/"
 
 # adb reboot
 # # crun adb_sudo kill $(RUN_COMMON=yes $EXPR/scripts/sh/common.sh adb_getpid system_server)

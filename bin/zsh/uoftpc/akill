@@ -5,5 +5,5 @@ shift
 pid=$(atop | grep "$proc" | awk '{print $1}')
 if [ ! -z "$pid" ]; then
     echo kill "$@" $pid
-    adb shell /data/local/tmp/kill "$@" $pid
+    crun adb_sudo /data/local/tmp/kill "$@" $pid
 fi
