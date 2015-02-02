@@ -3,6 +3,28 @@ source $(dirname $(realpath $0))/common.sh
 set -e
 cd $AOSP/out/target/product/mako/
 
+filter() {
+    perl -lane '
+    BEGIN {
+
+    @files = qw(
+    /system/bin/dexopt
+    /system/bin/dalvikvm
+    /system/lib/libdvm_interp.so
+    /system/lib/libdvm_sv.so
+    /system/lib/libdvm_assert.so
+    /system/lib/libdvm.so
+    );
+
+    $s = join "|", @files;
+    $regex = qr/$s/;
+    }
+    if (/$regex/) {
+        print;
+    }
+    '
+}
+
 set -x
 # adb root
 crun adb_sudo 'mount -o remount,rw /system'
@@ -12,6 +34,7 @@ set +x
 find . -type f -mtime -1 -print0 | xargs -0 stat --format '%Y :%y %n' | sort -nr | cut -d: -f2- | \
     grep '\s\+./system/' \
     | grep -v 'Exchange' \
+    | filter \
     | perl -lane 'print $F[-1]' | \
     while read f; do
     dst=$(perl -lape 's/^\.//'<<<$f)
@@ -20,14 +43,12 @@ find . -type f -mtime -1 -print0 | xargs -0 stat --format '%Y :%y %n' | sort -nr
         f="$obj_f"
     fi
 
-    # echo adb push $f $dst
+    echo adb push $f $dst
 
     crun adb_sudo "mkdir -p /data/local/tmp/fling/$(dirname $dst)"
     adb push $f "/data/local/tmp/fling/$(dirname $dst)"
     crun adb_sudo "cp /data/local/tmp/fling/$dst $dst"
 
-    # adb push $f $dst
-    # adb push $f /data/local/tmp/$(basename $f)
 done
 
 crun adb_sudo "rm -rf /data/local/tmp/fling/"
