@@ -31,6 +31,8 @@ crun adb_sudo 'mount -o remount,rw /system'
 set +x
 # .so files modified in last 24 hours
 # grep '\s\+./system.*\.so' \
+mkdir_cmds=""
+cp_cmds=""
 find . -type f -mtime -1 -print0 | xargs -0 stat --format '%Y :%y %n' | sort -nr | cut -d: -f2- | \
     grep '\s\+./system/' \
     | grep -v 'Exchange' \
@@ -49,7 +51,14 @@ find . -type f -mtime -1 -print0 | xargs -0 stat --format '%Y :%y %n' | sort -nr
     adb push $f "/data/local/tmp/fling/$(dirname $dst)"
     crun adb_sudo "cp /data/local/tmp/fling/$dst $dst"
 
+    # mkdir_cmds="$mkdir_cmds; mkdir -p /data/local/tmp/fling/$(dirname $dst)"
+    # adb push $f "/data/local/tmp/fling/$(dirname $dst)"
+    # cp_cmds="$cp_cmds; cp /data/local/tmp/fling/$dst $dst"
+
 done
+
+# crun adb_sudo "$mkdir_cmds"
+# crun adb_sudo "$cp_cmds"
 
 crun adb_sudo "rm -rf /data/local/tmp/fling/"
 
