@@ -129,3 +129,16 @@ keep_cpu_on() {
     adb_kill "$keep_cpu_on_app_name"
     adb shell am start -n $keep_cpu_on_app_name/$keep_cpu_on_app_name.MainActivity
 }
+
+kill_gui() {
+    adb_sudo setprop vold.decrypt trigger_shutdown_framework
+}
+
+stop_gui() {
+    kill_gui
+}
+start_gui() {
+    adb_sudo setprop vold.decrypt trigger_restart_framework
+}
+
+
