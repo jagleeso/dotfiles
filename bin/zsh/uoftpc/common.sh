@@ -141,4 +141,24 @@ start_gui() {
     adb_sudo setprop vold.decrypt trigger_restart_framework
 }
 
+get_pids() {
+    local name="$1"
+    shift 1
+    adb_sudo top -n 1 | grep "$name" | perl -ane 'print @F[0]' 
+    echo
+}
 
+atrace() {
+    local name="$1"
+    shift 1
+    crun adb_sudo /data/local/tmp/strace -p $(get_pids "$name")
+}
+
+agdbserver() {
+    local name="$1"
+    shift 1
+    local pid="$(get_pids "$name")"
+    echo "Run gdbclient in a sec..."
+    adb forward tcp:5039 tcp:5039
+    adb_sudo gdbserver :5039 --attach $pid
+}
