@@ -155,10 +155,29 @@ atrace() {
 }
 
 agdbserver() {
+    set -e
     local name="$1"
     shift 1
     local pid="$(get_pids "$name")"
+    if [ -z "$pid" ]; then
+        "ERROR: no process named $name"
+        exit 1
+    fi
     echo "Run gdbclient in a sec..."
     adb forward tcp:5039 tcp:5039
     adb_sudo gdbserver :5039 --attach $pid
+}
+
+agdbclient() {
+    local name="$1"
+    shift 1
+    bash -c "
+cd $AOSP
+echo $AOSP
+source build/envsetup.sh
+lunch full_mako-userdebug
+# export GDB_CMD='ddd --debugger $(which arm-linux-gdb)'
+export GDB_CMD='cgdb -d $(which arm-linux-gdb)'
+gdbclient
+"
 }
