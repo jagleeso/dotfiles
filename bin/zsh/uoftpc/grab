@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+set -e
+pattern="$1"
+num="$2"
+shift 2
+
+perl -lane '
+BEGIN {
+    $left = 0;
+}
+if ($left > 0) {
+    print;
+    $left -= 1;
+    next;
+}
+if (/'"$pattern"'/) {
+    print;
+    $left = '"$num"' - 1;
+    next;
+}
+'

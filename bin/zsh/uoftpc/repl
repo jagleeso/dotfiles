@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+set -e
+replace="$1"
+with="$2"
+shift 2
+
+for f in `ag '\bALOG' --ignore tags --ignore cscope.out  -l`; do 
+    echo $f
+    ag ALOG $f
+    echo -n Replace "[y]? "
+    read yesno
+    if [ "$yesno" = 'y' ]
+    then echo REPLACE
+        perl -pi -E 's/\bALOG/MY_ALOG/' $f
+    else
+        echo SKIP
+    fi
+    echo
+done
