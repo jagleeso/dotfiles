@@ -4,24 +4,8 @@ set -e
 cd $AOSP
 echo $AOSP
 source build/envsetup.sh
-lunch full_mako-userdebug
-
-if [ $# -eq 0 ]; then
-    targets=(
-        "$AOSP/frameworks/native/libs/ui"
-        "$AOSP/frameworks/native/services/surfaceflinger"
-    )
-else
-    targets=("$@")
-fi
-
-if [ "$1" = "$AOSP/dalvik" ]; then
-    # rebuild Interp*.cpp files (not part of dalvik build system).
-    prev="$PWD"
-    cd $AOSP/dalvik/vm/mterp
-    ./rebuild.sh
-    cd $prev
-fi
+# goldfish emulator
+lunch full-eng
 
 mmm "${targets[@]}" -j8
 

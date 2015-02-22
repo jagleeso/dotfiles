@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+top=$(git rev-parse --show-toplevel)
+# cd $top
+# set -x
+set -e
+git_dir=~/android/team/jiawen/aosp/$(basename $top)
+cd $git_dir
+REPLACE_ALL=n
+for f in $(git ls-files); do
+    git_f=~/android/team/jiawen/aosp/$(basename $top)/$f
+    aosp_f=$AOSP/$(basename $top)/$f
+    if [ -f $aosp_f ]; then
+        if [ "$REPLACE_ALL" = n ] && ! diff -q $aosp_f $git_f; then
+            echo "Files differ:"
+            echo "  [AOSP] $aosp_f"
+            echo "  [GIT]  $git_f"
+            echo "  Replace with GIT [y/a]? "
+            read answer
+            if [ "$answer" == a ]; then
+                REPLACE_ALL=y
+            fi
+            if [ "$answer" != y ]; then
+                echo SKIP
+                echo
+                continue
+            fi
+        fi
+        rm $aosp_f
+    fi
+    echo ln -s -T $git_f $aosp_f 
+    ln -s -T $git_f $aosp_f 
+    echo
+done

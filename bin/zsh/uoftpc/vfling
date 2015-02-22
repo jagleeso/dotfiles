@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+source $(dirname $(realpath $0))/common.sh
+set -e
+
+crun stop_gui
+# sleep 5
+fling
+crun start_gui
+# adb reboot
