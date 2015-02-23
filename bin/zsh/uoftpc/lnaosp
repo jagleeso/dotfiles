@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Copy AOSP to GIT, point to GIT
 top=$(git rev-parse --show-toplevel)
 cd $top
 # set -x
