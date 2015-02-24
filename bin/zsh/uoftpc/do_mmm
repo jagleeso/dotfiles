@@ -5,6 +5,7 @@ cd $AOSP
 echo $AOSP
 source build/envsetup.sh
 lunch full_mako-userdebug
+# choosetype debug
 
 if [ $# -eq 0 ]; then
     targets=(
@@ -15,10 +16,12 @@ else
     targets=("$@")
 fi
 
-if [ "$1" = "$AOSP/dalvik" ]; then
+if [ "$(realpath "$1")" == "$(realpath "$AOSP/dalvik")" ]; then
     # rebuild Interp*.cpp files (not part of dalvik build system).
     prev="$PWD"
     cd $AOSP/dalvik/vm/mterp
+    ./rebuild.sh
+    cd $AOSP/dalvik/vm/compiler/template
     ./rebuild.sh
     cd $prev
 fi
