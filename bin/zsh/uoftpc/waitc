@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+set -e
+prev="$PWD"
+cd $AOSP
+echo $AOSP
+source build/envsetup.sh
+lunch full_mako-userdebug
+cd "$prev"
+
+# http://stackoverflow.com/questions/12373528/inotifywait-to-run-command-based-on-type-of-file-modified
+
+while file=$(inotifywait -r -e modify --format "%w%f" ./); do
+  file="$(perl -ape 's/~$//'<<<"$file")"
+  EXT=${file##*.}
+  if \
+      [ $EXT = "cpp" ] \
+      || [ $EXT = "c" ] \
+      || [ $EXT = "h" ] \
+      || [ $EXT = "mk" ] \
+      ;
+  then
+      date
+      echo "$file changed"
+      ( "$@" || true )
+  fi
+done

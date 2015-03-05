@@ -4,8 +4,15 @@ top=$(git rev-parse --show-toplevel)
 cd $top
 # set -x
 set -e
-# SKIP: dalvik/vm/mterp/out
-git ls-files -m | grep -v '/out/' | while read f; do
+# SKIP: 
+#   dalvik/vm/mterp/out
+#   etc/host-run-test-jar
+#   etc/run-test
+git ls-files -m | \
+    grep -v '/out/' | \
+    grep -v 'etc/host-run-test-jar' | \
+    grep -v 'etc/run-test' | \
+    while read f; do
     git_f=~/android/team/jiawen/aosp/$(basename $top)/$f
     aosp_f=$AOSP/$(basename $top)/$f
     if [ ! -f ~/android/team/jiawen/aosp/$(basename $top)/$f ]; then

@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+# curdir="$PWD"
+set -e
+
+cd $AOSP
+
+if [ $# -eq 0 ]; then
+    targets=(
+        "$AOSP/frameworks/native/libs/ui"
+        "$AOSP/frameworks/native/services/surfaceflinger"
+    )
+else
+    targets=("$@")
+fi
+
+if [ "$(realpath "$1")" == "$(realpath "$AOSP/dalvik")" ]; then
+    # rebuild Interp*.cpp files (not part of dalvik build system).
+    prev="$PWD"
+    cd $AOSP/dalvik/vm/mterp
+    ./rebuild.sh
+    cd $AOSP/dalvik/vm/compiler/template
+    ./rebuild.sh
+    cd $prev
+fi
+
+mmm "${targets[@]}" -j8
