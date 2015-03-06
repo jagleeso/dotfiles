@@ -22,6 +22,6 @@ while file=$(inotifywait -r -e modify --format "%w%f" ./); do
   then
       date
       echo "$file changed"
-      ( "$@" || true )
+      ( "$@" || true; ) || true
   fi
 done
