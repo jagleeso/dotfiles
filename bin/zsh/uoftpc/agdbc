@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+source $(dirname $(realpath $0))/common.sh
+set -e
+
+agdbclient "$@"
