@@ -1,2 +1,3 @@
 #!/usr/bin/env bash
+cd ~/android/team/jiawen/aosp/dalvik
 waitc source my_mmm $AOSP/dalvik

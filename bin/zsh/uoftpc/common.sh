@@ -177,7 +177,9 @@ echo $AOSP
 source build/envsetup.sh
 lunch full_mako-userdebug
 # export GDB_CMD='ddd --debugger $(which arm-linux-gdb)'
-export GDB_CMD='cgdb -d $(which arm-linux-gdb)'
+# export GDB_CMD='cgdb -d $(which arm-linux-gdb)'
+# export GDB_CMD='gdb -d $(which arm-linux-gdb)'
+# export GDB_CMD='$(which arm-linux-gdb)'
 gdbclient
 "
 }
