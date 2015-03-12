@@ -171,7 +171,7 @@ def oopsline(ds, obj, gdb, kernel):
                 return True
         return False
 
-    proc = subprocess.Popen([gdb, obj],stdout=subprocess.PIPE)
+    proc = subprocess.Popen([gdb, obj, '-x', '.gdbinit'],stdout=subprocess.PIPE)
     for line in iter(proc.stdout.readline, ''):
         if should_skip(line):
             continue
