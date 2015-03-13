@@ -144,7 +144,8 @@ start_gui() {
 get_pids() {
     local name="$1"
     shift 1
-    adb_sudo top -n 1 | grep "$name" | perl -ane 'print @F[0]' 
+    adb_sudo top -n 1 | grep "$name" | \
+        perl -lane 'if (not(@F[3] eq "Z")) { print @F[0]; }'
     echo
 }
 
@@ -165,6 +166,7 @@ agdbserver() {
     fi
     echo "Run gdbclient in a sec..."
     adb forward tcp:5039 tcp:5039
+    echo adb_sudo gdbserver :5039 --attach $pid
     adb_sudo gdbserver :5039 --attach $pid
 }
 
