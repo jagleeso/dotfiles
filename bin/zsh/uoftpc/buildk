@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+source $(dirname $(realpath $0))/common.sh
+set -e
+
+jobs=4
+# jobs=1
+make_args=(-j $jobs)
+
+cd "$KERN"
+export ARCH=arm
+export SUBARCH=arm
+export CROSS_COMPILE="$CROSS_COMPILE"
+
+make ${make_args[@]}

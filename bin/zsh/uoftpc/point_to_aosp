@@ -7,7 +7,7 @@ set -e
 git_dir=~/android/team/jiawen/aosp/$(basename $top)
 cd $git_dir
 REPLACE_ALL=n
-for f in $(git ls-files); do
+for f in $(git ls-files | grep -v 'tests/'); do
     git_f=~/android/team/jiawen/aosp/$(basename $top)/$f
     aosp_f=$AOSP/$(basename $top)/$f
     if [ -f $aosp_f ]; then
