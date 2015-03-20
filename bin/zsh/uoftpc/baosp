@@ -1,7 +1,2 @@
 #!/usr/bin/env bash
-_baosp() {
-    cd $AOSP
-    source build/envsetup.sh
-    lunch 11
-}
-exec _baosp
+exec _baosp "$@"

@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+source $(dirname $(realpath $0))/common.sh
+set -e
+
+RUN_COMMON=yes $EXPR/scripts/sh/common.sh freeze_thaw_cmd freeze

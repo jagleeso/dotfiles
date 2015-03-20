@@ -1,3 +1,8 @@
 #!/usr/bin/env bash
-bash --init-file <(echo "cd $AOSP; source build/envsetup.sh; lunch 11")
+bash --init-file <(echo "
+    cd $AOSP
+    source build/envsetup.sh
+    lunch 11
+    $@
+    ")
 
