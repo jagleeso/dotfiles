@@ -53,4 +53,7 @@ elif [ "$(realpath $PWD)" == "$(realpath $KERN)" ]; then
 fi
 mk_ignore_args
 ag-grep "$@" \
+    --ignore tags \
+    --ignore cscope.out \
+    -f \
     "${ignore_args[@]}"

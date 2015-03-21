@@ -5,4 +5,5 @@ shift 1
 # remove "CONFIG_"
 set -x
 pattern=${pattern:s/CONFIG_//}
-vim -c 'vimgrep /^\(config\|menuconfig\) \c'"$pattern"'$/ `find -L '"$AOSP/kernel"' -name "Kconfig*"`'
+# vim -c 'vimgrep /^\(config\|menuconfig\) \c'"$pattern"'$/ `find -L '"$AOSP/kernel"' -name "Kconfig*"`'
+vim -c 'vimgrep /^\(config\|menuconfig\) \c'"$pattern"'$/ `find -L '"$AOSP/kernel"' -name "Kconfig"`'

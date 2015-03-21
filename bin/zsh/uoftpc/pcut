@@ -1,0 +1,49 @@
+#!/usr/bin/env python
+import argparse
+import sys
+import re
+
+def main():
+    parser = argparse.ArgumentParser(description="")
+    parser.add_argument("--from-start", action='store_true')
+    parser.add_argument("--from-end", action='store_true')
+    parser.add_argument("--until", required=True)
+    parser.add_argument("file", nargs='?')
+    args = parser.parse_args()
+
+    if not args.from_start and not args.from_end:
+        parser.error("need --from-start or --from-end")
+
+    def slurp(f):
+        return [l.rstrip() for l in f]
+    lines = None
+    if args.file:
+        with open(args.file) as f:
+            lines = slurp(f)
+    else:
+        lines = slurp(sys.stdin)
+
+    start = None
+    end = None
+    if args.from_start:
+        start = 0
+        for i in range(len(lines)):
+            if re.search(args.until, lines[i]):
+                end = i
+                break
+    else:
+        end = len(lines) - 1
+        for i in range(len(lines)-1, -1, -1):
+            if re.search(args.until, lines[i]):
+                start = i
+                break
+
+    if start is None or end is None:
+        return
+
+    for i in range(start, end+1):
+        print lines[i]
+
+if __name__ == '__main__':
+    main()
+

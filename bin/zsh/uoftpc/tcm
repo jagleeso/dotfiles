@@ -2,7 +2,7 @@
 set -e
 set -x
 # Setup TCM.
-# adb root
+adb root
 # crun adb_sudo 'mount -o remount,rw /system' 
 cd $IRAM/kmod
 if [ -f Makefile ]; then
