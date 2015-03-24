@@ -2,4 +2,8 @@
 source $(dirname $(realpath $0))/common.sh
 set -e
 
+if [ $# -lt 1 ]; then
+    echo "ERROR: you must include the executable name for gdbclient otherwise the debugger won't work."
+    exit 1
+fi
 agdbclient "$@"

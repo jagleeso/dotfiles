@@ -171,6 +171,7 @@ agdbserver() {
 }
 
 agdbclient() {
+    set -e
     local name="$1"
     shift 1
     bash -c "
@@ -182,6 +183,6 @@ lunch full_mako-userdebug
 # export GDB_CMD='cgdb -d $(which arm-linux-gdb)'
 # export GDB_CMD='gdb -d $(which arm-linux-gdb)'
 # export GDB_CMD='$(which arm-linux-gdb)'
-gdbclient
+gdbclient $name
 "
 }
