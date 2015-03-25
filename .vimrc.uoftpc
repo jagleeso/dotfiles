@@ -1,0 +1,7 @@
+set tags+=$AOSP/kernel/tags
+cscope add $AOSP/kernel/cscope.out $AOSP/kernel
+" cscope first, then ctags
+set cscopetagorder=0
+
+silent !dalvikcscope
+cscope add $AOSP/dalvik/cscope.out $AOSP/dalvik
