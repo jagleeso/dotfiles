@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+find -L $AOSP/dalvik -name '*.h' -o -name '*.cpp' -o -name '*.c' | xargs realpath > $AOSP/dalvik/cscope.files
+cd $AOSP/dalvik
+cscope -b -q -k
