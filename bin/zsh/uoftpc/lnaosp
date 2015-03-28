@@ -18,10 +18,11 @@ git ls-files -m | \
     if [ ! -f ~/android/team/jiawen/aosp/$(basename $top)/$f ]; then
         # ls -l ~/android/team/jiawen/aosp/$(basename $top)/$f
 
-        mkdir -p $(dirname ~/android/team/jiawen/aosp/$(basename $top)/$f)
         echo mv $aosp_f $git_f
-        mv $aosp_f $git_f
         echo ln -s -T $git_f $aosp_f 
+
+        mkdir -p $(dirname ~/android/team/jiawen/aosp/$(basename $top)/$f)
+        mv $aosp_f $git_f
         ln -s -T $git_f $aosp_f 
 
     fi

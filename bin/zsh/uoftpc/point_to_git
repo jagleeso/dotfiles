@@ -7,9 +7,22 @@ set -e
 git_dir=~/android/team/jiawen/aosp/$(basename $top)
 cd $git_dir
 REPLACE_ALL=n
-for f in $(git ls-files | grep -v 'tests/'); do
+# for f in $(git ls-files | grep -v 'tests/'); do
+args=""
+if [ $# -gt 0 ]; then
+    args=("$@")
+else
+    args=($(git ls-files | grep -v 'tests/'))
+fi
+for f in "${args[@]}"; do
+    # echo $f
+    # continue
     git_f=~/android/team/jiawen/aosp/$(basename $top)/$f
     aosp_f=$AOSP/$(basename $top)/$f
+    if [ ! -f $git_f ]; then
+        echo "ERROR: no such file $git_f"
+        continue
+    fi
     if [ -f $aosp_f ]; then
         if [ "$REPLACE_ALL" = n ] && ! diff -q $aosp_f $git_f; then
             echo "Files differ:"
