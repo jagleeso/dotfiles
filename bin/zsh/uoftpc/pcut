@@ -8,6 +8,8 @@ def main():
     parser.add_argument("--from-start", action='store_true')
     parser.add_argument("--from-end", action='store_true')
     parser.add_argument("--until", required=True)
+    parser.add_argument("--ignore-first", type=int, required=True,
+            help="ignore the first n lines")
     parser.add_argument("file", nargs='?')
     args = parser.parse_args()
 
@@ -23,17 +25,18 @@ def main():
     else:
         lines = slurp(sys.stdin)
 
-    start = None
+    start = 0
+    if args.ignore_first:
+        start = args.ignore_first
     end = None
     if args.from_start:
-        start = 0
-        for i in range(len(lines)):
+        for i in range(start, len(lines)):
             if re.search(args.until, lines[i]):
                 end = i
                 break
     else:
         end = len(lines) - 1
-        for i in range(len(lines)-1, -1, -1):
+        for i in range(len(lines)-1, start-1, -1):
             if re.search(args.until, lines[i]):
                 start = i
                 break
