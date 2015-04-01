@@ -8,7 +8,7 @@ def main():
     parser.add_argument("--from-start", action='store_true')
     parser.add_argument("--from-end", action='store_true')
     parser.add_argument("--until", required=True)
-    parser.add_argument("--ignore-first", type=int, required=True,
+    parser.add_argument("--ignore-first", default=0, type=int,
             help="ignore the first n lines")
     parser.add_argument("file", nargs='?')
     args = parser.parse_args()
