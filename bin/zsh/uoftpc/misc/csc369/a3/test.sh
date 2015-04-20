@@ -10,11 +10,19 @@ gdb=""
 _r() {
     $gdb "$@"
 }
-set_gdb() {
-    gdb="gdb --args"
+try_set_gdb() {
+    local name="$1"
+    shift 1
+    if [ "$GDB" == "yes" ] || [ "$GDB_TEST" == "$name" ] ; then
+        gdb="gdb --args"
+    fi
 }
-unset_gdb() {
-    gdb=""
+try_unset_gdb() {
+    local name="$1"
+    shift 1
+    if [ "$GDB" == "yes" ] || [ "$GDB_TEST" == "$name" ]; then
+        gdb=""
+    fi
 }
 
 imgcopy=
@@ -34,38 +42,7 @@ do_error_test() {
     mkdir -p $tmp/mnt
     cd $tmp
 
-    # Copy disk image, set it to imgcopy
-    copyimg() {
-        local img="$1"
-        shift 1
-        imgcopy=$(mktemp $tdir/img/$img.XXX)
-        cp $tdir/img/$img $imgcopy
-    }
-    mountimg() {
-        local img="$1"
-        shift 1
-        fuseext2 -o rw+ $img $tdir/mnt 
-    }
-    mountnewimg() {
-        local img="$1"
-        shift 1
-        copyimg $img
-        mountimg $imgcopy
-    }
-    umount() {
-        local tries=5
-        local i=0
-        while [ $i -lt $tries ]; do
-            if fusermount -u $tdir/mnt -z > /dev/null 2>&1; then
-                return 0
-            # else
-            #     echo "FAILED WITH: $?"
-            fi
-            sleep 1
-            let i=$((i+1))
-        done
-        return 1
-    }
+    source $SCRIPT_DIR/wrappers.sh
 
     # ACTUAL
     # modify state using regular operations
@@ -74,20 +51,15 @@ do_error_test() {
 
     copyimg $img
     local DISK=$(realpath $imgcopy)
-    source $SCRIPT_DIR/wrappers.sh
     local MOUNT=$tdir/mnt
     (
         cd mnt
-        if [ "$GDB" == "yes" ]; then
-            set_gdb
-        fi
+        try_set_gdb "$name"
         set +e
         eval "$actual_modify_cmds"
         log_errcode $tdir/errfile.txt $?
         set -e
-        if [ "$GDB" == "yes" ]; then
-            unset_gdb
-        fi
+        try_unset_gdb "$name"
     )
     # people don't print newlines, goodtimes
     echo
@@ -119,6 +91,7 @@ dotest() {
     local expect_check_cmds="$4"
     local actual_modify_cmds="$5"
     local actual_check_cmds="$6"
+    local marking_scheme="$7"
     shift 6
 
     tmp=$(mktemp -d test-$name-XXX)
@@ -128,43 +101,12 @@ dotest() {
     mkdir -p $tmp/mnt
     cd $tmp
 
-    copyimg() {
-        local img="$1"
-        shift 1
-        imgcopy=$(mktemp $tdir/img/$img.XXX)
-        cp $tdir/img/$img $imgcopy
-    }
-    mountimg() {
-        local img="$1"
-        shift 1
-        fuseext2 -o rw+ $img $tdir/mnt 
-    }
-    mountnewimg() {
-        local img="$1"
-        shift 1
-        copyimg $img
-        mountimg $imgcopy
-    }
-    umount() {
-        local tries=5
-        local i=0
-        while [ $i -lt $tries ]; do
-            if fusermount -u $tdir/mnt -z > /dev/null 2>&1; then
-                return 0
-            # else
-            #     echo "FAILED WITH: $?"
-            fi
-            sleep 1
-            let i=$((i+1))
-        done
-        return 1
-    }
+    source $SCRIPT_DIR/wrappers.sh
 
     # EXPECT
     # modify state using their scripts
     # mount img using fuse
     # "check", output to file
-
     mountnewimg $img
     (
         cd mnt
@@ -181,28 +123,21 @@ dotest() {
     # modify state using regular operations
     # mount img using fuse
     # "check", output to file
-
     copyimg $img
     local DISK=$(realpath $imgcopy)
-    source $SCRIPT_DIR/wrappers.sh
     local MOUNT=$tdir/mnt
     if [ -f $tdir/actual.txt ]; then
         rm $tdir/actual.txt
     fi
     (
         cd mnt
-        if [ "$GDB" == "yes" ]; then
-            set_gdb
-        fi
+        try_set_gdb "$name"
         set +e
-
         # eval echo "$actual_modify_cmds" 
         eval "$actual_modify_cmds" 2>&1 | tee --append $tdir/actual.txt
         log_errcode $tdir/errfile.txt $?
         set -e
-        if [ "$GDB" == "yes" ]; then
-            unset_gdb
-        fi
+        try_unset_gdb "$name"
     )
 
     local imagecorrupt=0
@@ -215,14 +150,9 @@ dotest() {
             e2fsck -f -n $imgcopy > $tdir/e2fsck.txt 2>&1
             log_errcode $tdir/e2fsck_errfile.txt $?
             cd mnt
-            if [ "$GDB" == "yes" ]; then
-                set_gdb
-                eval "$actual_check_cmds" >> $tdir/actual.txt 2>&1 
-                unset_gdb
-            else
-                # eval echo "$actual_check_cmds" 
-                eval "$actual_check_cmds" >> $tdir/actual.txt 2>&1 
-            fi
+            try_set_gdb "$name"
+            eval "$actual_check_cmds" >> $tdir/actual.txt 2>&1 
+            try_unset_gdb "$name"
             # find -type f | xargs -r -n 1 ls -i > $tdir/inodes.txt
             ls -l -i > $tdir/inodes.txt
             set -e
@@ -248,14 +178,21 @@ dotest() {
     cat_file() {
         local f="$1"
         echo -e "=> \e[1;36m$f\e[0m"
-        cat $f | while read line; do
+
+        # keep spacing
+        # http://stackoverflow.com/questions/7314044/use-bash-to-read-line-by-line-and-keep-space 
+        old_IFS="$IFS"
+        IFS=''
+        while read line; do
             echo "    $line"
-        done
+        done < "$f"
+        IFS="$old_IFS"
+
         echo
     }
 
     if image_corrupt || are_diff || prog_err || fsck_err; then
-        test_header_checkme $name
+        test_header_checkme $name "$marking_scheme"
         if image_corrupt; then
             cat_file $tdir/mountimg.txt
         else
@@ -274,22 +211,42 @@ dotest() {
             fi
         fi
     else
-        test_header_success $name
+        test_header_success $name "$marking_scheme"
     fi
     echo
 
     # echo rm -rf $tdir
 }
 
+scheme() {
+    local marking_scheme="$1"
+    shift 1
+    local color=34
+    echo -e "\e[1;${color}m[SCHEME] $marking_scheme\e[0m"
+}
+__test_header() {
+    local color="$1"
+    local name="$2"
+    local header="$3"
+    local marking_scheme="$4"
+    shift 3
+    echo -n -e "\e[1;${color}m[$header] $name\e[0m"
+    if [ ! -z "$marking_scheme" ]; then
+        echo -n -e " :: \e[1;${color}m[SCHEME] $marking_scheme\e[0m"
+    fi
+    echo
+}
 test_header_success() {
     local name="$1"
+    local marking_scheme="$2"
     shift 1
-    echo -e "\e[1;32m[SUCCESS] $name\e[0m ================="
+    __test_header 32 $name SUCCESS "$marking_scheme"
 }
 test_header_checkme() {
     local name="$1"
+    local marking_scheme="$2"
     shift 1
-    echo -e "\e[1;34m[CHECKME] $name\e[0m ================="
+    __test_header 34 $name CHECKME "$marking_scheme"
 }
 
 e_ls() {
@@ -302,6 +259,11 @@ e_ln() {
     local dst="$2"
     shift 2
     ln "$src" "$dst" 2>/dev/null || true
+    if [ ! -f "$dst" ]; then
+        ln "$src" "$dst" 2>/dev/null || true
+        echo ln "$src" "$dst"
+        ls -l
+    fi
     [ -f "$dst" ]
 }
 e_cp() {
@@ -338,8 +300,11 @@ e_cp() {
     # fi
 }
 
+fuse_mounts() {
+    df -h 2>/dev/null | grep fuse | perl -lane 'print $F[-1]'
+}
 unmount_fuse() {
-    for f in $(df -h 2>/dev/null | grep fuse | perl -lane 'print $F[-1]'); do
+    for f in $(fuse_mounts); do
         echo fusermount -u -z $f
         fusermount -u -z $f
     done
@@ -425,21 +390,28 @@ test_rm() {
 # Daniel's suggestions:
 
 ls_test() {
-    local f="$1"
-    shift 1
+    local name="$1"
+    local f="$2"
+    local marking_scheme="$3"
+    shift 2
     dotest \
-        metadata-ls-$f $f.img \
+        metadata-$name-$f $f.img \
         "" "e_ls" \
         "" '$EXT2_LS $DISK /' \
+        "$marking_scheme"
 
 }
 # Step 1 - can metadata/directories be read?  
 test_metadata() {
 
+    scheme "Basic: Reads metadata / Basic: Write an inode"
+    scheme "ext2_ls"
+    echo
 
-    ls_test emptydisk
-    ls_test onefile
-    ls_test onedirectory
+    ls_test empty-root-folder emptydisk
+    ls_test single-file onefile
+    ls_test single-directory onedirectory
+
     # multiple blocks
     # ls_test bigdir
 
@@ -452,6 +424,9 @@ rel() {
 }
 
 test_paths() {
+
+    scheme "Path traversal beyond the root directory"
+    echo
 
     path_test() {
         local f="$1"
@@ -485,12 +460,14 @@ test_modsimple() {
         modsimple-mkdir emptydisk.img \
         'mkdir dir1' 'e_ls' \
         '$EXT2_MKDIR $DISK /dir1' 'e_ls' \
+        "ext2_mkdir"
 
     # ext2_cp emptydisk.img smallfile / 
     dotest \
         modsimple-cp emptydisk.img \
         'e_cp $FILES/smallfile smallfile' 'e_ls; echo; cat smallfile' \
-        '$EXT2_CP $DISK $FILES/smallfile /' 'e_ls; echo; cat smallfile'
+        '$EXT2_CP $DISK $FILES/smallfile /' 'e_ls; echo; cat smallfile' \
+        "Basic: Add a directory entry / Basic: Write a data block"
     #or ext2_cp emptydisk.img smallfile /smallfile
     dotest \
         modsimple-cp-targetfullpath emptydisk.img \
@@ -501,12 +478,15 @@ test_modsimple() {
     dotest \
         modsimple-ln onefile.img \
         'e_ln afile newfile' 'e_ls; echo; cat newfile' \
-        '$EXT2_LN $DISK /afile /newfile' 'e_ls; echo; cat newfile'
+        '$EXT2_LN $DISK /afile /newfile' 'e_ls; echo; cat newfile' \
+        "ext2_ln is implemented correctly"
+
     #or ext2_ln onefile.img /newfile /afile
     dotest \
         modsimple-ln-backwards-args onefile.img \
         'e_ln afile newfile' 'e_ls; echo; cat newfile' \
         '$EXT2_LN $DISK /newfile /afile' 'e_ls; echo; cat newfile' \
+        "ext2_ln is implemented correctly"
 
     # rm should:
     #  (1) remove the directory entry
@@ -515,9 +495,10 @@ test_modsimple() {
 
     # ext2_rm onefile.img /afile
     dotest \
-        modsimple-rm onefile.img \
+        modsimple-rm-file-from-root onefile.img \
         'rm afile' 'e_ls' \
         '$EXT2_RM $DISK /afile' 'e_ls' \
+        "Removing an item from a directory"
 
 }
 
@@ -543,49 +524,56 @@ test_blocks() {
         local file="$2"
         local to="$3"
         local wc_file="$4"
+        local marking_scheme="$5"
         shift 4
         dotest \
             blocks-cp-$name emptydisk.img \
-            'e_cp '"$file"' '"$wc_file"'' 'e_ls; echo; wc '"$wc_file"'' \
-            '$EXT2_CP $DISK '"$file"' '"$to"'' 'e_ls; echo; wc '"$wc_file"'' \
-
+            'e_cp '"$file"' '"$wc_file"'' 'e_ls; echo; contents '"$wc_file"'' \
+            '$EXT2_CP $DISK '"$file"' '"$to"'' 'e_ls; echo; contents '"$wc_file"'' \
+            "$marking_scheme"
     }
-    do_cptest_tofile() {
+    do_cptest_to_file() {
         local name="$1"
         local file="$2"
+        local marking_scheme="$3"
         shift 2
-        __do_cptest $name-tofile $file /afile afile
+        __do_cptest $name-to-file $file /afile afile "$marking_scheme"
     }
-    do_cptest_todir() {
+    do_cptest_same_dir() {
         local name="$1"
         local file="$2"
+        local marking_scheme="$3"
         shift 2
-        __do_cptest $name-todir $file / $(basename $file)
+        # copy file to same directory as script so we can do:
+        #  ext2_cp $DISK afile /afile (some people handle src copy paths poorly [e.g. include '/'])
+        dotest \
+            blocks-cp-$name-to-same-dir emptydisk.img \
+            'e_cp '"$file"' afile' 'e_ls; echo; contents afile' \
+            'cp '"$file"' afile; $EXT2_CP $DISK afile /afile' 'e_ls; echo; contents afile' \
+            "$marking_scheme"
+    }
+    do_cptest_to_dir() {
+        local name="$1"
+        local file="$2"
+        local marking_scheme="$3"
+        shift 2
+        __do_cptest $name-to-dir $file / $(basename $file) "$marking_scheme"
     }
 
     # A3 only needs to handle single **indirection**
 
-    # TODO: make largefile4 have an indirect block
-    # ext2_cp emptydisk.img largefile4 /
-    do_cptest_tofile directblocks $FILES/3_direct_blocks
-    do_cptest_tofile singly $FILES/1_singly_indirect_block
+    # # ext2_cp emptydisk.img path/to/afile /afile
+    # do_cptest_to_file directblocks $FILES/3_direct_blocks "Copying a file that occupies multiple blocks"
+    # do_cptest_to_file singly $FILES/1_singly_indirect_block "Copying a file that uses a single indirect block"
 
-    # TODO: make largefile4 have an indirect block
-    # ext2_cp emptydisk.img largefile4 /
-    # do_cptest_todir directblocks $FILES/1_singly_indirect_block
-    # do_cptest_todir singly $FILES/1_singly_indirect_block
+    # # ext2_cp emptydisk.img path/to/afile /
+    # do_cptest_to_dir directblocks $FILES/1_singly_indirect_block "Copying a file that occupies multiple blocks"
+    # do_cptest_to_dir singly $FILES/1_singly_indirect_block "Copying a file that uses a single indirect block"
+
+    # ext2_cp emptydisk.img afile /afile
+    do_cptest_same_dir directblocks $FILES/1_singly_indirect_block "Copying a file that occupies multiple blocks"
+    do_cptest_same_dir singly $FILES/1_singly_indirect_block "Copying a file that uses a single indirect block"
     
-    # # TODO: make largefile12 have an doubly indirect block
-    # # ext2_cp emptydisk.img largefile12 /
-    # do_cptest doubly $FILES/1_doubly_indirect_block
-
-    # # TODO: make largefile13 have an triply indirect block
-    # # ext2_cp emptydisk.img largefile13 /
-    # do_cptest triply $FILES/1_triply_indirect_block
-
-    # The last test case should allocate an indirect block, with a pointer to the last block 
-    # of the file.  fusemount is a good way to test whether the entire file made it. e2fsck -n 
-    # before fusemount to make sure they didn't blow anything up. 
 
 }
 
@@ -600,7 +588,8 @@ test_direntry() {
     # The latter should remove the /level1/bfile direntry but not the inode (linked from /bfile-ln)
 
     # ls spanning 2 blocks
-    ls_test twoblockdir
+    ls_test two-block-dir twoblockdir \
+        "Handling a directory that spans two blocks (reading: ext2_ls twoblockdir.img)"
 
     # ext2_mkdir fullblockdir.img** /longenoughdirectorynametooverflowtheexistingblock
     big() {
@@ -615,6 +604,7 @@ test_direntry() {
         trickydirentry-mkdir-overflowblock fullblockdir.img \
         'mkdir '"$overflowdir"'' 'e_ls' \
         '$EXT2_MKDIR $DISK /'"$overflowdir"'' 'e_ls' \
+        "ext2_mkdir / Handling a directory that spans two blocks (creation: ext2_mkdir next-file-needs-a-new-block.img /afile)"
 
     # ext2_rm fullblockdir.img /8-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
     dotest \
@@ -636,25 +626,25 @@ test_errors() {
 
     # ext2_ls emptydisk.img /bogus/
     do_error_test ls-nosuchdir emptydisk.img \
-        '$EXT2_LS $IMG/emptydisk.img /bogus/'
+        '$EXT2_LS $DISK /bogus/'
     # ext2_cp emptydisk.img notafile /
     do_error_test cp-nosuchfile emptydisk.img \
-        '$EXT2_CP $IMG/emptydisk.img notafile /'
+        '$EXT2_CP $DISK notafile /'
     # ext2_cp twolevel.img smallfile /level1/level3/
     do_error_test cp-nosuchdir twolevel.img \
-        '$EXT2_CP $IMG/twolevel.img smallfile /level1/level3/'
+        '$EXT2_CP $DISK smallfile /level1/level3/'
     # ext2_rm twolevel.img /level1
     do_error_test rm-nonemptydir twolevel.img \
-        '$EXT2_RM $IMG/twolevel.img /level1'
+        '$EXT2_RM $DISK /level1'
     # ext2_ln onefile.img /notafile /stillnotafile
     do_error_test ln-nosuchfiles onefile.img \
-        '$EXT2_LN $IMG/onefile.img /notafile /stillnotafile'
+        '$EXT2_LN $DISK /notafile /stillnotafile'
     # ext2_mkdir onefile.img /afile
     do_error_test mkdir-fileexists onefile.img \
-        '$EXT2_MKDIR $IMG/onefile.img /afile'
+        '$EXT2_MKDIR $DISK /afile'
     # ext2_mkdir emptydisk.img ..
     do_error_test mkdir-parent emptydisk.img \
-        '$EXT2_MKDIR $IMG/emptydisk.img ..'
+        '$EXT2_MKDIR $DISK ..'
 
 }
 
@@ -683,7 +673,8 @@ test_errors() {
 # set -x
 if [ "$RUN" != "yes" ]; then
     make
-    ctags -R
+    $SCRIPT_DIR/img/files/genfiles.sh
+    ctags -R || true
     cleanup
 fi
 # if [ "$GDB" == "yes" ]; then

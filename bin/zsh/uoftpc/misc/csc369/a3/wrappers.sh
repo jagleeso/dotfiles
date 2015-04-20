@@ -1,3 +1,6 @@
+##
+## Wrappers for ext2_func $DISK ... (in case someone has weird conventions for arguments)
+##
 abspath() {
     # in case someone does weird thing with abspath formats:
     # - not/absolute
@@ -32,7 +35,7 @@ rmpath() {
     # echo ".$path"
 
     # corrrect
-    echo "$path"
+    echo "$(rel $path)"
 
 }
 lnpath() {
@@ -88,3 +91,53 @@ my_ext2_ln() {
     _r $A3/ext2_ln $img $(lnpath $target) $(lnpath $new) "$@"
 }
 EXT2_LN=my_ext2_ln
+
+##
+## Misc test functions
+##
+
+contents() {
+    local f="$1"
+    shift 1
+    wc "$f"
+    echo
+    echo First 100 characters:
+    head -c 100 "$f"
+    echo
+}
+
+
+# image mounting functions refer to imgcopy global variable.
+
+# Copy disk image, set it to imgcopy
+copyimg() {
+    local img="$1"
+    shift 1
+    imgcopy=$(mktemp $tdir/img/$img.XXX)
+    cp $tdir/img/$img $imgcopy
+}
+mountimg() {
+    local img="$1"
+    shift 1
+    # make sure we're operating on an img copy not the original.
+    echo "$imgcopy" | grep '\.img\.\w\w\w$'
+    fuseext2 -o rw+ $img $tdir/mnt 
+}
+mountnewimg() {
+    local img="$1"
+    shift 1
+    copyimg $img
+    mountimg $imgcopy
+}
+umount() {
+    local tries=5
+    local i=0
+    while [ $i -lt $tries ]; do
+        if [ -z "$(fuse_mounts)" ] || fusermount -u $tdir/mnt -z > /dev/null 2>&1; then
+            return 0
+        fi
+        sleep 1
+        let i=$((i+1))
+    done
+    return 1
+}
