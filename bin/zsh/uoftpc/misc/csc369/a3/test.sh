@@ -169,9 +169,9 @@ dotest() {
     (
         cd mnt
 
-        eval echo "$expect_modify_cmds"
+        # eval echo "$expect_modify_cmds"
         eval "$expect_modify_cmds"
-        eval echo "$expect_check_cmds"
+        # eval echo "$expect_check_cmds"
         eval "$expect_check_cmds" > $tdir/expect.txt
     )
     umount
@@ -196,7 +196,7 @@ dotest() {
         fi
         set +e
 
-        eval echo "$actual_modify_cmds" 
+        # eval echo "$actual_modify_cmds" 
         eval "$actual_modify_cmds" 2>&1 | tee --append $tdir/actual.txt
         log_errcode $tdir/errfile.txt $?
         set -e
@@ -220,7 +220,7 @@ dotest() {
                 eval "$actual_check_cmds" >> $tdir/actual.txt 2>&1 
                 unset_gdb
             else
-                eval echo "$actual_check_cmds" 
+                # eval echo "$actual_check_cmds" 
                 eval "$actual_check_cmds" >> $tdir/actual.txt 2>&1 
             fi
             # find -type f | xargs -r -n 1 ls -i > $tdir/inodes.txt
@@ -265,6 +265,7 @@ dotest() {
             if fsck_err; then
                 cat_file $tdir/e2fsck_errfile.txt
                 cat_file $tdir/e2fsck.txt
+                cat_file $tdir/inodes.txt
             fi
             # vimdiff $tdir/expect.txt $tdir/actual.txt
             if are_diff; then
@@ -423,24 +424,23 @@ test_rm() {
 
 # Daniel's suggestions:
 
+ls_test() {
+    local f="$1"
+    shift 1
+    dotest \
+        metadata-ls-$f $f.img \
+        "" "e_ls" \
+        "" '$EXT2_LS $DISK /' \
+
+}
 # Step 1 - can metadata/directories be read?  
 test_metadata() {
 
-    ls_test() {
-        local f="$1"
-        shift 1
-        dotest \
-            metadata-ls-$f $f.img \
-            "" "e_ls" \
-            "" '$EXT2_LS $DISK /' \
-
-    }
 
     ls_test emptydisk
     ls_test onefile
     ls_test onedirectory
     # multiple blocks
-    ls_test twoblockdir
     # ls_test bigdir
 
 }
@@ -533,10 +533,10 @@ test_blocks() {
     #     'e_cp $FILES/smallfile smallfile' 'e_ls; echo; cat afile' \
     #     '$EXT2_CP $DISK $FILES/smallfile /smallfile' 'e_ls; echo; cat smallfile' \
 
-    dotest \
-        blocks-cp-overwrite-directblock-to-dir onefile.img \
-        'e_cp $FILES/smallfile smallfile' 'e_ls; echo; cat smallfile' \
-        '$EXT2_CP $DISK $FILES/smallfile /' 'e_ls; echo; cat smallfile' \
+    # dotest \
+    #     blocks-cp-overwrite-directblock-to-dir onefile.img \
+    #     'e_cp $FILES/smallfile smallfile' 'e_ls; echo; cat smallfile' \
+    #     '$EXT2_CP $DISK $FILES/smallfile /' 'e_ls; echo; cat smallfile' \
 
     __do_cptest() {
         local name="$1"
@@ -599,6 +599,9 @@ test_direntry() {
 
     # The latter should remove the /level1/bfile direntry but not the inode (linked from /bfile-ln)
 
+    # ls spanning 2 blocks
+    ls_test twoblockdir
+
     # ext2_mkdir fullblockdir.img** /longenoughdirectorynametooverflowtheexistingblock
     big() {
         local j="$1"
@@ -659,7 +662,6 @@ test_errors() {
 # test_metadata
 #   ext2_ls
 #   Basic: Reads metadata
-#   Diretry that spans 2 blocks (reading)
 
 # test_paths
 #   Path traversal beyond the root directory
