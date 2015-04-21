@@ -35,7 +35,7 @@ rmpath() {
     # echo ".$path"
 
     # corrrect
-    echo "$(rel $path)"
+    echo "$path"
 
 }
 lnpath() {

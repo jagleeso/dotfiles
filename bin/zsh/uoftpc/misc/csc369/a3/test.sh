@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+# Usage:
+# Put the folder containing test.sh on your bashrc PATH.
+#
+# test.sh test_all
 
 set -e
 
@@ -14,6 +18,7 @@ try_set_gdb() {
     local name="$1"
     shift 1
     if [ "$GDB" == "yes" ] || [ "$GDB_TEST" == "$name" ] ; then
+        # gdb="ddd --args"
         gdb="gdb --args"
     fi
 }
@@ -454,7 +459,6 @@ test_modsimple() {
     #   (3) allocate a new inode, populate it, and point it to the data block
     #   (4) keep our bitmaps & block groups up to date
 
-
     # ext2_mkdir emptydisk.img dir1
     dotest \
         modsimple-mkdir emptydisk.img \
@@ -469,10 +473,11 @@ test_modsimple() {
         '$EXT2_CP $DISK $FILES/smallfile /' 'e_ls; echo; cat smallfile' \
         "Basic: Add a directory entry / Basic: Write a data block"
     #or ext2_cp emptydisk.img smallfile /smallfile
-    dotest \
-        modsimple-cp-targetfullpath emptydisk.img \
-        'e_cp $FILES/smallfile smallfile' 'e_ls; echo; cat smallfile' \
-        '$EXT2_CP $DISK $FILES/smallfile /smallfile' 'e_ls; echo; cat smallfile' \
+    # dotest \
+    #     modsimple-cp-targetfullpath emptydisk.img \
+    #     'e_cp $FILES/smallfile smallfile' 'e_ls; echo; cat smallfile' \
+    #     '$EXT2_CP $DISK $FILES/smallfile /smallfile' 'e_ls; echo; cat smallfile' \
+    #     "Basic: Add a directory entry / Basic: Write a data block"
 
     # ext2_ln onefile.img /afile /newfile 
     dotest \
@@ -504,20 +509,7 @@ test_modsimple() {
 
 test_blocks() {
 
-    # set -x
     # Step 4 - multi-block & indirect
-
-    # ext2_cp onefile.img smallfile /afile #overwrite existing file
-    # 1 direct block
-    # dotest \
-    #     blocks-cp-overwrite-directblock onefile.img \
-    #     'e_cp $FILES/smallfile smallfile' 'e_ls; echo; cat afile' \
-    #     '$EXT2_CP $DISK $FILES/smallfile /smallfile' 'e_ls; echo; cat smallfile' \
-
-    # dotest \
-    #     blocks-cp-overwrite-directblock-to-dir onefile.img \
-    #     'e_cp $FILES/smallfile smallfile' 'e_ls; echo; cat smallfile' \
-    #     '$EXT2_CP $DISK $FILES/smallfile /' 'e_ls; echo; cat smallfile' \
 
     __do_cptest() {
         local name="$1"
@@ -560,19 +552,24 @@ test_blocks() {
         __do_cptest $name-to-dir $file / $(basename $file) "$marking_scheme"
     }
 
-    # A3 only needs to handle single **indirection**
+    # A3 only needs to handle single indirection
 
-    # # ext2_cp emptydisk.img path/to/afile /afile
-    # do_cptest_to_file directblocks $FILES/3_direct_blocks "Copying a file that occupies multiple blocks"
-    # do_cptest_to_file singly $FILES/1_singly_indirect_block "Copying a file that uses a single indirect block"
+    ##
+    ## NOTE: here we have 3 typical ways that students (mis)interpret the assignment spec.  i.e. one of these pairs should succeed, but 
+    ## certianly not all depending on their interpretation.
+    ##
 
-    # # ext2_cp emptydisk.img path/to/afile /
+    # ext2_cp emptydisk.img path/to/afile /afile
+    do_cptest_to_file directblocks $FILES/3_direct_blocks "Copying a file that occupies multiple blocks"
+    do_cptest_to_file singly $FILES/1_singly_indirect_block "Copying a file that uses a single indirect block"
+
+    # ext2_cp emptydisk.img path/to/afile /
     # do_cptest_to_dir directblocks $FILES/1_singly_indirect_block "Copying a file that occupies multiple blocks"
     # do_cptest_to_dir singly $FILES/1_singly_indirect_block "Copying a file that uses a single indirect block"
 
     # ext2_cp emptydisk.img afile /afile
-    do_cptest_same_dir directblocks $FILES/1_singly_indirect_block "Copying a file that occupies multiple blocks"
-    do_cptest_same_dir singly $FILES/1_singly_indirect_block "Copying a file that uses a single indirect block"
+    # do_cptest_same_dir directblocks $FILES/1_singly_indirect_block "Copying a file that occupies multiple blocks"
+    # do_cptest_same_dir singly $FILES/1_singly_indirect_block "Copying a file that uses a single indirect block"
     
 
 }
@@ -648,27 +645,14 @@ test_errors() {
 
 }
 
-# Daniel's tests:
-# test_metadata
-#   ext2_ls
-#   Basic: Reads metadata
-
-# test_paths
-#   Path traversal beyond the root directory
-
-# test_modsimple
-#   mkdir
-#   Removing an item from a directory (rm)
-#   ext_ln
-
-# test_blocks
-#   Copying a file x 2
-
-# test_direntry
-#  Diretry that spans 2 blocks (creation)
-
-# test_errors
-#  mkdir
+test_all() {
+    test_metadata
+    test_paths
+    test_modsimple
+    test_blocks
+    test_direntry
+    test_errors
+}
 
 # set -x
 if [ "$RUN" != "yes" ]; then
@@ -677,7 +661,4 @@ if [ "$RUN" != "yes" ]; then
     ctags -R || true
     cleanup
 fi
-# if [ "$GDB" == "yes" ]; then
-#     gdb="gdb --args"
-# fi
 "$@"
