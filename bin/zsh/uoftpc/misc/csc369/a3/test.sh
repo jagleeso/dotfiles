@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 # Usage:
-# Put the folder containing test.sh on your bashrc PATH.
 #
+# Put the folder containing test.sh on your bashrc PATH.
+# 
+# cd ~/student/a3  # <-- must be in their a3 folder
 # test.sh test_all
 
 set -e
