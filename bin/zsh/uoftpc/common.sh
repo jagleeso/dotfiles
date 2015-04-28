@@ -186,3 +186,38 @@ lunch full_mako-userdebug
 gdbclient $name
 "
 }
+
+fling_files() {
+    cd $AOSP/out/target/product/mako/
+    filter() {
+        # can't remember why i was using this filter. oh well.
+        perl -lane '
+        BEGIN {
+
+        @files = qw(
+        /system/bin/dexopt
+        /system/bin/dalvikvm
+        /system/lib/libdvm_interp.so
+        /system/lib/libdvm_sv.so
+        /system/lib/libdvm_assert.so
+        /system/lib/libdvm.so
+        );
+
+        $s = join "|", @files;
+        $regex = qr/$s/;
+        }
+        if (/$regex/) {
+            print;
+        }
+        '
+    }
+    # http://stackoverflow.com/questions/9522631/how-to-put-line-comment-for-a-multi-line-command
+    # inline coments with ``.  Ah, so sneak.
+    find . -type f -mtime -1 -print0 | xargs -0 stat --format '%Y :%y %n' | sort -nr | cut -d: -f2- \
+        | grep '\s\+./system/' \
+        | grep -v 'Exchange' \
+        `# | filter` \
+        | perl -lane 'print $F[-1]'
+}
+
+"$@"

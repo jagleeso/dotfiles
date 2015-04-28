@@ -4,7 +4,11 @@ top=$(git rev-parse --show-toplevel)
 # cd $top
 # set -x
 set -e
-git_dir=~/android/team/jiawen/aosp/$(basename $top)
+aosp_rel() {
+    echo "$(realpath "$1")" | perl -lape "s|^$(realpath $AOSP)/||"
+}
+git_dir=~/android/team/jiawen/aosp/$(aosp_rel $top)
+# exit 1
 cd $git_dir
 REPLACE_ALL=n
 # for f in $(git ls-files | grep -v 'tests/'); do
@@ -17,8 +21,8 @@ fi
 for f in "${args[@]}"; do
     # echo $f
     # continue
-    git_f=~/android/team/jiawen/aosp/$(basename $top)/$f
-    aosp_f=$AOSP/$(basename $top)/$f
+    git_f=~/android/team/jiawen/aosp/$(aosp_rel $top)/$f
+    aosp_f=$AOSP/$(aosp_rel $top)/$f
     if [ ! -f $git_f ]; then
         echo "ERROR: no such file $git_f"
         continue

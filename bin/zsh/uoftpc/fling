@@ -3,28 +3,6 @@ source $(dirname $(realpath $0))/common.sh
 set -e
 cd $AOSP/out/target/product/mako/
 
-filter() {
-    perl -lane '
-    BEGIN {
-
-    @files = qw(
-    /system/bin/dexopt
-    /system/bin/dalvikvm
-    /system/lib/libdvm_interp.so
-    /system/lib/libdvm_sv.so
-    /system/lib/libdvm_assert.so
-    /system/lib/libdvm.so
-    );
-
-    $s = join "|", @files;
-    $regex = qr/$s/;
-    }
-    if (/$regex/) {
-        print;
-    }
-    '
-}
-
 set -x
 # adb root
 crun adb_sudo 'mount -o remount,rw /system'
@@ -33,12 +11,7 @@ set +x
 # grep '\s\+./system.*\.so' \
 mkdir_cmds=""
 cp_cmds=""
-find . -type f -mtime -1 -print0 | xargs -0 stat --format '%Y :%y %n' | sort -nr | cut -d: -f2- | \
-    grep '\s\+./system/' \
-    | grep -v 'Exchange' \
-    | filter \
-    | perl -lane 'print $F[-1]' | \
-    while read f; do
+fling_files | while read f; do
     dst=$(perl -lape 's/^\.//'<<<$f)
     obj_f=$(perl -lape 's|^\.|./symbols|'<<<$f)
     if [ -f "$obj_f" ]; then
