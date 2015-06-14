@@ -1,3 +1,5 @@
+" put this line first in ~/.vimrc
+set nocompatible | filetype indent plugin on | syn on
 " :map <C-v> "+gP
 " :map <C-c> "+y
 " :map <C-x> "+x
@@ -5,9 +7,12 @@ set backspace=2
 set tabpagemax=20
 set number
 set colorcolumn=100
+set nowrap
 :map <C-n> <Esc>:tabn<Enter>
 :noremap <C-p> <Esc>:tabp<Enter>
 :map! <C-s> <Esc><Esc>:w<Enter>
+
+nmap <C-f> <Esc>:tnext<Enter>
 
 set hlsearch
 :syntax on
@@ -48,6 +53,7 @@ let g:mapleader = ','
 let g:maplocalleader = ','
 map <Leader>n :NERDTreeToggle<CR>
 map <Leader>N :NERDTreeFind<CR>
+map <Leader>t :TagbarToggle<CR>
 let NERDTreeIgnore=['\~$', '\.class$']
 " let g:CommandTCancelMap='<Esc>'
 " let g:CommandTSelectNextMap=['<Tab>', '<Down>']
@@ -59,8 +65,13 @@ let g:ctrlp_map = '<Leader>p'
 " nnoremap <silent> <Leader>b :CommandTBuffer<CR>
 let g:ctrlp_custom_ignore = {
     \ 'dir':  '\v[\/](target|\.(git|hg|svn))$',
-    \ 'file': '\v\.(exe|so|dll|class)$',
+    \ 'file': '\v\.(exe|so|dll|class|o)$',
     \ }
+let g:ctrlp_extensions = ['funky']
+let g:ctrlp_max_files=0
+let g:ctrlp_working_path_mode = ''
+nnoremap <Leader>f :CtrlPFunky<Cr>
+let g:ctrlp_follow_symlinks = 1
 
 " to fix issues with command-t <Up> and <Down> terminal keys (see :h vt100-cursor-keys)
 "set notimeout		" don't timeout on mappings
@@ -83,49 +94,50 @@ set wrapmargin=4
 " automatically re-adjust paragraphs on edits (a), but dont mess up pasted comments (w)
 set formatoptions+=w 
 
-set noincsearch
+" set noincsearch
+set incsearch
 
 cmap <C-v> <C-r>"
 
-" function! GetBufferList()
-"   redir =>buflist
-"   silent! ls
-"   redir END
-"   return buflist
-" endfunction
-" 
-" function! ToggleList(bufname, pfx)
-"   let buflist = GetBufferList()
-"   for bufnum in map(filter(split(buflist, '\n'), 'v:val =~ "'.a:bufname.'"'), 'str2nr(matchstr(v:val, "\\d\\+"))')
-"     if bufwinnr(bufnum) != -1
-"       exec(a:pfx.'close')
-"       return
-"     endif
-"   endfor
-"   if a:pfx == 'l' && len(getloclist(0)) == 0
-"       echohl ErrorMsg
-"       echo "Location List is Empty."
-"       return
-"   endif
-"   let winnr = winnr()
-"   exec(a:pfx.'open')
-"   if winnr() != winnr
-"     wincmd p
-"   endif
-" endfunction
-" 
-" command -bang -nargs=? QFix call QFixToggle(<bang>0)
-" function! QFixToggle(forced)
-"   if exists("g:qfix_win") && a:forced == 0
-"     cclose
-"     unlet g:qfix_win
-"   else
-"     copen 10
-"     let g:qfix_win = bufnr("$")
-"   endif
-" endfunction
+function! GetBufferList()
+  redir =>buflist
+  silent! ls
+  redir END
+  return buflist
+endfunction
 
-" nmap <silent> <leader>l :call ToggleList("Location List", 'l')<CR>
+function! ToggleList(bufname, pfx)
+  let buflist = GetBufferList()
+  for bufnum in map(filter(split(buflist, '\n'), 'v:val =~ "'.a:bufname.'"'), 'str2nr(matchstr(v:val, "\\d\\+"))')
+    if bufwinnr(bufnum) != -1
+      exec(a:pfx.'close')
+      return
+    endif
+  endfor
+  if a:pfx == 'l' && len(getloclist(0)) == 0
+      echohl ErrorMsg
+      echo "Location List is Empty."
+      return
+  endif
+  let winnr = winnr()
+  exec(a:pfx.'open')
+  if winnr() != winnr
+    wincmd p
+  endif
+endfunction
+
+command -bang -nargs=? QFix call QFixToggle(<bang>0)
+function! QFixToggle(forced)
+  if exists("g:qfix_win") && a:forced == 0
+    cclose
+    unlet g:qfix_win
+  else
+    copen 10
+    let g:qfix_win = bufnr("$")
+  endif
+endfunction
+
+nmap <silent> <leader>l :call ToggleList("Location List", 'l')<CR>
 " nmap <silent> <leader>d :call ToggleList("Quickfix List", 'c')<CR>
 
 " nmap <script> <silent> <leader>d :call ToggleLocationList()<CR>
@@ -163,7 +175,7 @@ let g:ftplugin_sql_omni_key_left  = '<Left>'
 set completeopt+=longest
 
 " auto reload of vimrc on change
-" autocmd! bufwritepost .vimrc source ~/.vimrc
+autocmd! bufwritepost .vimrc source ~/.vimrc
 
 " Use CTRL-S for saving, also in Insert mode
 noremap <C-S>		:update<CR><Esc>
@@ -183,11 +195,13 @@ inoremap <C-S>		<C-O>:update<CR><Esc>
 
 " set t_Co=256
 "
-noremap <C-Q> :q<CR>
-vnoremap <C-Q> :q<CR>
-inoremap <C-Q> <Esc>:q<CR>
+noremap <C-q> :q<CR>
+vnoremap <C-q> :q<CR>
+inoremap <C-q> <Esc>:q<CR>
 
-map <Leader>m <Esc>:make<Up><CR>
+" map <Leader>m <Esc>:make<Up><CR>
+map <Leader>m <Esc>:Make<CR>
+map <Leader>h :lcd %:h<CR>:e<CR>
 
 set wildmode=longest,list,full
 set wildmenu
@@ -237,7 +251,7 @@ set runtimepath+=~/.vim/vim-addon-manager
 " call vam#ActivateAddons(["ack", "Align%294", "IndentAnything", "matchit.zip", "The_NERD_tree", "Rename%1928", "vim-addon-sbt", "screen", "snipmate", "SuperTab_continued.", "surround", "tComment", "ctrlp"])
 
 " setting up EnVim
-fun SetupVAM()
+fun! SetupVAM()
   let g:vim_addon_manager = {}
   let g:vim_addon_manager.plugin_sources = {}
   " let g:vim_addon_manager.plugin_sources['ensime'] = {"type": "git", "url": "git://github.com/aemoncannon/ensime.git", "branch" : "scala-2.9"}
@@ -339,7 +353,7 @@ endf
 call SetupVAM()
 
 " vim-addon-sbt
-fun SBT_JAR()
+fun! SBT_JAR()
     return "/usr/share/sbt/0.11.3/sbt-launch.jar"
 endfun
 
@@ -390,10 +404,12 @@ map + <C-A>
 map _ <C-X>
 
 " Use ctrl-[hjkl] to select the active split!
-noremap <silent> <c-k> :wincmd k<CR>                                                                                                                       
-noremap <silent> <c-j> :wincmd j<CR>                                                                                                                       
-noremap <silent> <c-h> :wincmd h<CR>                                                                                                                       
-noremap <silent> <c-l> :wincmd l<CR>
+map <silent> <c-k> :wincmd k<CR>
+map <silent> <c-j> :wincmd j<CR>
+map <silent> <c-h> :wincmd h<CR>
+map <silent> <c-l> :wincmd l<CR>
+
+map <silent> <c-w>t :tabnew<CR>
 
 vmap <C-j> <Plug>MoveBlockDown
 vmap <C-k> <Plug>MoveBlockUp
@@ -416,7 +432,7 @@ vmap <C-k> <Plug>MoveBlockUp
 " au Syntax * RainbowParenthesesLoadSquare
 " au Syntax * RainbowParenthesesLoadBraces
 
-let g:rainbow_active = 1
+" let g:rainbow_active = 1
 
 " http://vim.wikia.com/wiki/Copy_search_matches
 function! CopyMatches(reg)
@@ -447,10 +463,42 @@ augroup CursorLine
 augroup END
 
 " Mouse usage enabled in normal mode.
-set mouse=n
+set mouse=a
 " Set xterm2 mouse mode to allow resizing of splits with mouse inside Tmux.
 set ttymouse=xterm2
 
 " have spellcheck on by default (just don't hightlight it)
 set spell
 hi clear SpellBad
+
+set tabpagemax=50
+
+autocmd BufNewFile,BufRead *.cl set ft=c
+
+au FocusGained,BufEnter * checktime
+
+if !exists("*CheckForCustomConfiguration")
+    " can't redefine functions in use (which it will be on reloading ~/.vimrc
+    if !&diff
+        " if we're vimdiff-ing across machines, don't source remote's vimrc
+        au BufNewFile,BufRead * call CheckForCustomConfiguration(expand('%:p:h'))
+        au BufEnter * call CheckForCustomConfiguration(getcwd())
+    endif
+
+    function CheckForCustomConfiguration(dir)
+        " Check for .vim.custom in the directory containing the newly opened file
+        let g:pwd = a:dir
+        let custom_config_file = a:dir . '/.vimrc'
+        if filereadable(custom_config_file)
+            exe 'source' custom_config_file
+        endif
+    endfunction
+endif
+
+au BufNewFile,BufRead *_defconfig setl keywordprg=kconf
+au BufNewFile,BufRead Kconfig setl keywordprg=kconf
+map <Leader>f <Esc>:!realpath % \| tr -d '\n' \| cboard<CR>
+map <Leader>F <Esc>:call system("echo " . shellescape(expand("%") . ":" . line(".")) . "\| tr -d '\n' \| cboard")<CR>
+
+" uoftpc
+source ~/.vimrc.uoftpc
