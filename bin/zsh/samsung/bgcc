@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+cd $GCCB
+make -j8 all-gcc
+make install-gcc

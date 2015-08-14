@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+cd $GCCB
+$GCC/configure --prefix=$HOME/opt/cross --target=aarch64-linux --enable-languages=c,c++ --disable-multilib
+make -j8 all-gcc
+make install-gcc

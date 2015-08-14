@@ -1,57 +1,57 @@
 #!/usr/bin/env bash
 ignore=()
 ignore_args=()
-mk_ignore_args() {
-    ignore_args=()
-    for d in "${ignore[@]}"; do 
-        ignore_args=("${ignore_args[@]}" --ignore "$d")
-    done
-}
-
-if [ "$(realpath $PWD)" == "$(realpath $AOSP)" ]; then
-    ignore=(
-        .repo/
-        .tmp_versions/
-        abi/
-        art/
-        bionic/
-        bootable/
-        build/
-        cts/
-        dalvik/
-        developers/
-        device/
-        docs/
-        external/
-        hardware/
-        kernel/
-        kernel_motox/
-        kernel_nexus4/
-        kernel_nexus4_backup/
-        libcore/
-        libnativehelper/
-        mkdir/
-        motorola/
-        ndk/
-        out/
-        pdk/
-        prebuilts/
-        proprietary/
-        sdk/
-        system/
-        tools/
-        vendor/
-        cscope.out
-        cscope.files
-    )
-elif [ "$(realpath $PWD)" == "$(realpath $KERN)" ]; then
-    ignore=(
-        cscope.out
-        cscope.files
-        tags
-    )
-fi
-mk_ignore_args
+# mk_ignore_args() {
+#     ignore_args=()
+#     for d in "${ignore[@]}"; do 
+#         ignore_args=("${ignore_args[@]}" --ignore "$d")
+#     done
+# }
+#
+# if [ "$(realpath $PWD)" == "$(realpath $AOSP)" ]; then
+#     ignore=(
+#         .repo/
+#         .tmp_versions/
+#         abi/
+#         art/
+#         bionic/
+#         bootable/
+#         build/
+#         cts/
+#         dalvik/
+#         developers/
+#         device/
+#         docs/
+#         external/
+#         hardware/
+#         kernel/
+#         kernel_motox/
+#         kernel_nexus4/
+#         kernel_nexus4_backup/
+#         libcore/
+#         libnativehelper/
+#         mkdir/
+#         motorola/
+#         ndk/
+#         out/
+#         pdk/
+#         prebuilts/
+#         proprietary/
+#         sdk/
+#         system/
+#         tools/
+#         vendor/
+#         cscope.out
+#         cscope.files
+#     )
+# elif [ "$(realpath $PWD)" == "$(realpath $KERN)" ]; then
+#     ignore=(
+#         cscope.out
+#         cscope.files
+#         tags
+#     )
+# fi
+# mk_ignore_args
 ag-grep "$@" \
     --ignore tags \
     --ignore cscope.out \

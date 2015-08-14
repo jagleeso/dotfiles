@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+set -e
+cd $HOME/clone
+kls.py "$@"

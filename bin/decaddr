@@ -1,0 +1,10 @@
+#!/usr/bin/env sh
+set -x
+enc_addr="$1"
+if [ ${#enc_addr} -ne 18 ]; then
+    echo "enc_addr should be 0x{16 digits}"
+    exit 1
+fi
+python -c '
+print "{0:x}".format('"$enc_addr"' ^ 0xaaaaaaaaaaaaaaaa)
+'

@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+ignore() {
+    premove \
+    "$(perl -le '
+
+    # Put patterns to ignore here.
+    @ignore_patterns = (
+        "^GPG_AGENT_INFO",
+        "warning: override: reassigning to symbol (CRYPTO_SHA256|DM_VERITY|TIMER_STATS|PROFILING|HW_PERF_EVENTS|LOCAL_TIMERS)",
+
+    );
+    print join("|", 
+        map { "($_)" } @ignore_patterns);
+    ')"
+}
+
+bk 2>&1 | ignore

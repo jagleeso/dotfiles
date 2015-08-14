@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+find "$@" -daystart -ctime 0 -type f -print

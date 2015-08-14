@@ -8,8 +8,8 @@ export ZSH=$HOME/.oh-my-zsh
 # Look in ~/.oh-my-zsh/themes/
 # Optionally, if you set this to "random", it'll load a random theme each
 # time that oh-my-zsh is loaded.
-#ZSH_THEME="robbyrussell"
-ZSH_THEME="james"
+ZSH_THEME="robbyrussell"
+#ZSH_THEME="james"
 # ZSH_THEME="james-remote"
 #ZSH_THEME="blinks"
 
@@ -33,6 +33,7 @@ fpath=($HOME/.zsh/completion $fpath)
 
 # Which plugins would you like to load? (plugins can be found in ~/.oh-my-zsh/plugins/*)
 # Example format: plugins=(rails git textmate ruby lighthouse)
+# plugins=(zsh-syntax-highlighting)
 plugins=(git svn zsh-syntax-highlighting)
 
 source $ZSH/oh-my-zsh.sh
@@ -171,12 +172,14 @@ source ~/.zshrc_mypc
 
 # My uoft desktop
 __NO_ANDROID_PATH="$PATH"
-source ~/.zshrc_uoftpc
+# source ~/.zshrc_uoftpc
 function android_bash() {
     PATH="$__NO_ANDROID_PATH" bash "$@"
 }
 
 source ~/.bashrc_uoftpc
+
+source ~/.zshrc_samsung
 
 unset ZSH_BIN
 
@@ -190,3 +193,13 @@ setopt interactivecomments
 # setopt histappend 
 # export HISTSIZE=100000 
 # export HISTFILESIZE=1000000
+
+TIMEFMT=$'\nreal\t%E\nuser\t%U\nsys\t%S'
+
+# All hail the glory of the color gods.
+# http://ciembor.github.io/4bit/#
+gconftool-2 --set /apps/gnome-terminal/profiles/Default/use_theme_background --type bool false 
+gconftool-2 --set /apps/gnome-terminal/profiles/Default/use_theme_colors --type bool false 
+gconftool-2 -s -t string /apps/gnome-terminal/profiles/Default/background_color '#0d0d19192626'
+gconftool-2 -s -t string /apps/gnome-terminal/profiles/Default/foreground_color '#d9d9e6e6f2f2'
+gconftool-2 -s -t string /apps/gnome-terminal/profiles/Default/palette '#0d0d19192626:#dede80805454:#5454dede8080:#b2b2dede5454:#80805454dede:#dede5454b2b2:#5454b2b2dede:#d9d9e5e5f2f2:#737380808d8d:#eeeebfbfaaaa:#aaaaeeeebfbf:#d9d9eeeeaaaa:#bfbfaaaaeeee:#eeeeaaaad9d9:#aaaad9d9eeee:#d9d9e5e5f2f2'

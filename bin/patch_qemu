@@ -1,0 +1,111 @@
+#!/usr/bin/env bash
+set -e
+# set -x
+
+start_commit="f6f5f464b4ce62aa990e27f230b21d4e3983a018"
+end_commit="$(git log | head -n 1 | sed 's/^commit\s\+//')"
+patch_prefix=$LKERN/exynos7420.${start_commit}_${end_commit}
+all_patch=${patch_prefix}.diff
+mod_patch=${patch_prefix}.mod.diff
+(
+    cd $KERN
+    git diff $start_commit..HEAD -- . > $all_patch
+)
+
+has_file() { 
+    ( 
+        cd $LKERN
+        [ ! -z "$(git ls-files "$1")" ]
+    )
+} 
+all_changed_files() {
+    grep '^diff' $all_patch | perl -lape 's|diff --git a/exynos7420/(.*) b/.*|$1|'
+}
+modified_files() {
+    # Files in $LKERN that are modified in $KERN
+    all_changed_files | while read f; do 
+        if has_file $f; then 
+            echo $f
+        fi
+    done
+}
+new_files() {
+    # Files that have changed in $KERN and don't exist in the $LKERN repo
+    all_changed_files | while read f; do 
+        if ! has_file $f; then 
+            echo $f
+        fi
+    done
+}
+
+trim_exynos() {
+    # Remove exynos7420 dir from file paths in diff.
+    #
+    # diff --git a/exynos7420/Makefile b/exynos7420/Makefile
+    # -> 
+    # diff --git a/Makefile b/Makefile
+    #
+    # --- a/exynos7420/Makefile
+    # +++ b/exynos7420/Makefile
+    # ->
+    # --- a/Makefile
+    # +++ b/Makefile
+    perl -lane '
+    if (m!^diff --git a/exynos7420/(.*) b/.*!) {
+        print "diff --git a/$1 b/$1";
+    } elsif (m!^(---|\+\+\+) (a|b)/exynos7420/(.*)!) {
+        print  "$1 $2/$3";
+    } else {
+        print; 
+    }
+    '
+}
+
+cmd() {
+    echo 1>&2 "$@"
+    "$@"
+}
+
+main() {
+
+    # 0. reset $LKERN back to branch zero state
+    # 1. for new_files, copy files from $KERN to $LKERN
+    # 2. for modified_files, generate a new patch containing just those files
+    # 3. apply that patch to $LKERN
+
+    # 0.
+    # (
+    #     cd $LKERN
+    #     git checkout .
+    # )
+    # 1.
+    new_files | while read f; do
+        if [[ $f =~ ^hyperdrive/ ]]; then
+            # skip
+            continue
+        fi
+        echo $f
+        if [ ! -d $(dirname $LKERN/$f) ]; then
+            echo "WARNING: need to create directory for $LKERN/$f"
+            echo mkdir -p $(dirname $LKERN/$f)
+        fi
+        echo cp -f -d $KERN/$f $LKERN/$f
+    done
+
+    for f in $(modified_files); do
+        echo vimdiff $KERN/$f $LKERN/$f
+    done
+
+    # # Patch doesn't apply cleanly =(
+    # # 2.
+    # cmd git diff $start_commit..HEAD $(modified_files) | trim_exynos > $mod_patch
+    # # 3.
+    # (
+    #     cd $LKERN
+    #     cmd git apply $mod_patch
+    # )
+
+}
+
+# eval "$@"
+main "$@"

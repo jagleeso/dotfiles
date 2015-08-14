@@ -21,7 +21,8 @@ set backspace=indent,eol,start
 ":set smartindent
 :set shiftwidth=4
 :set expandtab
-colorscheme jellybeans
+colorscheme kolor
+" colorscheme jellybeans
 
 " ctags
 map <C-\> :tab split<CR>:exec("tag ".expand("<cword>"))<CR>
@@ -31,6 +32,8 @@ noremap <Leader>g :tselect<CR>
 vmap <C-f> y/<C-r>"<CR>
 
 :set ruler
+
+nnoremap <silent> <c-w>t :tabnew<CR>
 
 filetype on
 filetype plugin on 
@@ -48,6 +51,7 @@ let g:mapleader = ','
 let g:maplocalleader = ','
 map <Leader>n :NERDTreeToggle<CR>
 map <Leader>N :NERDTreeFind<CR>
+map <Leader>y :TagbarToggle<CR>
 let NERDTreeIgnore=['\~$', '\.class$']
 " let g:CommandTCancelMap='<Esc>'
 " let g:CommandTSelectNextMap=['<Tab>', '<Down>']
@@ -59,8 +63,13 @@ let g:ctrlp_map = '<Leader>p'
 " nnoremap <silent> <Leader>b :CommandTBuffer<CR>
 let g:ctrlp_custom_ignore = {
     \ 'dir':  '\v[\/](target|\.(git|hg|svn))$',
-    \ 'file': '\v\.(exe|so|dll|class)$',
+    \ 'file': '\v\.(exe|so|dll|class|o)$',
     \ }
+let g:ctrlp_extensions = ['funky']
+let g:ctrlp_max_files=0
+let g:ctrlp_working_path_mode = ''
+nnoremap <Leader>f :CtrlPFunky<Cr>
+let g:ctrlp_follow_symlinks = 1
 
 " to fix issues with command-t <Up> and <Down> terminal keys (see :h vt100-cursor-keys)
 "set notimeout		" don't timeout on mappings
@@ -83,7 +92,8 @@ set wrapmargin=4
 " automatically re-adjust paragraphs on edits (a), but dont mess up pasted comments (w)
 set formatoptions+=w 
 
-set noincsearch
+" set noincsearch
+set incsearch
 
 cmap <C-v> <C-r>"
 
@@ -163,12 +173,12 @@ let g:ftplugin_sql_omni_key_left  = '<Left>'
 set completeopt+=longest
 
 " auto reload of vimrc on change
-" autocmd! bufwritepost .vimrc source ~/.vimrc
+autocmd! bufwritepost .vimrc source ~/.vimrc
 
 " Use CTRL-S for saving, also in Insert mode
-noremap <C-S>		:update<CR><Esc>
-vnoremap <C-S>		<C-C>:update<CR><Esc>
-inoremap <C-S>		<C-O>:update<CR><Esc>
+noremap <C-S>		:update!<CR><Esc>
+vnoremap <C-S>		<C-C>:update!<CR><Esc>
+inoremap <C-S>		<C-O>:update!<CR><Esc>
 
 " CTRL-X and SHIFT-Del are Cut
 " vnoremap <C-X> "+x
@@ -183,11 +193,12 @@ inoremap <C-S>		<C-O>:update<CR><Esc>
 
 " set t_Co=256
 "
-noremap <C-Q> :q<CR>
-vnoremap <C-Q> :q<CR>
-inoremap <C-Q> <Esc>:q<CR>
+noremap <C-q> :q<CR>
+vnoremap <C-q> :q<CR>
+inoremap <C-q> <Esc>:q<CR>
 
-map <Leader>m <Esc>:make<Up><CR>
+" map <Leader>m <Esc>:make<Up><CR>
+map <Leader>m <Esc>:Make<Up><CR>
 
 set wildmode=longest,list,full
 set wildmenu
@@ -217,12 +228,6 @@ set diffopt=filler,iwhite
 
 let g:ctrlp_working_path_mode = ''
 
-"
-" Tagbar
-" 
-
-nmap <Leader>l :TagbarToggle<CR>
-
 " let g:tagbar_type_javascript = {
 "     \ 'ctagsbin' : '~/bin/jsctags'
 " \ }
@@ -237,7 +242,7 @@ set runtimepath+=~/.vim/vim-addon-manager
 " call vam#ActivateAddons(["ack", "Align%294", "IndentAnything", "matchit.zip", "The_NERD_tree", "Rename%1928", "vim-addon-sbt", "screen", "snipmate", "SuperTab_continued.", "surround", "tComment", "ctrlp"])
 
 " setting up EnVim
-fun SetupVAM()
+fun! SetupVAM()
   let g:vim_addon_manager = {}
   let g:vim_addon_manager.plugin_sources = {}
   " let g:vim_addon_manager.plugin_sources['ensime'] = {"type": "git", "url": "git://github.com/aemoncannon/ensime.git", "branch" : "scala-2.9"}
@@ -276,13 +281,14 @@ fun SetupVAM()
   let g:vim_addon_manager.plugin_sources['snippets-good'] = {"type": "git", "url": "git://github.com/garbas/vim-snipmate", "branch" : "master"}
   " get foldmethod=syntax fix
   let g:vim_addon_manager.plugin_sources['Rainbow_Parentheses_Improved_Master'] = {"type": "git", "url": "git://github.com/oblitum/rainbow", "branch" : "master"}
+  let g:vim_addon_manager.plugin_sources['vim-nerd-tree'] = {"type": "git", "url": "https://github.com/scrooloose/nerdtree.git", "branch" : "master"}
+  let g:vim_addon_manager.plugin_sources['vim-kolor'] = {"type": "git", "url": "https://github.com/jagleeso/vim-kolor.git", "branch" : "master"}
 
   let plugins = [
     \ 'ack',
     \ 'Align%294',
     \ 'IndentAnything',
     \ 'matchit.zip',
-    \ 'The_NERD_tree',
     \ 'Supertab',
     \ 'surround',
     \ 'tComment',
@@ -309,18 +315,25 @@ fun SetupVAM()
     \ 'vim-redl',
     \ 'vimpager',
     \ 'ag',
-    \ 'gitignore%2557',
     \ 'vim-move',
     \ 'ghcmod-vim',
     \ 'vim-scala-derekwyatt',
     \ 'snippets-good',
     \ 'vim-snippets',
     \ 'clang_complete',
-    \ 'Rainbow_Parentheses_Improved_Master',
     \ 'Tail_Bundle',
+    \ 'jellybeans',
+    \ 'vim-nerd-tree',
+    \ 'dispatch',
+    \ 'vim-kolor',
     \ 'ctrlp'
     \ ]
 
+    " \ 'gitignore%2557',
+
+    " \ 'NERD_tree_Project',
+    " \ 'The_NERD_tree',
+    " \ 'Rainbow_Parentheses_Improved_Master',
     " \ 'rainbow_parentheses',
     " \ 'paredit',
 
@@ -339,7 +352,7 @@ endf
 call SetupVAM()
 
 " vim-addon-sbt
-fun SBT_JAR()
+fun! SBT_JAR()
     return "/usr/share/sbt/0.11.3/sbt-launch.jar"
 endfun
 
@@ -390,9 +403,9 @@ map + <C-A>
 map _ <C-X>
 
 " Use ctrl-[hjkl] to select the active split!
-noremap <silent> <c-k> :wincmd k<CR>                                                                                                                       
-noremap <silent> <c-j> :wincmd j<CR>                                                                                                                       
-noremap <silent> <c-h> :wincmd h<CR>                                                                                                                       
+noremap <silent> <c-k> :wincmd k<CR>
+noremap <silent> <c-j> :wincmd j<CR>
+noremap <silent> <c-h> :wincmd h<CR>
 noremap <silent> <c-l> :wincmd l<CR>
 
 vmap <C-j> <Plug>MoveBlockDown
@@ -416,7 +429,7 @@ vmap <C-k> <Plug>MoveBlockUp
 " au Syntax * RainbowParenthesesLoadSquare
 " au Syntax * RainbowParenthesesLoadBraces
 
-let g:rainbow_active = 1
+" let g:rainbow_active = 1
 
 " http://vim.wikia.com/wiki/Copy_search_matches
 function! CopyMatches(reg)
@@ -446,6 +459,22 @@ augroup CursorLine
   au WinLeave * setlocal nocursorcolumn
 augroup END
 
+" au VimEnter,WinEnter,BufWinEnter * :call CheckVimrc()
+func! CheckVimrc()
+    " let filedir = expand('%:p:h')
+    " let vimfile = filedir . '/.vimrc'
+    let vimfile = getcwd() . '/.vimrc'
+    if filereadable(l:vimfile) && expand('~/.vimrc') != l:vimfile
+        execute 'source ' . l:vimfile
+    endif
+endfunction
+
+func! CdFileDir()
+    let dir = expand('%:p:h')
+    execute 'lcd ' . l:dir
+endfunction
+map <leader>h <esc>:call CdFileDir()<cr>
+
 " Mouse usage enabled in normal mode.
 set mouse=n
 " Set xterm2 mouse mode to allow resizing of splits with mouse inside Tmux.
@@ -454,3 +483,14 @@ set ttymouse=xterm2
 " have spellcheck on by default (just don't hightlight it)
 set spell
 hi clear SpellBad
+
+map <c-f> :tnext<CR>
+set autoread
+
+map <silent> <leader>f <esc>:!echo % \| xargs realpath \| cboard<cr><cr>
+map <silent> <leader>F <esc>:!echo % \| xargs realpath \| sed 's/$/:<C-R>=line(".")<cr>/' \| cboard<cr><cr>
+
+" Trigger prompt to reload changed files on buffer enter.
+au FocusGained,BufEnter * checktime
+
+source ~/.vimrc.samsung

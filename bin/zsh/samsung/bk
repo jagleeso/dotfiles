@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+cd $SRA/buildscript
+./make.sh "$@"
+$KERN/hyperdrive/scripts/sh/gen_cmm_scripts.sh

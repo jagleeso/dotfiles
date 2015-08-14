@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+set -e
+pattern="$1"
+shift 1
+perl -lane '
+BEGIN { $found = 0; } 
+if (/'"$pattern"'/) { 
+    $found=1; 
+    print; 
+    next;
+} 
+if (/^\s*$/ and $found) { 
+    exit; 
+}
+if ($found) {
+    print;
+}'
+

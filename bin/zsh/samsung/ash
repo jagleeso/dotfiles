@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+while true; do
+    adb shell
+    sleep 2
+done

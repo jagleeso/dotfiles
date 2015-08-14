@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+cp $KERNL/tmp/{vmlinux,.config,vmlinux.instr} $HYP/debug/linaro/
+rm $HYP/debug/linaro/.vmlinux.pickle

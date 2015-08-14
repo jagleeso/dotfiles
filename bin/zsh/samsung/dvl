@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+set -e
+vmlinux1="$1"
+vmlinux2="$2"
+start="$3"
+n="$4"
+shift 4
+
+end=$((start+n))
+lines() {
+    sed -n "$start,${end}p"
+}
+tmp1=$(mktemp)
+tmp2=$(mktemp)
+cleanup() {
+    rm $tmp1
+    rm $tmp2
+}
+trap cleanup SIGHUP SIGINT SIGQUIT SIGTERM ERR
+od $vmlinux1 | lines > $tmp1
+od $vmlinux2 | lines > $tmp2
+vimdiff $tmp1 $tmp2

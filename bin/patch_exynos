@@ -1,0 +1,118 @@
+#!/usr/bin/env bash
+pattern="$1"
+shift 1
+set -e
+
+file_exists() {
+    while read f; do
+        if [ -e "$f" ]; then
+            echo "$f"
+        fi
+    done
+}
+
+print_my_commits() {
+    perl -lane '
+    BEGIN { $i = 0 } 
+    if (/^Author/ and not /James Gleeson/) { 
+        exit;
+    } 
+    print;
+    '
+}
+
+ignore_files=(
+    arch/arm64/configs/zerofltevzw_02_defconfig
+    drivers/char/knox_kap.c
+    make.sh
+    drivers/gator/gator_src_md5.h
+    .gitignore
+)
+modified_linaro_files() {
+    ( 
+        cd $KERNL
+        git log --name-status \
+            | print_my_commits \
+            | grep '^\(M\|A\)\s\+' \
+            | sort --unique \
+            | awk '{print $2}' \
+            | file_exists \
+            | print_not_in_set "${ignore_files[@]}" \
+            | sort --unique
+    )
+}
+
+print_not_in_set() {
+    xs=("$@")
+    while read f; do 
+        if ! in_set "$f" "${xs[@]}"; then
+            echo "$f"
+        fi
+    done
+}
+
+in_set() {
+    elem="$1"
+    shift
+    xs=("$@")
+    print_xs() {
+        for x in "${xs[@]}"; do
+            echo "'$x',"
+        done
+    }
+    python -c '\
+import sys
+x = '"'$elem'"'
+xs = set([
+    '"$(print_xs)"'
+])
+if x not in xs:
+    sys.exit(1)
+    '
+}
+
+# eval "$@"
+
+
+files() {
+    matches_pattern() {
+        local file="$1"
+        shift 1
+        (
+            cd $(dirname $file)
+            ls $pattern 2>/dev/null | grep "$(basename $file)" > /dev/null
+        )
+    }
+    for f in $(modified_linaro_files); do
+        if [ "$pattern" != '' ]; then
+            if ! matches_pattern $f; then
+                continue
+            fi
+        fi
+        if diff --ignore-all-space -q $KERN/$f $KERNL/$f > /dev/null; then
+            continue
+        fi
+        echo "$f"
+    done
+}
+response=""
+last_response=""
+
+files
+echo "------------------------"
+for f in $(files); do
+    echo "$KERN/$f"
+    echo "$KERNL/$f"
+    echo -n "DIFF [y/n/q]? "
+    read response
+    if [ "$response" = 'q' ]; then
+        exit
+    fi
+    if [ "$response" != '' ]; then
+        last_response="$response"
+    fi
+    if [ "$last_response" = 'y' ]; then
+        vimdiff $KERNL/$f $KERN/$f 
+    fi
+    echo
+done
