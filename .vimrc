@@ -1,3 +1,5 @@
+" put this line first in ~/.vimrc
+set nocompatible | filetype indent plugin on | syn on
 " :map <C-v> "+gP
 " :map <C-c> "+y
 " :map <C-x> "+x
@@ -5,9 +7,12 @@ set backspace=2
 set tabpagemax=20
 set number
 set colorcolumn=100
+set nowrap
 :map <C-n> <Esc>:tabn<Enter>
 :noremap <C-p> <Esc>:tabp<Enter>
 :map! <C-s> <Esc><Esc>:w<Enter>
+
+nmap <C-f> <Esc>:tnext<Enter>
 
 set hlsearch
 :syntax on
@@ -97,45 +102,45 @@ set incsearch
 
 cmap <C-v> <C-r>"
 
-" function! GetBufferList()
-"   redir =>buflist
-"   silent! ls
-"   redir END
-"   return buflist
-" endfunction
-" 
-" function! ToggleList(bufname, pfx)
-"   let buflist = GetBufferList()
-"   for bufnum in map(filter(split(buflist, '\n'), 'v:val =~ "'.a:bufname.'"'), 'str2nr(matchstr(v:val, "\\d\\+"))')
-"     if bufwinnr(bufnum) != -1
-"       exec(a:pfx.'close')
-"       return
-"     endif
-"   endfor
-"   if a:pfx == 'l' && len(getloclist(0)) == 0
-"       echohl ErrorMsg
-"       echo "Location List is Empty."
-"       return
-"   endif
-"   let winnr = winnr()
-"   exec(a:pfx.'open')
-"   if winnr() != winnr
-"     wincmd p
-"   endif
-" endfunction
-" 
-" command -bang -nargs=? QFix call QFixToggle(<bang>0)
-" function! QFixToggle(forced)
-"   if exists("g:qfix_win") && a:forced == 0
-"     cclose
-"     unlet g:qfix_win
-"   else
-"     copen 10
-"     let g:qfix_win = bufnr("$")
-"   endif
-" endfunction
+function! GetBufferList()
+  redir =>buflist
+  silent! ls
+  redir END
+  return buflist
+endfunction
 
-" nmap <silent> <leader>l :call ToggleList("Location List", 'l')<CR>
+function! ToggleList(bufname, pfx)
+  let buflist = GetBufferList()
+  for bufnum in map(filter(split(buflist, '\n'), 'v:val =~ "'.a:bufname.'"'), 'str2nr(matchstr(v:val, "\\d\\+"))')
+    if bufwinnr(bufnum) != -1
+      exec(a:pfx.'close')
+      return
+    endif
+  endfor
+  if a:pfx == 'l' && len(getloclist(0)) == 0
+      echohl ErrorMsg
+      echo "Location List is Empty."
+      return
+  endif
+  let winnr = winnr()
+  exec(a:pfx.'open')
+  if winnr() != winnr
+    wincmd p
+  endif
+endfunction
+
+command -bang -nargs=? QFix call QFixToggle(<bang>0)
+function! QFixToggle(forced)
+  if exists("g:qfix_win") && a:forced == 0
+    cclose
+    unlet g:qfix_win
+  else
+    copen 10
+    let g:qfix_win = bufnr("$")
+  endif
+endfunction
+
+nmap <silent> <leader>l :call ToggleList("Location List", 'l')<CR>
 " nmap <silent> <leader>d :call ToggleList("Quickfix List", 'c')<CR>
 
 " nmap <script> <silent> <leader>d :call ToggleLocationList()<CR>
@@ -407,6 +412,7 @@ noremap <silent> <c-k> :wincmd k<CR>
 noremap <silent> <c-j> :wincmd j<CR>
 noremap <silent> <c-h> :wincmd h<CR>
 noremap <silent> <c-l> :wincmd l<CR>
+map <silent> <c-w>t :tabnew<CR>
 
 vmap <C-j> <Plug>MoveBlockDown
 vmap <C-k> <Plug>MoveBlockUp
@@ -476,7 +482,7 @@ endfunction
 map <leader>h <esc>:call CdFileDir()<cr>
 
 " Mouse usage enabled in normal mode.
-set mouse=n
+set mouse=a
 " Set xterm2 mouse mode to allow resizing of splits with mouse inside Tmux.
 set ttymouse=xterm2
 
@@ -493,4 +499,33 @@ map <silent> <leader>F <esc>:!echo % \| xargs realpath \| sed 's/$/:<C-R>=line("
 " Trigger prompt to reload changed files on buffer enter.
 au FocusGained,BufEnter * checktime
 
-source ~/.vimrc.samsung
+set tabpagemax=50
+
+autocmd BufNewFile,BufRead *.cl set ft=c
+
+if !exists("*CheckForCustomConfiguration")
+    " can't redefine functions in use (which it will be on reloading ~/.vimrc
+    if !&diff
+        " if we're vimdiff-ing across machines, don't source remote's vimrc
+        au BufNewFile,BufRead * call CheckForCustomConfiguration(expand('%:p:h'))
+        au BufEnter * call CheckForCustomConfiguration(getcwd())
+    endif
+
+    function CheckForCustomConfiguration(dir)
+        " Check for .vim.custom in the directory containing the newly opened file
+        let g:pwd = a:dir
+        let custom_config_file = a:dir . '/.vimrc'
+        if filereadable(custom_config_file)
+            exe 'source' custom_config_file
+        endif
+    endfunction
+endif
+
+au BufNewFile,BufRead *_defconfig setl keywordprg=kconf
+au BufNewFile,BufRead Kconfig setl keywordprg=kconf
+map <Leader>f <Esc>:!realpath % \| tr -d '\n' \| cboard<CR>
+map <Leader>F <Esc>:call system("echo " . shellescape(expand("%") . ":" . line(".")) . "\| tr -d '\n' \| cboard")<CR>
+
+" uoftpc
+source ~/.vimrc.uoftpc
+>>>>>>> b9ba7b11a944b6a563da79ca75ecfab26d306c18
