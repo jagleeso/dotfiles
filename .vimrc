@@ -7,12 +7,9 @@ set backspace=2
 set tabpagemax=20
 set number
 set colorcolumn=100
-set nowrap
 :map <C-n> <Esc>:tabn<Enter>
 :noremap <C-p> <Esc>:tabp<Enter>
 :map! <C-s> <Esc><Esc>:w<Enter>
-
-nmap <C-f> <Esc>:tnext<Enter>
 
 set hlsearch
 :syntax on
@@ -26,7 +23,8 @@ set backspace=indent,eol,start
 ":set smartindent
 :set shiftwidth=4
 :set expandtab
-colorscheme jellybeans
+colorscheme kolor
+" colorscheme jellybeans
 
 " ctags
 map <C-\> :tab split<CR>:exec("tag ".expand("<cword>"))<CR>
@@ -36,6 +34,8 @@ noremap <Leader>g :tselect<CR>
 vmap <C-f> y/<C-r>"<CR>
 
 :set ruler
+
+nnoremap <silent> <c-w>t :tabnew<CR>
 
 filetype on
 filetype plugin on 
@@ -53,7 +53,7 @@ let g:mapleader = ','
 let g:maplocalleader = ','
 map <Leader>n :NERDTreeToggle<CR>
 map <Leader>N :NERDTreeFind<CR>
-map <Leader>t :TagbarToggle<CR>
+map <Leader>y :TagbarToggle<CR>
 let NERDTreeIgnore=['\~$', '\.class$']
 " let g:CommandTCancelMap='<Esc>'
 " let g:CommandTSelectNextMap=['<Tab>', '<Down>']
@@ -126,7 +126,7 @@ function! ToggleList(bufname, pfx)
   endif
 endfunction
 
-command -bang -nargs=? QFix call QFixToggle(<bang>0)
+command! -bang -nargs=? QFix call QFixToggle(<bang>0)
 function! QFixToggle(forced)
   if exists("g:qfix_win") && a:forced == 0
     cclose
@@ -231,12 +231,6 @@ set diffopt=filler,iwhite
 
 let g:ctrlp_working_path_mode = ''
 
-"
-" Tagbar
-" 
-
-nmap <Leader>l :TagbarToggle<CR>
-
 " let g:tagbar_type_javascript = {
 "     \ 'ctagsbin' : '~/bin/jsctags'
 " \ }
@@ -290,6 +284,8 @@ fun! SetupVAM()
   let g:vim_addon_manager.plugin_sources['snippets-good'] = {"type": "git", "url": "git://github.com/garbas/vim-snipmate", "branch" : "master"}
   " get foldmethod=syntax fix
   let g:vim_addon_manager.plugin_sources['Rainbow_Parentheses_Improved_Master'] = {"type": "git", "url": "git://github.com/oblitum/rainbow", "branch" : "master"}
+  let g:vim_addon_manager.plugin_sources['vim-nerd-tree'] = {"type": "git", "url": "https://github.com/scrooloose/nerdtree.git", "branch" : "master"}
+  let g:vim_addon_manager.plugin_sources['vim-kolor'] = {"type": "git", "url": "https://github.com/jagleeso/vim-kolor.git", "branch" : "master"}
 
   let plugins = [
     \ 'ack',
@@ -313,7 +309,6 @@ fun! SetupVAM()
     \ 'Super_Shell_Indent',
     \ 'Jinja',
     \ 'puppet-syntax',
-    \ 'vimpager',
     \ 'github_theme',
     \ 'vim-dustjs',
     \ 'vim-css-color',
@@ -329,12 +324,20 @@ fun! SetupVAM()
     \ 'vim-scala-derekwyatt',
     \ 'snippets-good',
     \ 'vim-snippets',
-    \ 'clang_complete',
-    \ 'Rainbow_Parentheses_Improved_Master',
     \ 'Tail_Bundle',
+    \ 'jellybeans',
+    \ 'vim-nerd-tree',
+    \ 'dispatch',
+    \ 'vim-kolor',
+    \ 'LargeFile',
+    \ 'goyo',
     \ 'ctrlp'
     \ ]
 
+    " \ 'clang_complete',
+    " \ 'NERD_tree_Project',
+    " \ 'The_NERD_tree',
+    " \ 'Rainbow_Parentheses_Improved_Master',
     " \ 'rainbow_parentheses',
     " \ 'paredit',
 
@@ -462,6 +465,24 @@ augroup CursorLine
   au WinLeave * setlocal nocursorcolumn
 augroup END
 
+au VimEnter,WinEnter,BufWinEnter * :call CheckVimrc()
+if !exists("*CheckVimrc")
+func CheckVimrc()
+    " let filedir = expand('%:p:h')
+    " let vimfile = filedir . '/.vimrc'
+    let vimfile = getcwd() . '/.vimrc'
+    if filereadable(l:vimfile) && expand('~/.vimrc') != l:vimfile
+        execute 'source ' . l:vimfile
+    endif
+endfunction
+endif
+
+func! CdFileDir()
+    let dir = expand('%:p:h')
+    execute 'lcd ' . l:dir
+endfunction
+map <leader>h <esc>:call CdFileDir()<cr>
+
 " Mouse usage enabled in normal mode.
 set mouse=a
 " Set xterm2 mouse mode to allow resizing of splits with mouse inside Tmux.
@@ -475,6 +496,7 @@ set tabpagemax=50
 
 autocmd BufNewFile,BufRead *.cl set ft=c
 
+" Trigger prompt to reload changed files on buffer enter.
 au FocusGained,BufEnter * checktime
 
 if !exists("*CheckForCustomConfiguration")
@@ -495,6 +517,7 @@ if !exists("*CheckForCustomConfiguration")
     endfunction
 endif
 
+let g:goyo_width = 120
 au BufNewFile,BufRead *_defconfig setl keywordprg=kconf
 au BufNewFile,BufRead Kconfig setl keywordprg=kconf
 map <Leader>f <Esc>:!realpath % \| tr -d '\n' \| cboard<CR>
