@@ -1,3 +1,7 @@
 #!/usr/bin/env bash
-reckmon $KERN/kmsg.txt &
-while true do; do adb logcat '*:V' | tee $KERN/alog.txt; done 
+# rm $KERN/kmsg.txt
+# reckmon $KERN/kmsg.txt
+while true; do
+    adb shell cat /proc/kmsg | tee $KERN/kmsg.txt
+    sleep 5
+done

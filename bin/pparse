@@ -1,0 +1,28 @@
+#!/usr/bin/env perl
+# line,
+# virt_addr or '',
+# fname or '',
+# binary or '',
+# section idx or '',
+
+$section_idx = 0;
+$hex_re = qr/[a-f0-9]/;
+while (<>) {
+    chomp;
+    $virt_addr = '';
+    $fname = '';
+    $binary = '';
+    $section = '';
+    if (/^(${hex_re}{16})/) {
+        $virt_addr = hex($1);
+    }
+    if (/<([^>]+)>:$/) {
+        $fname = $1;
+    }
+    if (/^${hex_re}{16}:\s+(${hex_re})\s+(.*)/) {
+    }
+    if (/Disassembly of section ([^:]+):/) {
+        $section = $1;
+    }
+    print join("~", $_, $virt_addr, $fname, $binary, $section), "\n";
+}

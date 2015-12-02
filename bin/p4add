@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+set -e
+# set -x
+changelist="$1"
+shift 1
+
+cd $KERN/..
+# First commit had changes in it; 
+# some of these files are ignored for that, others because I didn't need to change them
+ignore=( \
+        ".*\.gitignore" \
+    )
+match_pattern() {
+    # "^(one|two|three)$"
+    # local IFS='|'
+    # echo "^($*)$"
+    for p in "$@"; do
+        echo "$p"
+    done | \
+        perl -lane '
+        BEGIN { @pats = (); }
+        push @pats, $_;
+        END { print "^(" . (join "|", @pats) . ")\$" }
+        '
+}
+get_files() {
+    git_log() {
+        # 1st commit added all exynos files.
+        # This is the commit right after that.
+        AFTER_INITIAL_COMMIT="5e010015ba55c08be85602e6242855fb4ed22676"
+        git log --name-status $AFTER_INITIAL_COMMIT^..HEAD
+    }
+    git_file_exists() {
+        xargs --no-run-if-empty git ls-files
+    }
+    parse_log() {
+        pattern="$1"
+        shift 1
+        remove_pattern="$(match_pattern  "${ignore[@]}")"
+        grep "$pattern" | sort --unique | awk '{print $2}' | premove "$remove_pattern"
+    }
+    modified_files() {
+        git_log | parse_log '^M\s\+' | git_file_exists
+    }
+    added_files() {
+        git_log | parse_log '^A\s\+' | git_file_exists
+    }
+    
+    (
+        modified_files
+        added_files
+    ) | sort --unique 
+}
+files="$(get_files)"
+
+get_files
+# echo p4 reopen -c $changelist ...
+# echo
+#
+# p4 reopen -c $changelist $files 2>&1 | grep 'file(s) not opened on this client' | awk '{print $1}' | while read f; do
+#     # Haven't opened this file with perfroce before
+#     if p4 open -c $changelist "$f" 2>&1 | grep 'file(s) not on client'; then
+#        p4 add -c $changelist "$f"
+#     fi
+# done

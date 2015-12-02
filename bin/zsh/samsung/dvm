@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+vmlinux1="$1"
+vmlinux2="$2"
+set -e
+shift 2
+lines=10000
+vimdiff <(od $vmlinux1 | head -n $lines) <(od $vmlinux2 | head -n $lines)

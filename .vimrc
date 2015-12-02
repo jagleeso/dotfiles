@@ -179,9 +179,9 @@ set completeopt+=longest
 autocmd! bufwritepost .vimrc source ~/.vimrc
 
 " Use CTRL-S for saving, also in Insert mode
-noremap <C-S>		:update<CR><Esc>
-vnoremap <C-S>		<C-C>:update<CR><Esc>
-inoremap <C-S>		<C-O>:update<CR><Esc>
+noremap <C-S>		:update!<CR><Esc>
+vnoremap <C-S>		<C-C>:update!<CR><Esc>
+inoremap <C-S>		<C-O>:update!<CR><Esc>
 
 " CTRL-X and SHIFT-Del are Cut
 " vnoremap <C-X> "+x
@@ -201,8 +201,7 @@ vnoremap <C-q> :q<CR>
 inoremap <C-q> <Esc>:q<CR>
 
 " map <Leader>m <Esc>:make<Up><CR>
-map <Leader>m <Esc>:Make<CR>
-map <Leader>h :lcd %:h<CR>:e<CR>
+map <Leader>m <Esc>:Make<Up><CR>
 
 set wildmode=longest,list,full
 set wildmenu
@@ -293,7 +292,6 @@ fun! SetupVAM()
     \ 'Align%294',
     \ 'IndentAnything',
     \ 'matchit.zip',
-    \ 'The_NERD_tree',
     \ 'Supertab',
     \ 'surround',
     \ 'tComment',
@@ -319,7 +317,6 @@ fun! SetupVAM()
     \ 'vim-redl',
     \ 'vimpager',
     \ 'ag',
-    \ 'gitignore%2557',
     \ 'vim-move',
     \ 'ghcmod-vim',
     \ 'vim-scala-derekwyatt',
@@ -408,11 +405,10 @@ map + <C-A>
 map _ <C-X>
 
 " Use ctrl-[hjkl] to select the active split!
-map <silent> <c-k> :wincmd k<CR>
-map <silent> <c-j> :wincmd j<CR>
-map <silent> <c-h> :wincmd h<CR>
-map <silent> <c-l> :wincmd l<CR>
-
+noremap <silent> <c-k> :wincmd k<CR>
+noremap <silent> <c-j> :wincmd j<CR>
+noremap <silent> <c-h> :wincmd h<CR>
+noremap <silent> <c-l> :wincmd l<CR>
 map <silent> <c-w>t :tabnew<CR>
 
 vmap <C-j> <Plug>MoveBlockDown
@@ -493,12 +489,18 @@ set ttymouse=xterm2
 set spell
 hi clear SpellBad
 
-set tabpagemax=50
+map <c-f> :tnext<CR>
+set autoread
 
-autocmd BufNewFile,BufRead *.cl set ft=c
+map <silent> <leader>f <esc>:!echo % \| xargs realpath \| cboard<cr><cr>
+map <silent> <leader>F <esc>:!echo % \| xargs realpath \| sed 's/$/:<C-R>=line(".")<cr>/' \| cboard<cr><cr>
 
 " Trigger prompt to reload changed files on buffer enter.
 au FocusGained,BufEnter * checktime
+
+set tabpagemax=50
+
+autocmd BufNewFile,BufRead *.cl set ft=c
 
 if !exists("*CheckForCustomConfiguration")
     " can't redefine functions in use (which it will be on reloading ~/.vimrc

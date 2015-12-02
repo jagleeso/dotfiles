@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+name="$1"
+set -x
+set -e
+cd $HYP/..
+path=$HYP/debug/$name
+rm -f $path/.vmlinux*pickle $path/vmlinux $path/.config
+mkdir -p $path
+cp tmp/vmlinux .config $path

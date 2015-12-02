@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+set -e
+# set -x
+first="$1"
+shift 1
+
+recover=0
+if [ "$first" = "-r" ]; then
+    recover=1
+    files=("$@")
+else
+    files=("$first" "$@")
+fi
+
+do_mv()
+{
+    mv -v -n "$@" || true
+}
+for f in "${files[@]}"; do
+    if [ "$recover" = "0" ]; then
+        do_mv "$f" "$f.bkup"
+    else
+        to="${f%.bkup}"
+        if [ "$f" != "$to" ]; then
+            do_mv "$f" "$to"
+        fi
+    fi
+done
+

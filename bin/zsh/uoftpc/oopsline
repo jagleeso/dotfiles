@@ -7,6 +7,32 @@ import sys
 import subprocess
 from os import environ as env
 
+def each_procline(proc):
+    while True:
+        line = proc.stdout.readline()
+        if line != '':
+            yield line.rstrip()
+        else:
+            break
+
+def which(fname):
+    proc = subprocess.Popen(['which', fname], stdout=subprocess.PIPE)
+    try:
+        return each_procline(proc).next()
+    except StopIteration:
+        return None
+
+def find_gdb():
+    for program in [
+            'arm-linux-gdb',
+            'aarch64-linux-android-gdb',
+            'aarch64-linux-gdb',
+            ]:
+        path = which(program)
+        if path is not None:
+            return program
+DEFAULT_ARM_GDB = find_gdb()
+
 def main():
     parser = argparse.ArgumentParser(description="debug kernel module oops by showing last line number")
     parser.add_argument("--lastkmsg",
@@ -16,7 +42,7 @@ def main():
     parser.add_argument("--obj",
         help="module.o file")
     parser.add_argument("--gdb",
-        default="aarch64-linux-gdb",
+        default=DEFAULT_ARM_GDB,
         help="gdb command")
     parser.add_argument("--kernel",
         default=env['KERN'] + '/vmlinux.o',
@@ -24,6 +50,9 @@ def main():
     parser.add_argument("--just-first", action="store_true",
         help="Just lookup the first function+0x1c in a line")
     args = parser.parse_args()
+
+    if os.path.exists('.gdbinit') and os.getcwd() != os.path.expandvars('$HOME'):
+        parser.error("WARNING: .gdbinit is in this directory, run from another place to avoid sourcing it.")
 
     if not any(f is not None for f in [args.lastkmsg, args.input]):
         parser.error("need a file")
@@ -63,8 +92,10 @@ def main():
     for k in ['lastkmsg', 'input']:
         del dargs[k]
     del dargs['just_first']
+    del dargs['kernel']
     
-    oopsline(ds, **dargs)
+    for line in oopsline(ds, **dargs):
+        print line
 
 def file_handle(string_or_handle):
     if type(string_or_handle) == str:
@@ -140,45 +171,60 @@ def parse_lastkmsg(lastkmsg):
 
     return d
 
-def oopsline(ds, obj, gdb, kernel):
-    with open('.gdbinit', 'w') as gdbinit:
+class GDBError(Exception):
+    pass
+
+def oopsline(ds, obj, gdb=DEFAULT_ARM_GDB):
+    if os.path.exists('.gdbinit') and os.getcwd() != os.path.expandvars('$HOME'):
+        raise RuntimeError("WARNING: .gdbinit is in this directory, run from another place to avoid sourcing it.")
+    with open('.gdbinit.koops', 'w') as gdbinit:
         def write(string, d={}):
-            gdbinit.write(textwrap.dedent(
-                string.format(**d)))
+            try:
+                gdbinit.write(textwrap.dedent(string.format(**d)))
+            except Exception, e:
+                import pdb; pdb.set_trace()
+                raise e
         # list *({function})+{offset}
         for d in ds:
-            write("""
-            list *({function}+{offset})
-            """, d)
+            if 'function' in d and 'offset' in d:
+                write("""
+                list *({function}+{offset})
+                """, d)
+            elif 'offset' in d:
+                write("""
+                list *({offset})
+                """, d)
+            elif type(d) == str and re.match(r'(0x)?[0-9a-z]', d):
+                write("""
+                list *(0x{offset})
+                """, {'offset':strip_hex_prefix(d)})
         write("quit")
 
-    skip_lines = [
-        'warning: Source file is more recent than executable.',
-        'Copyright (C)',
-        'GNU gdb (GDB)',
-        'License',
-        'This is free software',
-        'There is NO WARRANTY',
-        'and "show warranty" for details.',
-        'This GDB was configured as',
-        'For bug reporting',
-        '<http://www.gnu.org/software/gdb/bugs/>...',
-        'Reading symbols from',
-    ]
+    # 0x28ca40 is in set_in_fips_err (crypto/testmgr.c:163).
+    skip_until_match = r'^0x[0-9a-f]+ is in '
+    matched = [False]
     def should_skip(line):
-        for sline in skip_lines:
-            if line.startswith(sline):
-                return True
-        return False
+        if matched[0] or re.search(skip_until_match, line):
+            matched[0] = True
+        return not matched[0]
 
-    proc = subprocess.Popen([gdb, obj, '-x', '.gdbinit'],stdout=subprocess.PIPE)
+    def should_error(line):
+        return re.search(r'Reading symbols from .*\(no debugging symbols found\)', line)
+
+    proc = subprocess.Popen([gdb, obj, '-x', '.gdbinit.koops'], 
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     for line in iter(proc.stdout.readline, ''):
-        if should_skip(line):
+        if should_error(line):
+            raise GDBError("ERROR: " + line)
+        elif should_skip(line):
             continue
-        print line.rstrip()
+        yield line.rstrip()
     
 def union(d1, d2):
     return dict(d1.items() + d2.items())
+
+def strip_hex_prefix(string):
+    return re.sub('^0x', '', string)
 
 def last_module_loaded(lastkmsg):
     with open(lastkmsg) as f:
