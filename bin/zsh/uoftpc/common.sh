@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 view_errors() {
     local file="$1"
     shift 1
@@ -23,7 +25,13 @@ cat_and_view_errs() {
 
 _test_sudo() {
     local adb_sudo="$1"
-    local result="$($adb_sudo echo hi | tr -d '\r\n')"
+    local result=
+    while true; do
+        result="$($adb_sudo echo hi | tr -d '\r\n')"
+        if !( echo "$result" | grep -q 'device.*null.*not found' ); then
+            break
+        fi
+    done
     [ "$result" = "hi" ]
 }
 adb_sudo() {
@@ -31,18 +39,25 @@ adb_sudo() {
         adb_sudo_aosp "$@"
     elif _test_sudo adb_sudo_supersu; then
         adb_sudo_supersu "$@"
+    else
+        echo "ERROR: couldn't figure out how to sudo" 1>&2
+        exit 1
     fi
     # adb_sudo_aosp "$@"
     # adb_sudo_supersu "$@"
 }
 adb_sudo_supersu() {
     # works with the su command installed by SuperSu
-    adb shell 'su -c "'"$@"'"'
+    # adb shell 'su -c "'"$@"'"'
+    str="$@"
+    adb shell "su -c '$str'"
 }
 adb_sudo_aosp() {
     # works with the su command bundled in the AOSP (system/extras/su/su.c)
     # (installed when building via "lunch full_mako-userdebug")
-    adb shell 'su 0 sh -c "'"$@"'"'
+    # adb shell 'su 0 sh -c "'"$@"'"'
+    str="$@"
+    adb shell "su 0 sh -c '$str'"
 }
 
 adb_sh() {
@@ -220,4 +235,27 @@ fling_files() {
         | perl -lane 'print $F[-1]'
 }
 
-"$@"
+wait_for() {
+    cmd="$1"
+    description="$2"
+    shift 2
+
+    if ! $cmd; then
+        echo "Waiting for $description..."
+        sleep 1
+    fi
+    while ! $cmd; do
+        sleep 1
+    done
+}
+
+device_is_connected() 
+{
+    [ "$(adb devices | grep -v 'List of dev\|^$')" != "" ]
+}
+
+if [ "$0" = "$BASH_SOURCE" ]; then
+    set -x
+    set -e
+    "$@"
+fi

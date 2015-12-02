@@ -1,0 +1,23 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+import argparse
+import common
+import time
+
+def main():
+    parser = argparse.ArgumentParser("close windows with an empty title")
+    parser.add_argument("--once", action='store_true')
+    args = parser.parse_args()
+    kwin(**vars(args))
+    
+def kwin(once):
+    if once:
+        common.sh_run("kwin")
+        return
+
+    while True:
+        common.sh_run("kwin")
+        time.sleep(1)
+
+if __name__ == '__main__':
+    main()

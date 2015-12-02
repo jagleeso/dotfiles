@@ -16,7 +16,7 @@ def main():
     parser.add_argument("--obj",
         help="module.o file")
     parser.add_argument("--gdb",
-        default="arm-linux-gdb",
+        default="aarch64-linux-gdb",
         help="gdb command")
     parser.add_argument("--kernel",
         default=env['KERN'] + '/vmlinux.o',

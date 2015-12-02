@@ -72,6 +72,7 @@ let g:ctrlp_max_files=0
 let g:ctrlp_working_path_mode = ''
 nnoremap <Leader>f :CtrlPFunky<Cr>
 let g:ctrlp_follow_symlinks = 1
+let g:ctrlp_clear_cache_on_exit = 0
 
 " to fix issues with command-t <Up> and <Down> terminal keys (see :h vt100-cursor-keys)
 "set notimeout		" don't timeout on mappings
@@ -329,11 +330,11 @@ fun! SetupVAM()
     \ 'vim-nerd-tree',
     \ 'dispatch',
     \ 'vim-kolor',
-    \ 'LargeFile',
     \ 'goyo',
     \ 'ctrlp'
     \ ]
 
+    " \ 'LargeFile',
     " \ 'clang_complete',
     " \ 'NERD_tree_Project',
     " \ 'The_NERD_tree',
@@ -523,5 +524,9 @@ au BufNewFile,BufRead Kconfig setl keywordprg=kconf
 map <Leader>f <Esc>:!realpath % \| tr -d '\n' \| cboard<CR>
 map <Leader>F <Esc>:call system("echo " . shellescape(expand("%") . ":" . line(".")) . "\| tr -d '\n' \| cboard")<CR>
 
+nmap <C-f> :tnext<CR>
+
 " uoftpc
 source ~/.vimrc.uoftpc
+
+source ~/.vimrc.samsung.private

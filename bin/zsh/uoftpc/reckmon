@@ -3,4 +3,8 @@ source $(dirname $0)/common.sh
 file="$1"
 shift 1 || exit 1
 
-tail_piped_file /proc/kmsg $file
+# set -x
+while true; do
+    wait_for device_is_connected "device to be connected"
+    tail_piped_file /proc/kmsg $file
+done

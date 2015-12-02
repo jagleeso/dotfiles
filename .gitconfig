@@ -13,3 +13,5 @@
     co = checkout
     l = log --name-status
     b = branch -v
+[color]
+	ui = auto
