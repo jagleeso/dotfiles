@@ -179,7 +179,7 @@ function android_bash() {
 
 source ~/.bashrc_uoftpc
 
-source ~/.zshrc_samsung
+# source ~/.zshrc_samsung
 
 unset ZSH_BIN
 
