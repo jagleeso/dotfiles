@@ -203,3 +203,7 @@ gconftool-2 --set /apps/gnome-terminal/profiles/Default/use_theme_colors --type 
 gconftool-2 -s -t string /apps/gnome-terminal/profiles/Default/background_color '#0d0d19192626'
 gconftool-2 -s -t string /apps/gnome-terminal/profiles/Default/foreground_color '#d9d9e6e6f2f2'
 gconftool-2 -s -t string /apps/gnome-terminal/profiles/Default/palette '#0d0d19192626:#dede80805454:#5454dede8080:#b2b2dede5454:#80805454dede:#dede5454b2b2:#5454b2b2dede:#d9d9e5e5f2f2:#737380808d8d:#eeeebfbfaaaa:#aaaaeeeebfbf:#d9d9eeeeaaaa:#bfbfaaaaeeee:#eeeeaaaad9d9:#aaaad9d9eeee:#d9d9e5e5f2f2'
+
+# Use ## as the trigger sequence instead of the default **
+export FZF_COMPLETION_TRIGGER='##'
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
