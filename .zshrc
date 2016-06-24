@@ -45,7 +45,7 @@ fi
 
 export EDITOR=vim
 
-source ~/.zshrc_path
+# source ~/.zshrc_path
 
 if [ -x "`which vimpager`" ]; then
     export PAGER="`which vimpager`"
@@ -168,7 +168,7 @@ fi
 export ZSH_BIN="$HOME/bin/zsh"
 
 # My home desktop
-source ~/.zshrc_mypc
+# source ~/.zshrc_mypc
 
 # My uoft desktop
 __NO_ANDROID_PATH="$PATH"
@@ -177,13 +177,13 @@ function android_bash() {
     PATH="$__NO_ANDROID_PATH" bash "$@"
 }
 
-source ~/.bashrc_uoftpc
+# source ~/.bashrc_uoftpc
 
 # source ~/.zshrc_samsung
 
 unset ZSH_BIN
 
-PATH=$PATH:$HOME/.rvm/bin # Add RVM to PATH for scripting
+PATH=$HOME/bin:$HOME/local/bin:~/.fzf:$PATH:$HOME/.rvm/bin # Add RVM to PATH for scripting
 
 setopt HIST_IGNORE_SPACE
 setopt interactivecomments

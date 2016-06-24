@@ -40,13 +40,33 @@ Plugin 'https://github.com/rking/ag.vim.git'
 Plugin 'git://github.com/matze/vim-move'
 Plugin 'https://github.com/vim-scripts/Tail-Bundle.git'
 Plugin 'https://github.com/tpope/vim-dispatch.git'
+Plugin 'https://github.com/vim-scripts/Conque-GDB.git'
+Plugin 'https://github.com/Valloric/YouCompleteMe.git'
 
 Plugin 'MarcWeber/vim-addon-mw-utils'
 Plugin 'tomtom/tlib_vim'
-Plugin 'garbas/vim-snipmate'
+" Plugin 'garbas/vim-snipmate'
 
 " Optional:
 Plugin 'honza/vim-snippets'
+
+" if you use Vundle, load plugins:
+" Plugin 'ervandew/supertab'
+" Plugin 'Valloric/YouCompleteMe'
+Plugin 'SirVer/ultisnips'
+
+" " make YCM compatible with UltiSnips (using supertab)
+" let g:ycm_key_list_select_completion = ['<C-n>', '<Down>']
+" let g:ycm_key_list_previous_completion = ['<C-p>', '<Up>']
+" let g:SuperTabDefaultCompletionType = '<C-n>'
+
+" " better key bindings for UltiSnipsExpandTrigger
+" let g:UltiSnipsExpandTrigger = "<tab>"
+" let g:UltiSnipsJumpForwardTrigger = "<tab>"
+" let g:UltiSnipsJumpBackwardTrigger = "<s-tab>"
+
+let g:UltiSnipsExpandTrigger= "<c-f>"
+let g:UltiSnipsJumpForwardTrigger = "<c-f>"
 
 
 " Git plugin not hosted on GitHub
@@ -239,8 +259,8 @@ nmap <script> <silent> <leader>q :copen<CR>
 set complete+=k
 au FileType * exe('setl dict+='.$VIMRUNTIME.'/syntax/'.&filetype.'.vim')
 
-let g:SuperTabDefaultCompletionType = "context"
-let g:SuperTabContextTextOmniPrecedence = ['&omnifunc', '&completefunc']
+" let g:SuperTabDefaultCompletionType = "context"
+" let g:SuperTabContextTextOmniPrecedence = ['&omnifunc', '&completefunc']
 
 let g:ftplugin_sql_omni_key_right = '<Right>'
 let g:ftplugin_sql_omni_key_left  = '<Left>'
@@ -468,7 +488,23 @@ map <Leader>F <Esc>:call system("echo " . shellescape(expand("%") . ":" . line("
 
 nmap <C-f> :tnext<CR>
 
+let g:ConqueGdb_Leader = '`'
+command! MarSave call Marvim_macro_store()
+command! MarRun call Marvim_search()
+
+" https://github.com/vheon/dotvim/blob/5321347027c21e4c22dc6fcea4cc315052ed25f1/vimrc
+let g:ycm_global_ycm_extra_conf = '~/.ycm.py'
+" let g:ycm_confirm_extra_conf    = 0
+" let g:ycm_global_ycm_extra_conf = g:dotvim.'/ycm.py'
+" let g:ycm_extra_conf_vim_data   = ['&filetype']
+let g:ycm_seed_identifiers_with_syntax = 1
+
+" imap <C-\> <Plug>snipMateNextOrTrigger
+" let g:snips_trigger_key = '<C-\>'
+imap <C-J> <esc>a<Plug>snipMateNextOrTrigger
+smap <C-J> <Plug>snipMateNextOrTrigger
+
 " uoftpc
-source ~/.vimrc.uoftpc
+" source ~/.vimrc.uoftpc
 
 " source ~/.vimrc.samsung.private
