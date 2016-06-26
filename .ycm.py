@@ -20,8 +20,6 @@ def FlagsForFile(filename, **kwargs):
         '-isystem',
         '/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/../lib/c++/v1',
     ]
-    import pprint
-    pprint.pprint(kwargs)
 
     # data = kwargs['client_data']
     # filetype = data['&filetype']
@@ -36,12 +34,6 @@ def FlagsForFile(filename, **kwargs):
         flags += ['-ObjC']
     else:
         flags = []
-
-    import pprint
-    pprint.pprint(file_extension)
-
-    import pprint
-    pprint.pprint(flags)
 
     return {
         'flags':        flags,

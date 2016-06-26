@@ -311,17 +311,6 @@ set wildmenu
 vnoremap <C-r> "hy:%s/<C-r>h//gc<left><left><left>
 vnoremap <C-t> "hy:%s/\c<C-r>h/\=SmartCase('')/gc<left><left><left><left><left>
 
-nmap <LocalLeader>sv <Plug>RSendSelection
-imap <LocalLeader>sv <Plug>RSendSelection
-vmap <LocalLeader>sv <Plug>RSendSelection
-
-nmap <LocalLeader>sl <Plug>RSendLine
-imap <LocalLeader>sl <Plug>RSendLine
-vmap <LocalLeader>sl <Plug>RSendLine
-
-nmap <LocalLeader>sf <Plug>RSendFile
-imap <LocalLeader>sf <Plug>RSendFile
-vmap <LocalLeader>sf <Plug>RSendFile
 let vimrplugin_underscore = 0
 
 set diffopt=filler,iwhite
