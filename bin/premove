@@ -1,4 +1,0 @@
-#!/usr/bin/env bash
-source "$(dirname "$0")"/common.sh
-pat="$(quote_re "$1")"
-perl -lane 'if (/'"$pat"'/) { ; } else { print; }'
