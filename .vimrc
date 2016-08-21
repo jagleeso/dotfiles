@@ -116,7 +116,7 @@ set hlsearch
 :syntax on
 set autoindent
 set expandtab
-set tabstop=4
+set tabstop=8
 set shiftwidth=4
 set softtabstop=4
 set backspace=indent,eol,start
@@ -130,6 +130,8 @@ colorscheme kolor
 " ctags
 map <C-\> :tab split<CR>:exec("tag ".expand("<cword>"))<CR>
 noremap <Leader>g :tselect<CR>
+set tags-=./TAGS
+set tags-=TAGS
 
 " if we visually select text, search for that text from our current cursor
 vmap <C-f> y/<C-r>"<CR>
@@ -492,6 +494,8 @@ let g:ycm_seed_identifiers_with_syntax = 1
 " let g:snips_trigger_key = '<C-\>'
 imap <C-J> <esc>a<Plug>snipMateNextOrTrigger
 smap <C-J> <Plug>snipMateNextOrTrigger
+
+" AlignMapsClean
 
 " uoftpc
 " source ~/.vimrc.uoftpc

@@ -47,6 +47,16 @@ export EDITOR=vim
 
 # source ~/.zshrc_path
 
+_source_if() {
+    if [ -f "$1" ]; then
+        source "$1"
+    fi
+}
+_source_if ~/.zshrc.gpu
+_source_if ~/.zshrc.vnc
+_source_if ~/.zshrc.vmgl
+unset _source_if
+
 if [ -x "`which vimpager`" ]; then
     export PAGER="`which vimpager`"
     alias less=$PAGER 
@@ -207,3 +217,9 @@ gconftool-2 -s -t string /apps/gnome-terminal/profiles/Default/palette '#0d0d191
 # Use ## as the trigger sequence instead of the default **
 export FZF_COMPLETION_TRIGGER='##'
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+# . /home/james/torch-cl/install/bin/torch-activate
+
+# added by AMD SDK
+# export AMDAPPSDKROOT="/home/james/AMDAPPSDK-3.0"
+# export OPENCL_VENDOR_PATH="/home/james/AMDAPPSDK-3.0/etc/OpenCL/vendors/"
