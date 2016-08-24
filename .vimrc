@@ -133,6 +133,14 @@ noremap <Leader>g :tselect<CR>
 set tags-=./TAGS
 set tags-=TAGS
 
+" cscope
+" Use quickfix menu for cscope searches.
+" Would be nice... but then compilation errors get overwritten =(.
+set cscopequickfix=s-,c-,d-,i-,t-,e-
+set cscoperelative
+" Would be nice... if :tag always jumped to the first cscope match
+" set cscopetag
+
 " if we visually select text, search for that text from our current cursor
 vmap <C-f> y/<C-r>"<CR>
 
