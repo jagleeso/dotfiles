@@ -312,6 +312,7 @@ vnoremap <C-q> :q<CR>
 inoremap <C-q> <Esc>:q<CR>
 
 " map <Leader>m <Esc>:make<Up><CR>
+silent! unmap <Leader>m
 map <Leader>m <Esc>:Make<Up><CR>
 
 set wildmode=longest,list,full
