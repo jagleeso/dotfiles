@@ -193,7 +193,10 @@ function android_bash() {
 
 unset ZSH_BIN
 
-PATH=$HOME/bin:$HOME/local/bin:~/.fzf:$PATH:$HOME/.rvm/bin # Add RVM to PATH for scripting
+export GOPATH=$HOME/gopath
+export GOROOT=$HOME/golang
+
+PATH=$HOME/bin:$HOME/local/bin:~/.fzf:$PATH:$HOME/.rvm/bin:$GOPATH/bin
 
 setopt HIST_IGNORE_SPACE
 setopt interactivecomments
