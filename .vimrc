@@ -42,6 +42,7 @@ Plugin 'https://github.com/vim-scripts/Tail-Bundle.git'
 Plugin 'https://github.com/tpope/vim-dispatch.git'
 Plugin 'https://github.com/vim-scripts/Conque-GDB.git'
 Plugin 'https://github.com/Valloric/YouCompleteMe.git'
+Plugin 'fatih/vim-go'
 
 Plugin 'MarcWeber/vim-addon-mw-utils'
 Plugin 'tomtom/tlib_vim'
@@ -116,7 +117,7 @@ set hlsearch
 :syntax on
 set autoindent
 set expandtab
-set tabstop=4
+set tabstop=8
 set shiftwidth=4
 set softtabstop=4
 set backspace=indent,eol,start
@@ -495,6 +496,8 @@ let g:ycm_seed_identifiers_with_syntax = 1
 " let g:snips_trigger_key = '<C-\>'
 imap <C-J> <esc>a<Plug>snipMateNextOrTrigger
 smap <C-J> <Plug>snipMateNextOrTrigger
+
+" AlignMapsClean
 
 " uoftpc
 " source ~/.vimrc.uoftpc
