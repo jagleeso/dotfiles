@@ -130,6 +130,8 @@ colorscheme kolor
 " ctags
 map <C-\> :tab split<CR>:exec("tag ".expand("<cword>"))<CR>
 noremap <Leader>g :tselect<CR>
+set tags-=./TAGS
+set tags-=TAGS
 
 " if we visually select text, search for that text from our current cursor
 vmap <C-f> y/<C-r>"<CR>
@@ -302,6 +304,7 @@ vnoremap <C-q> :q<CR>
 inoremap <C-q> <Esc>:q<CR>
 
 " map <Leader>m <Esc>:make<Up><CR>
+silent! unmap <Leader>m
 map <Leader>m <Esc>:Make<Up><CR>
 
 set wildmode=longest,list,full
