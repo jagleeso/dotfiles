@@ -45,6 +45,8 @@ Plugin 'MarcWeber/vim-addon-mw-utils'
 Plugin 'tomtom/tlib_vim'
 Plugin 'garbas/vim-snipmate'
 
+Plugin 'https://github.com/davidhalter/jedi-vim.git'
+
 " Optional:
 Plugin 'honza/vim-snippets'
 
@@ -309,6 +311,7 @@ set diffopt=filler,iwhite
 " set verbose=9
 " let loaded_matchparen = 0
 " DoMatchParen
+" :NoMatchParen
 
 let g:ctrlp_working_path_mode = ''
 
@@ -346,6 +349,8 @@ let marvim_find_key = '<Leader>r' " change find key from <F2> to 'space'
 let marvim_store_key = '<Leader>d'     " change store key from <F3> to 'ms'
 " let marvim_register = 'c'       " change used register from 'q' to 'c'
 " let marvim_prefix = 0           " disable default syntax based prefix
+command! MarSave call Marvim_macro_store()
+command! MarSearch call Marvim_search()
 
 set t_te= t_ti=
 let g:easytags_auto_update = 0
