@@ -45,7 +45,17 @@ fi
 
 export EDITOR=vim
 
-source ~/.zshrc_path
+# source ~/.zshrc_path
+
+_source_if() {
+    if [ -f "$1" ]; then
+        source "$1"
+    fi
+}
+_source_if ~/.zshrc.gpu
+_source_if ~/.zshrc.vnc
+_source_if ~/.zshrc.vmgl
+unset _source_if
 
 if [ -x "`which vimpager`" ]; then
     export PAGER="`which vimpager`"
@@ -168,7 +178,7 @@ fi
 export ZSH_BIN="$HOME/bin/zsh"
 
 # My home desktop
-source ~/.zshrc_mypc
+# source ~/.zshrc_mypc
 
 # My uoft desktop
 __NO_ANDROID_PATH="$PATH"
@@ -177,13 +187,16 @@ function android_bash() {
     PATH="$__NO_ANDROID_PATH" bash "$@"
 }
 
-source ~/.bashrc_uoftpc
+# source ~/.bashrc_uoftpc
 
 # source ~/.zshrc_samsung
 
 unset ZSH_BIN
 
-PATH=$PATH:$HOME/.rvm/bin # Add RVM to PATH for scripting
+export GOPATH=$HOME/gopath
+export GOROOT=$HOME/golang
+
+PATH=$HOME/bin:$HOME/local/bin:~/.fzf:$PATH:$HOME/.rvm/bin:$GOPATH/bin
 
 setopt HIST_IGNORE_SPACE
 setopt interactivecomments
@@ -198,12 +211,16 @@ TIMEFMT=$'\nreal\t%E\nuser\t%U\nsys\t%S'
 
 # All hail the glory of the color gods.
 # http://ciembor.github.io/4bit/#
-gconftool-2 --set /apps/gnome-terminal/profiles/Default/use_theme_background --type bool false 
-gconftool-2 --set /apps/gnome-terminal/profiles/Default/use_theme_colors --type bool false 
-gconftool-2 -s -t string /apps/gnome-terminal/profiles/Default/background_color '#0d0d19192626'
-gconftool-2 -s -t string /apps/gnome-terminal/profiles/Default/foreground_color '#d9d9e6e6f2f2'
-gconftool-2 -s -t string /apps/gnome-terminal/profiles/Default/palette '#0d0d19192626:#dede80805454:#5454dede8080:#b2b2dede5454:#80805454dede:#dede5454b2b2:#5454b2b2dede:#d9d9e5e5f2f2:#737380808d8d:#eeeebfbfaaaa:#aaaaeeeebfbf:#d9d9eeeeaaaa:#bfbfaaaaeeee:#eeeeaaaad9d9:#aaaad9d9eeee:#d9d9e5e5f2f2'
+# gconftool-2 --set /apps/gnome-terminal/profiles/Default/use_theme_background --type bool false 
+# gconftool-2 --set /apps/gnome-terminal/profiles/Default/use_theme_colors --type bool false 
+# gconftool-2 -s -t string /apps/gnome-terminal/profiles/Default/background_color '#0d0d19192626'
+# gconftool-2 -s -t string /apps/gnome-terminal/profiles/Default/foreground_color '#d9d9e6e6f2f2'
+# gconftool-2 -s -t string /apps/gnome-terminal/profiles/Default/palette '#0d0d19192626:#dede80805454:#5454dede8080:#b2b2dede5454:#80805454dede:#dede5454b2b2:#5454b2b2dede:#d9d9e5e5f2f2:#737380808d8d:#eeeebfbfaaaa:#aaaaeeeebfbf:#d9d9eeeeaaaa:#bfbfaaaaeeee:#eeeeaaaad9d9:#aaaad9d9eeee:#d9d9e5e5f2f2'
 
 # Use ## as the trigger sequence instead of the default **
 export FZF_COMPLETION_TRIGGER='##'
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+if [ -f ~/.zshrc.db ]; then 
+    source ~/.zshrc.db
+fi

@@ -1,0 +1,29 @@
+export BENCH=$HOME/clone/benchmark_spark
+
+source ~/.zshrc.java
+
+export PATH=$HOME/maven/apache-maven-3.3.9/bin:$PATH
+export MAVEN_OPTS="-Xmx2g -XX:ReservedCodeCacheSize=512m" 
+
+export PATH=$HADOOP_HOME/bin:$SPARK_HOME/bin:$PATH
+
+# source /opt/intel/vtune_amplifier_xe_2017.0.2.478468/amplxe-vars.sh 
+
+if [ `uname` = "Darwin" ]; then
+    BIN_DIR=
+else
+    platform="$(uname -m)"
+    if [ "$platform" = "x86_64" ]; then
+        BIN_DIR=bin64
+    elif [ "$platform" = "amd64" ]; then
+        BIN_DIR=bin64
+    else
+        BIN_DIR=bin32
+    fi
+fi
+export PATH='/opt/intel/vtune_amplifier_xe_2017.0.2.478468/'$BIN_DIR:$PATH
+# if [ "$1" != "quiet" ]; then
+#     echo "Copyright (C) 2009-2016 Intel Corporation. All rights reserved."
+#     echo "Intel(R) VTune(TM) Amplifier XE 2017 (build 478468)"
+# fi
+export VTUNE_AMPLIFIER_XE_2017_DIR='/opt/intel/vtune_amplifier_xe_2017.0.2.478468'
