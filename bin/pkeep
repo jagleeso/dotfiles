@@ -1,4 +1,21 @@
-#!/usr/bin/env bash
-source "$(dirname "$0")"/common.sh
-pat="$(quote_re "$1")"
-perl -lane 'if (/'"$pat"'/) { print; }'
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import argparse
+import re
+import sys
+
+def main():
+    parser = argparse.ArgumentParser("filter lines by regex")
+    parser.add_argument('regex')
+    parser.add_argument('--remove', action='store_true')
+    args = parser.parse_args()
+
+    for line in sys.stdin:
+        line = line.rstrip()
+        m = re.search(args.regex, line)
+        if (m and not args.remove) or (not m and args.remove):
+            print line
+
+if __name__ == "__main__":
+    main()

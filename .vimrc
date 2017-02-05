@@ -1,5 +1,109 @@
 " put this line first in ~/.vimrc
-set nocompatible | filetype indent plugin on | syn on
+
+set nocompatible              " be iMproved, required
+filetype off                  " required
+
+
+"
+" Vundle
+"
+
+" set the runtime path to include Vundle and initialize
+set rtp+=~/.vim/bundle/Vundle.vim
+call vundle#begin()
+" alternatively, pass a path where Vundle should install plugins
+"call vundle#begin('~/some/path/here')
+
+" let Vundle manage Vundle, required
+Plugin 'VundleVim/Vundle.vim'
+
+" The following are examples of different formats supported.
+" Keep Plugin commands between vundle#begin/end.
+" plugin on GitHub repo
+" Plugin 'tpope/vim-fugitive'
+" plugin from http://vim-scripts.org/vim/scripts.html
+Plugin 'L9'
+Plugin 'ctrlp.vim'
+Plugin 'tComment'
+Plugin 'git://github.com/zeis/vim-kolor.git'
+Plugin 'https://github.com/scrooloose/nerdtree.git'
+Plugin 'Align'
+Plugin 'IndentAnything'
+Plugin 'matchit.zip'
+Plugin 'https://github.com/ervandew/supertab.git'
+Plugin 'https://github.com/tpope/vim-surround.git'
+Plugin 'Tagbar'
+Plugin 'marvim'
+Plugin 'git://github.com/milkypostman/vim-togglelist'
+Plugin 'vimpager'
+Plugin 'https://github.com/rking/ag.vim.git'
+Plugin 'git://github.com/matze/vim-move'
+Plugin 'https://github.com/vim-scripts/Tail-Bundle.git'
+Plugin 'https://github.com/tpope/vim-dispatch.git'
+Plugin 'https://github.com/vim-scripts/Conque-GDB.git'
+Plugin 'https://github.com/Valloric/YouCompleteMe.git'
+Plugin 'fatih/vim-go'
+
+Plugin 'MarcWeber/vim-addon-mw-utils'
+Plugin 'tomtom/tlib_vim'
+" Plugin 'garbas/vim-snipmate'
+
+Plugin 'https://github.com/davidhalter/jedi-vim.git'
+
+" Optional:
+Plugin 'honza/vim-snippets'
+
+" if you use Vundle, load plugins:
+" Plugin 'ervandew/supertab'
+" Plugin 'Valloric/YouCompleteMe'
+Plugin 'SirVer/ultisnips'
+
+" " make YCM compatible with UltiSnips (using supertab)
+" let g:ycm_key_list_select_completion = ['<C-n>', '<Down>']
+" let g:ycm_key_list_previous_completion = ['<C-p>', '<Up>']
+" let g:SuperTabDefaultCompletionType = '<C-n>'
+
+" " better key bindings for UltiSnipsExpandTrigger
+" let g:UltiSnipsExpandTrigger = "<tab>"
+" let g:UltiSnipsJumpForwardTrigger = "<tab>"
+" let g:UltiSnipsJumpBackwardTrigger = "<s-tab>"
+
+let g:UltiSnipsExpandTrigger= "<c-f>"
+let g:UltiSnipsJumpForwardTrigger = "<c-f>"
+
+
+" Git plugin not hosted on GitHub
+" Plugin 'git://git.wincent.com/command-t.git'
+" git repos on your local machine (i.e. when working on your own plugin)
+" Plugin 'file:///home/gmarik/path/to/plugin'
+" " The sparkup vim script is in a subdirectory of this repo called vim.
+" Pass the path to set the runtimepath properly.
+" Plugin 'rstacruz/sparkup', {'rtp': 'vim/'}
+" Install L9 and avoid a Naming conflict if you've already installed a
+" different version somewhere else.
+" Plugin 'ascenator/L9', {'name': 'newL9'}
+
+" All of your Plugins must be added before the following line
+call vundle#end()            " required
+filetype plugin indent on    " required
+" To ignore plugin indent changes, instead use:
+"filetype plugin on
+"
+" Brief help
+" :PluginList       - lists configured plugins
+" :PluginInstall    - installs plugins; append `!` to update or just 
+" :PluginUpdate
+" :PluginSearch foo - searches for foo; append `!` to refresh local cache
+" :PluginClean      - confirms removal of unused plugins; append `!` to 
+" auto-approve removal
+"
+" see :h vundle for more details or wiki for FAQ
+" Put your non-Plugin stuff after this line
+
+"
+" End Vundle
+"
+
 " :map <C-v> "+gP
 " :map <C-c> "+y
 " :map <C-x> "+x
@@ -15,7 +119,7 @@ set hlsearch
 :syntax on
 set autoindent
 set expandtab
-set tabstop=4
+set tabstop=8
 set shiftwidth=4
 set softtabstop=4
 set backspace=indent,eol,start
@@ -29,6 +133,8 @@ colorscheme kolor
 " ctags
 map <C-\> :tab split<CR>:exec("tag ".expand("<cword>"))<CR>
 noremap <Leader>g :tselect<CR>
+set tags-=./TAGS
+set tags-=TAGS
 
 " if we visually select text, search for that text from our current cursor
 vmap <C-f> y/<C-r>"<CR>
@@ -164,8 +270,8 @@ nmap <script> <silent> <leader>q :copen<CR>
 set complete+=k
 au FileType * exe('setl dict+='.$VIMRUNTIME.'/syntax/'.&filetype.'.vim')
 
-let g:SuperTabDefaultCompletionType = "context"
-let g:SuperTabContextTextOmniPrecedence = ['&omnifunc', '&completefunc']
+" let g:SuperTabDefaultCompletionType = "context"
+" let g:SuperTabContextTextOmniPrecedence = ['&omnifunc', '&completefunc']
 
 let g:ftplugin_sql_omni_key_right = '<Right>'
 let g:ftplugin_sql_omni_key_left  = '<Left>'
@@ -207,6 +313,7 @@ vnoremap <C-q> :q<CR>
 inoremap <C-q> <Esc>:q<CR>
 
 " map <Leader>m <Esc>:make<Up><CR>
+silent! unmap <Leader>m
 map <Leader>m <Esc>:Make<Up><CR>
 
 set wildmode=longest,list,full
@@ -216,17 +323,6 @@ set wildmenu
 vnoremap <C-r> "hy:%s/<C-r>h//gc<left><left><left>
 vnoremap <C-t> "hy:%s/\c<C-r>h/\=SmartCase('')/gc<left><left><left><left><left>
 
-nmap <LocalLeader>sv <Plug>RSendSelection
-imap <LocalLeader>sv <Plug>RSendSelection
-vmap <LocalLeader>sv <Plug>RSendSelection
-
-nmap <LocalLeader>sl <Plug>RSendLine
-imap <LocalLeader>sl <Plug>RSendLine
-vmap <LocalLeader>sl <Plug>RSendLine
-
-nmap <LocalLeader>sf <Plug>RSendFile
-imap <LocalLeader>sf <Plug>RSendFile
-vmap <LocalLeader>sf <Plug>RSendFile
 let vimrplugin_underscore = 0
 
 " set diffopt=filler,iwhite
@@ -239,140 +335,9 @@ set diffopt=filler
 " set verbose=9
 " let loaded_matchparen = 0
 " DoMatchParen
+" :NoMatchParen
 
 let g:ctrlp_working_path_mode = ''
-
-" let g:tagbar_type_javascript = {
-"     \ 'ctagsbin' : '~/bin/jsctags'
-" \ }
-
-"
-" Vim Addon Manager
-"
-
-set runtimepath+=~/.vim/vim-addon-manager
-" "vim-scala@behaghel"
-
-" call vam#ActivateAddons(["ack", "Align%294", "IndentAnything", "matchit.zip", "The_NERD_tree", "Rename%1928", "vim-addon-sbt", "screen", "snipmate", "SuperTab_continued.", "surround", "tComment", "ctrlp"])
-
-" setting up EnVim
-fun! SetupVAM()
-  let g:vim_addon_manager = {}
-  let g:vim_addon_manager.plugin_sources = {}
-  " let g:vim_addon_manager.plugin_sources['ensime'] = {"type": "git", "url": "git://github.com/aemoncannon/ensime.git", "branch" : "scala-2.9"}
-  " let g:vim_addon_manager.plugin_sources['envim'] = {"type": "git", "url": "git://github.com/jlc/envim.git", "branch" : "master"}
-  " let g:vim_addon_manager.plugin_sources['ensime-common'] = {"type": "git", "url": "git://github.com/jlc/ensime-common.git", "branch" : "master"}
-  " let g:vim_addon_manager.plugin_sources['vim-async-beans'] = {"type": "git", "url": "git://github.com/jlc/vim-async-beans.git", "branch" : "master"}
-  " let g:vim_addon_manager.plugin_sources['vim-addon-async'] = {"type": "git", "url": "git://github.com/jlc/vim-addon-async.git", "branch" : "master"}
-  " let g:vim_addon_manager.plugin_sources['vim-scala-behaghel'] = {'type': 'git', 'url': 'git://github.com/behaghel/vim-scala.git'}
-"    \ 'ensime',
-"    \ 'vim-addon-async',
-"    \ 'vim-async-beans',
-"    \ 'ensime-common',
-"    \ 'envim',
-"    \ 'vim-scala-behaghel',
-"    \ 'Rename%1928',
-"    \ 'screen',
-"    \ 'vim-addon-sbt',
-
-
-  let g:vim_addon_manager.plugin_sources['togglelist'] = {"type": "git", "url": "git://github.com/milkypostman/vim-togglelist", "branch" : "master"}
-  let g:vim_addon_manager.plugin_sources['puppet-syntax'] = {"type": "git", "url": "git://github.com/puppetlabs/puppet-syntax-vim", "branch" : "master"}
-  " let g:vim_addon_manager.plugin_sources['vim-css-color'] = {"type": "git", "url": "git://github.com/skammer/vim-css-color", "branch" : "master"}
-  " faster startup: https://github.com/skammer/vim-css-color/issues/3
-  let g:vim_addon_manager.plugin_sources['vim-css-color'] = {"type": "git", "url": "git://github.com/ap/vim-css-color", "branch" : "master"}
-  let g:vim_addon_manager.plugin_sources['vim-backbone'] = {"type": "git", "url": "git://github.com/mklabs/vim-backbone", "branch" : "master"}
-  let g:vim_addon_manager.plugin_sources['vim-dustjs'] = {"type": "git", "url": "git://github.com/jimmyhchan/dustjs.vim", "branch" : "master"}
-  let g:vim_addon_manager.plugin_sources['vim-clojure-static'] = {"type": "git", "url": "git://github.com/guns/vim-clojure-static", "branch" : "master"}
-  let g:vim_addon_manager.plugin_sources['vim-fireplace'] = {"type": "git", "url": "git://github.com/tpope/vim-fireplace", "branch" : "master"}
-  let g:vim_addon_manager.plugin_sources['vim-classpath'] = {"type": "git", "url": "git://github.com/tpope/vim-classpath", "branch" : "master"}
-  let g:vim_addon_manager.plugin_sources['vim-redl'] = {"type": "git", "url": "git://github.com/dgrnbrg/vim-redl", "branch" : "master"}
-  let g:vim_addon_manager.plugin_sources['ag'] = {"type": "git", "url": "git://github.com/rking/ag.vim", "branch" : "master"}
-  let g:vim_addon_manager.plugin_sources['vim-move'] = {"type": "git", "url": "git://github.com/matze/vim-move", "branch" : "master"}
-  let g:vim_addon_manager.plugin_sources['ghcmod-vim'] = {"type": "git", "url": "git://github.com/eagletmt/ghcmod-vim", "branch" : "master"}
-  let g:vim_addon_manager.plugin_sources['neocomplete'] = {"type": "git", "url": "git://github.com/Shougo/neocomplete.vim", "branch" : "master"}
-  let g:vim_addon_manager.plugin_sources['vim-scala-derekwyatt'] = {"type": "git", "url": "git://github.com/derekwyatt/vim-scala", "branch" : "master"}
-  let g:vim_addon_manager.plugin_sources['snippets-good'] = {"type": "git", "url": "git://github.com/garbas/vim-snipmate", "branch" : "master"}
-  " get foldmethod=syntax fix
-  let g:vim_addon_manager.plugin_sources['Rainbow_Parentheses_Improved_Master'] = {"type": "git", "url": "git://github.com/oblitum/rainbow", "branch" : "master"}
-  let g:vim_addon_manager.plugin_sources['vim-nerd-tree'] = {"type": "git", "url": "https://github.com/scrooloose/nerdtree.git", "branch" : "master"}
-  let g:vim_addon_manager.plugin_sources['vim-kolor'] = {"type": "git", "url": "https://github.com/jagleeso/vim-kolor.git", "branch" : "master"}
-  let g:vim_addon_manager.plugin_sources['fzf'] = {"type": "git", "url": "https://github.com/junegunn/fzf.vim.git", "branch" : "master"}
-
-
-  let plugins = [
-    \ 'ack',
-    \ 'Align%294',
-    \ 'IndentAnything',
-    \ 'matchit.zip',
-    \ 'Supertab',
-    \ 'surround',
-    \ 'tComment',
-    \ 'xml',
-    \ 'indenthtml',
-    \ 'Tagbar',
-    \ 'groovyindent',
-    \ 'Simple_Javascript_Indenter',
-    \ 'fugitive',
-    \ 'SmartCase',
-    \ 'marvim',
-    \ 'fugitive',
-    \ 'togglelist',
-    \ 'Super_Shell_Indent',
-    \ 'Jinja',
-    \ 'puppet-syntax',
-    \ 'github_theme',
-    \ 'vim-dustjs',
-    \ 'vim-css-color',
-    \ 'vim-clojure-static',
-    \ 'vim-fireplace',
-    \ 'vim-classpath',
-    \ 'vim-redl',
-    \ 'vimpager',
-    \ 'ag',
-    \ 'vim-move',
-    \ 'ghcmod-vim',
-    \ 'vim-scala-derekwyatt',
-    \ 'snippets-good',
-    \ 'vim-snippets',
-    \ 'Tail_Bundle',
-    \ 'jellybeans',
-    \ 'vim-nerd-tree',
-    \ 'dispatch',
-    \ 'vim-kolor',
-    \ 'goyo',
-    \ 'fzf',
-    \ 'ctrlp'
-    \ ]
-
-    " \ 'LargeFile',
-    " \ 'clang_complete',
-    " \ 'NERD_tree_Project',
-    " \ 'The_NERD_tree',
-    " \ 'Rainbow_Parentheses_Improved_Master',
-    " \ 'rainbow_parentheses',
-    " \ 'paredit',
-
-    " \ 'better-snipmate-snippet',
-    " tired of the snipmate related errors when used tab to autocomplete; not worth it
-    " \ 'snipmate-snippets',
-    " \ 'snipmate',
-
-    " useful haskell plugins that take a little more effort to setup
-    " \ 'neco-ghc',
-    " \ 'neocomplete',
-    " \ 'vimproc',
-    
-  call vam#ActivateAddons(plugins,{'auto_install' : 0})
-endf
-call SetupVAM()
-
-" vim-addon-sbt
-fun! SBT_JAR()
-    return "/usr/share/sbt/0.11.3/sbt-launch.jar"
-endfun
-
-let g:SimpleJsIndenter_BriefMode = 1
 
 " let g:dbext_default_profile_DBNAME = 'type=MYSQL:user=root:dbname=DBNAME'
 " let g:dbext_default_profile = 'DBNAME'
@@ -408,6 +373,8 @@ let marvim_find_key = '<Leader>r' " change find key from <F2> to 'space'
 let marvim_store_key = '<Leader>d'     " change store key from <F3> to 'ms'
 " let marvim_register = 'c'       " change used register from 'q' to 'c'
 " let marvim_prefix = 0           " disable default syntax based prefix
+command! MarSave call Marvim_macro_store()
+command! MarSearch call Marvim_search()
 
 set t_te= t_ti=
 let g:easytags_auto_update = 0
@@ -476,18 +443,6 @@ augroup CursorLine
   au WinLeave * setlocal nocursorcolumn
 augroup END
 
-au VimEnter,WinEnter,BufWinEnter * :call CheckVimrc()
-if !exists("*CheckVimrc")
-func CheckVimrc()
-    " let filedir = expand('%:p:h')
-    " let vimfile = filedir . '/.vimrc'
-    let vimfile = getcwd() . '/.vimrc'
-    if filereadable(l:vimfile) && expand('~/.vimrc') != l:vimfile
-        execute 'source ' . l:vimfile
-    endif
-endfunction
-endif
-
 func! CdFileDir()
     let dir = expand('%:p:h')
     execute 'lcd ' . l:dir
@@ -542,13 +497,25 @@ map <Leader>F <Esc>:call system("echo " . shellescape(expand("%") . ":" . line("
 
 nmap <C-f> :tnext<CR>
 
-set cscopetag
+let g:ConqueGdb_Leader = '`'
+command! MarSave call Marvim_macro_store()
+command! MarRun call Marvim_search()
+
+" https://github.com/vheon/dotvim/blob/5321347027c21e4c22dc6fcea4cc315052ed25f1/vimrc
+let g:ycm_global_ycm_extra_conf = '~/.ycm.py'
+" let g:ycm_confirm_extra_conf    = 0
+" let g:ycm_global_ycm_extra_conf = g:dotvim.'/ycm.py'
+" let g:ycm_extra_conf_vim_data   = ['&filetype']
+let g:ycm_seed_identifiers_with_syntax = 1
+
+" imap <C-\> <Plug>snipMateNextOrTrigger
+" let g:snips_trigger_key = '<C-\>'
+imap <C-J> <esc>a<Plug>snipMateNextOrTrigger
+smap <C-J> <Plug>snipMateNextOrTrigger
+
+" AlignMapsClean
 
 " uoftpc
-source ~/.vimrc.uoftpc
+" source ~/.vimrc.uoftpc
 
-source ~/.vimrc.samsung.private
-
-set rtp+=~/.fzf
-
-set wrap
+" source ~/.vimrc.samsung.private
