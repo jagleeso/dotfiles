@@ -59,9 +59,13 @@ let NERDTreeIgnore=['\~$', '\.class$']
 " let g:CommandTSelectNextMap=['<Tab>', '<Down>']
 " let g:CommandTSelectPrevMap=['<S-x>', '<Up>']
 
-nnoremap <silent> <Leader>p :CtrlP<CR>
+" nnoremap <silent> <Leader>p :CtrlP<CR>
+" let g:ctrlp_map = '<Leader>p'
 nnoremap <silent> <Leader>P :CtrlPMRUFiles<CR>
-let g:ctrlp_map = '<Leader>p'
+
+nmap <silent> <Leader>p :FZF<CR>
+let g:ctrlp_map = '<Leader>0'
+
 " nnoremap <silent> <Leader>b :CommandTBuffer<CR>
 let g:ctrlp_custom_ignore = {
     \ 'dir':  '\v[\/](target|\.(git|hg|svn))$',
@@ -94,6 +98,8 @@ set wrapmargin=4
 " set textwidth=90
 " automatically re-adjust paragraphs on edits (a), but dont mess up pasted comments (w)
 set formatoptions+=w 
+
+set nowrap
 
 " set noincsearch
 set incsearch
@@ -223,7 +229,12 @@ imap <LocalLeader>sf <Plug>RSendFile
 vmap <LocalLeader>sf <Plug>RSendFile
 let vimrplugin_underscore = 0
 
-set diffopt=filler,iwhite
+" set diffopt=filler,iwhite
+set diffopt=filler
+" if &diff
+"     " diff mode
+"     set diffopt+=iwhite
+" endif
 
 " set verbose=9
 " let loaded_matchparen = 0
@@ -286,6 +297,8 @@ fun! SetupVAM()
   let g:vim_addon_manager.plugin_sources['Rainbow_Parentheses_Improved_Master'] = {"type": "git", "url": "git://github.com/oblitum/rainbow", "branch" : "master"}
   let g:vim_addon_manager.plugin_sources['vim-nerd-tree'] = {"type": "git", "url": "https://github.com/scrooloose/nerdtree.git", "branch" : "master"}
   let g:vim_addon_manager.plugin_sources['vim-kolor'] = {"type": "git", "url": "https://github.com/jagleeso/vim-kolor.git", "branch" : "master"}
+  let g:vim_addon_manager.plugin_sources['fzf'] = {"type": "git", "url": "https://github.com/junegunn/fzf.vim.git", "branch" : "master"}
+
 
   let plugins = [
     \ 'ack',
@@ -328,6 +341,7 @@ fun! SetupVAM()
     \ 'dispatch',
     \ 'vim-kolor',
     \ 'goyo',
+    \ 'fzf',
     \ 'ctrlp'
     \ ]
 
@@ -487,7 +501,7 @@ set ttymouse=xterm2
 
 " have spellcheck on by default (just don't hightlight it)
 set spell
-hi clear SpellBad
+" hi clear SpellBad
 
 map <c-f> :tnext<CR>
 set autoread
@@ -528,7 +542,13 @@ map <Leader>F <Esc>:call system("echo " . shellescape(expand("%") . ":" . line("
 
 nmap <C-f> :tnext<CR>
 
+set cscopetag
+
 " uoftpc
 source ~/.vimrc.uoftpc
 
 source ~/.vimrc.samsung.private
+
+set rtp+=~/.fzf
+
+set wrap

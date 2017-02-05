@@ -7,4 +7,6 @@ DIR = os.path.dirname(os.path.realpath(__file__))
 
 def sh_run(*args):
     cmd = ["{DIR}/common.sh".format(DIR=DIR)] + list(args)
-    subprocess.check_call(cmd)
+    env = dict(os.environ)
+    env['RUN_COMMON'] = 'yes'
+    subprocess.check_call(cmd, env=env)

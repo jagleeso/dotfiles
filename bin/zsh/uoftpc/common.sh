@@ -254,6 +254,23 @@ device_is_connected()
     [ "$(adb devices | grep -v 'List of dev\|^$')" != "" ]
 }
 
+bdiff() {
+    local filter="$1"
+    local diffprog="$2"
+    local vm1="$3"
+    local vm2="$4"
+    shift 4
+    local tmp1=$(mktemp)
+    local tmp2=$(mktemp)
+    odump() {
+        aarch64-linux-objdump -d "$@" | $filter
+    }
+    odump $vm1 > $tmp1
+    odump $vm2 > $tmp2
+    $diffprog $tmp1 $tmp2
+    rm $tmp1 $tmp2
+}
+
 if [ "$0" = "$BASH_SOURCE" ]; then
     set -x
     set -e

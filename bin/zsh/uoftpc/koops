@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
-# oopsline.py --input - --just-first --obj $KERN/vmlinux.o
 cd $HOME
-oopsline.py --input - --just-first --obj $KERNL/vmlinux.o
+# oopsline.py --input - --just-first --obj $KERNL/vmlinux
+oopsline.py --input - --just-first --obj $KERN/vmlinux
