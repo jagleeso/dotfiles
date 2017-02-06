@@ -18,6 +18,8 @@ setup_dotfiles() {
             ) || true
         fi
     done
+    # reload dotfiles
+    source $HOME/.zshrc
 }
 setup_zsh() {
     if [ -d $HOME/.oh-my-zsh ]; then
@@ -25,6 +27,12 @@ setup_zsh() {
     fi
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
     cp -r $HOME/clone/dotfiles/.oh-my-zsh/* $HOME/.oh-my-zsh
+    if [ -d $HOME/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting ]; then
+        return
+    fi
+    git clone \
+        https://github.com/zsh-users/zsh-syntax-highlighting.git \
+        $HOME/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
 }
 REINSTALLED_VIM=no
 setup_vim() {
