@@ -87,7 +87,7 @@ setup_fzf() {
     git clone --depth 1 https://github.com/junegunn/fzf.git $HOME/.fzf
     mv $HOME/.fzf/install $HOME/.fzf/install.fzf
     mv $HOME/.fzf/uninstall $HOME/.fzf/uninstall.fzf
-    $HOME/.fzf/install.fzf --no-key-bindings --no-completion --no-update-rc
+    $HOME/.fzf/install.fzf --key-bindings --no-completion --update-rc
     (
         cd $HOME/.fzf
         git apply $HOME/clone/dotfiles/patches/fzf.patch
