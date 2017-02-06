@@ -19,7 +19,9 @@ setup_dotfiles() {
         fi
     done
     # reload dotfiles
-    source $HOME/.zshrc
+    if [[ $SHELL =~ zsh ]]; then
+        source $HOME/.zshrc
+    fi 
 }
 setup_zsh() {
     if [ -d $HOME/.oh-my-zsh ]; then
@@ -90,8 +92,9 @@ setup_fzf() {
     if [ -d $HOME/.fzf ]; then
         return
     fi
-    _install libncurses5-dev
-    sudo gem install curses
+    _install libncurses5-dev ruby
+    # curses is part of ruby for < 2.1.0?
+    sudo gem install curses || true
     git clone --depth 1 https://github.com/junegunn/fzf.git $HOME/.fzf
     mv $HOME/.fzf/install $HOME/.fzf/install.fzf
     mv $HOME/.fzf/uninstall $HOME/.fzf/uninstall.fzf
