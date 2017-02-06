@@ -1,5 +1,6 @@
 #!/bin/bash
 set -e
+# set -x
 
 NCPU=$(grep -c ^processor /proc/cpuinfo)
 
@@ -8,7 +9,9 @@ setup_dotfiles() {
     cd $HOME
     for f in $CLONE_DIR/.*; do
         if [ -f $f ]; then
-            ln -s -T $f $(basename $f) || true
+            (
+                ln -s -T $f $(basename $f) 2>&1 | grep -v 'File exists'
+            ) || true
         fi
     done
 }
@@ -17,11 +20,14 @@ setup_zsh() {
         return
     fi
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
+    cp -r $HOME/clone/dotfiles/.oh-my-zsh/* $HOME/.oh-my-zsh
 }
+REINSTALLED_VIM=no
 setup_vim() {
     if [ -f $HOME/local/bin/vim ]; then
         return
     fi
+    REINSTALLED_VIM=yes
     mkdir -p $HOME/local
     if [ ! -d $HOME/clone/vim ]; then
         (
@@ -50,16 +56,32 @@ setup_vim() {
             --enable-cscope \
             --prefix=$HOME/local
         make -j$NCPU install
+        vim -c PluginInstall -c quit -c quit
+    )
+}
+setup_ycm_before() {
+    sudo apt-get -y install build-essential cmake python-dev python3-dev
+}
+setup_ycm_after() {
+    if [ "$REINSTALLED_VIM" == 'no' ]; then
+        return
+    fi
+    ( 
+        cd $HOME/.vim/bundle/YouCompleteMe
+        ./install.py --clang-completer
     )
 }
 setup_packages() {
-    sudo apt install -y htop zsh 
+    sudo apt install -y \
+        htop zsh tree
 }
 setup_all() {
     setup_packages
     setup_zsh
     setup_dotfiles
+    setup_ycm_before
     setup_vim
+    setup_ycm_after
 }
 
 (
