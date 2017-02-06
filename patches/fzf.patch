@@ -1,0 +1,25 @@
+diff --git a/shell/key-bindings.zsh b/shell/key-bindings.zsh
+index abf7559..9499ebe 100644
+--- a/shell/key-bindings.zsh
++++ b/shell/key-bindings.zsh
+@@ -22,8 +22,9 @@ __fzf_use_tmux__() {
+ }
+ 
+ __fzfcmd() {
+-  __fzf_use_tmux__ &&
+-    echo "fzf-tmux -d${FZF_TMUX_HEIGHT:-40%}" || echo "fzf"
++  # __fzf_use_tmux__ &&
++  #   echo "fzf-tmux -d${FZF_TMUX_HEIGHT:-40%}" || echo "fzf"
++  echo fzf
+ }
+ 
+ fzf-file-widget() {
+@@ -68,7 +69,7 @@ fzf-history-widget() {
+   return $ret
+ }
+ zle     -N   fzf-history-widget
+-bindkey '^R' fzf-history-widget
++# bindkey '^R' fzf-history-widget
+ 
+ fi
+ 

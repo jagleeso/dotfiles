@@ -165,11 +165,11 @@ let NERDTreeIgnore=['\~$', '\.class$']
 " let g:CommandTSelectNextMap=['<Tab>', '<Down>']
 " let g:CommandTSelectPrevMap=['<S-x>', '<Up>']
 
-" nnoremap <silent> <Leader>p :CtrlP<CR>
+nnoremap <silent> <Leader>p :CtrlP<CR>
 " let g:ctrlp_map = '<Leader>p'
 nnoremap <silent> <Leader>P :CtrlPMRUFiles<CR>
 
-nmap <silent> <Leader>p :FZF<CR>
+" nmap <silent> <Leader>p :FZF<CR>
 let g:ctrlp_map = '<Leader>0'
 
 " nnoremap <silent> <Leader>b :CommandTBuffer<CR>

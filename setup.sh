@@ -74,10 +74,24 @@ setup_ycm_after() {
 setup_packages() {
     sudo apt install -y \
         htop zsh tree
+}   
+setup_fzf() {
+    if [ -d $HOME/.fzf ]; then
+        return
+    fi
+    git clone --depth 1 https://github.com/junegunn/fzf.git $HOME/.fzf
+    mv $HOME/.fzf/install $HOME/.fzf/install.fzf
+    mv $HOME/.fzf/uninstall $HOME/.fzf/uninstall.fzf
+    $HOME/.fzf/install.fzf --no-key-bindings --no-completion --no-update-rc
+    (
+        cd $HOME/.fzf
+        git apply $HOME/clone/dotfiles/patches/fzf.patch
+    )
 }
 setup_all() {
     setup_packages
     setup_zsh
+    setup_fzf
     setup_dotfiles
     setup_ycm_before
     setup_vim
