@@ -4,6 +4,10 @@ set -e
 
 NCPU=$(grep -c ^processor /proc/cpuinfo)
 
+_install() {
+    sudo apt install -y "$@"
+}
+
 setup_dotfiles() {
     local CLONE_DIR=$HOME/clone/dotfiles
     cd $HOME
@@ -36,7 +40,7 @@ setup_vim() {
             git clone https://github.com/vim/vim.git
         )
     fi
-    sudo apt install -y \
+    _install \
         libncurses5-dev libgnome2-dev libgnomeui-dev \
         libgtk2.0-dev libatk1.0-dev libbonoboui2-dev \
         libcairo2-dev libx11-dev libxpm-dev libxt-dev python-dev \
@@ -72,13 +76,14 @@ setup_ycm_after() {
     )
 }
 setup_packages() {
-    sudo apt install -y \
-        htop zsh tree
+    _install htop zsh tree
 }   
 setup_fzf() {
     if [ -d $HOME/.fzf ]; then
         return
     fi
+    _install libncurses5-dev
+    sudo gem install curses
     git clone --depth 1 https://github.com/junegunn/fzf.git $HOME/.fzf
     mv $HOME/.fzf/install $HOME/.fzf/install.fzf
     mv $HOME/.fzf/uninstall $HOME/.fzf/uninstall.fzf
