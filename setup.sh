@@ -100,7 +100,7 @@ setup_vim_after() {
     ln -s $HOME/.vim/bundle/YCM-Generator/config_gen.py . || true
 }
 setup_packages() {
-    _install htop zsh tree
+    _install htop zsh tree clang
 }   
 setup_fzf() {
     if [ "$FORCE" != 'yes' ] && [ -d $HOME/.fzf ]; then
