@@ -43,6 +43,7 @@ Plugin 'https://github.com/tpope/vim-dispatch.git'
 Plugin 'https://github.com/vim-scripts/Conque-GDB.git'
 Plugin 'https://github.com/Valloric/YouCompleteMe.git'
 Plugin 'fatih/vim-go'
+Plugin 'rdnetto/YCM-Generator'
 
 Plugin 'MarcWeber/vim-addon-mw-utils'
 Plugin 'tomtom/tlib_vim'
@@ -210,7 +211,7 @@ set nowrap
 " set noincsearch
 set incsearch
 
-cmap <C-v> <C-r>"
+" cmap <C-v> <C-r>"
 
 function! GetBufferList()
   redir =>buflist

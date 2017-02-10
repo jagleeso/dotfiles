@@ -2,6 +2,11 @@
 set -e
 # set -x
 
+# Force re-running setup
+if [ "$FORCE" = "" ]; then
+    FORCE=no
+fi
+
 NCPU=$(grep -c ^processor /proc/cpuinfo)
 
 _install() {
@@ -24,7 +29,7 @@ setup_dotfiles() {
     fi 
 }
 setup_zsh() {
-    if [ -d $HOME/.oh-my-zsh ]; then
+    if [ "$FORCE" != 'yes' ] && [ -d $HOME/.oh-my-zsh ]; then
         return
     fi
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
@@ -38,16 +43,21 @@ setup_zsh() {
 }
 REINSTALLED_VIM=no
 setup_vim() {
-    if [ -f $HOME/local/bin/vim ]; then
+    if [ "$FORCE" != 'yes' ] && [ -f $HOME/local/bin/vim ]; then
         return
     fi
     REINSTALLED_VIM=yes
     mkdir -p $HOME/local
+    mkdir -p $HOME/clone
     if [ ! -d $HOME/clone/vim ]; then
         (
-            mkdir -p $HOME/clone
             cd $HOME/clone
             git clone https://github.com/vim/vim.git
+        )
+    else
+        (
+            cd $HOME/clone/vim
+            git pull
         )
     fi
     _install \
@@ -77,7 +87,7 @@ setup_ycm_before() {
     sudo apt-get -y install build-essential cmake python-dev python3-dev
 }
 setup_ycm_after() {
-    if [ "$REINSTALLED_VIM" == 'no' ]; then
+    if [ "$FORCE" != 'yes' ] && [ "$REINSTALLED_VIM" == 'no' ]; then
         return
     fi
     ( 
@@ -85,11 +95,15 @@ setup_ycm_after() {
         ./install.py --clang-completer
     )
 }
+setup_vim_after() {
+    cd $HOME/bin
+    ln -s $HOME/.vim/bundle/YCM-Generator/config_gen.py . || true
+}
 setup_packages() {
     _install htop zsh tree
 }   
 setup_fzf() {
-    if [ -d $HOME/.fzf ]; then
+    if [ "$FORCE" != 'yes' ] && [ -d $HOME/.fzf ]; then
         return
     fi
     _install libncurses5-dev ruby
@@ -112,6 +126,7 @@ setup_all() {
     setup_ycm_before
     setup_vim
     setup_ycm_after
+    setup_vim_after
 }
 
 (
