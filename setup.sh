@@ -2,6 +2,9 @@
 set -e
 # set -x
 
+# Hopefully the most stable one.
+VIM_TAG="v8.0.0000"
+
 # Force re-running setup
 if [ "$FORCE" = "" ]; then
     FORCE=no
@@ -58,6 +61,7 @@ setup_vim() {
         (
             cd $HOME/clone/vim
             git pull
+            git checkout $VIM_TAG
         )
     fi
     _install \
