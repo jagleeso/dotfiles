@@ -57,7 +57,7 @@ _source_if ~/.zshrc.vnc
 _source_if ~/.zshrc.vmgl
 unset _source_if
 
-if [ -x "`which vimpager`" ]; then
+if [ -x "`which vimpager 2>/dev/null`" ]; then
     export PAGER="`which vimpager`"
     alias less=$PAGER 
     alias zless=$PAGER
@@ -170,9 +170,9 @@ function chpwd() {
     fi
 }
 
-if [ -x "`which lein`" ]; then
-    alias iclojure="lein trampoline irepl"
-fi
+# if [ -x "`which lein`" ]; then
+#     alias iclojure="lein trampoline irepl"
+# fi
 
 # source any computer specific zsh stuff:
 export ZSH_BIN="$HOME/bin/zsh"
