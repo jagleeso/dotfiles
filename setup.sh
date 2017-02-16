@@ -150,6 +150,13 @@ setup_all() {
     setup_vim_after
 }
 
+_setup_vim_all() {
+    setup_ycm_before
+    setup_vim
+    setup_ycm_after
+    setup_vim_after
+}
+
 (
     if [ $# -lt 1 ]; then
         setup_all
