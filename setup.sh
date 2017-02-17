@@ -4,20 +4,43 @@ if [ "$DEBUG" = 'yes' ]; then
     set -x
 fi
 
+_yes_or_no() {
+    if "$@" 2>&1 > /dev/null; then
+        echo yes
+    fi
+    echo no
+}
+_has_exec() {
+    _yes_or_no which "$@"
+}
+
 # Hopefully the most stable one.
 VIM_TAG="v8.0.0000"
 VIM_PY2_CONFIG_DIR=/usr/lib/python2.7/config
-VIM_PY3_CONFIG_DIR=/usr/lib/python2.7/config
+VIM_PY3_CONFIG_DIR=/usr/lib/python3.5/config
 
 # Force re-running setup
 if [ "$FORCE" = "" ]; then
     FORCE=no
 fi
+# Skip installing packages if we're running without apt-get.
+if [ "$SKIP_PACKAGES" = "" ]; then
+    SKIP_PACKAGES=no
+fi
+HAS_APT_GET="$(_has_exec apt-get)"
 
 NCPU=$(grep -c ^processor /proc/cpuinfo)
 
 _install() {
-    sudo apt install -y "$@"
+    if [ "$HAS_APT_GET" = 'yes' ]; then
+        sudo apt-get install -y "$@"
+    elif [ "$SKIP_PACKAGES" = 'yes' ]; then
+        true
+    else
+        echo "ERROR: Couldn't find apt-get when trying to install packages: $@"
+        echo "  Consider installing packages manually, then try re-running with SKIP_PACKAGES=yes"
+        exit 1
+    fi
 }
 
 setup_dotfiles() {
@@ -105,7 +128,7 @@ setup_vim() {
     )
 }
 setup_ycm_before() {
-    sudo apt-get -y install build-essential cmake python-dev python3-dev
+    _install build-essential cmake python-dev python3-dev
 }
 setup_ycm_after() {
     if [ "$FORCE" != 'yes' ] && [ "$REINSTALLED_VIM" == 'no' ]; then
