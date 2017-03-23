@@ -7,8 +7,9 @@ fi
 _yes_or_no() {
     if "$@" 2>&1 > /dev/null; then
         echo yes
+    else 
+        echo no
     fi
-    echo no
 }
 _has_exec() {
     _yes_or_no which "$@"
@@ -28,12 +29,15 @@ if [ "$SKIP_PACKAGES" = "" ]; then
     SKIP_PACKAGES=no
 fi
 HAS_APT_GET="$(_has_exec apt-get)"
+HAS_YUM="$(_has_exec yum)"
 
 NCPU=$(grep -c ^processor /proc/cpuinfo)
 
 _install() {
     if [ "$HAS_APT_GET" = 'yes' ]; then
         sudo apt-get install -y "$@"
+    elif [ "$HAS_YUM" = 'yes' ]; then
+        sudo yum install -y "$@"
     elif [ "$SKIP_PACKAGES" = 'yes' ]; then
         true
     else
@@ -41,6 +45,19 @@ _install() {
         echo "  Consider installing packages manually, then try re-running with SKIP_PACKAGES=yes"
         exit 1
     fi
+}
+
+_install_yum_group() {
+    if [ "$HAS_YUM" = 'no' ]; then
+        return
+    fi
+    sudo yum group install -y "$@"
+}
+_install_yum() {
+    if [ "$HAS_YUM" = 'no' ]; then
+        return
+    fi
+    sudo yum install -y "$@"
 }
 
 setup_dotfiles() {
@@ -54,9 +71,9 @@ setup_dotfiles() {
         fi
     done
     # reload dotfiles
-    if [[ $SHELL =~ zsh ]]; then
-        source $HOME/.zshrc
-    fi 
+    # if [[ $SHELL =~ zsh ]]; then
+    #    source $HOME/.zshrc
+    # fi 
 }
 setup_zsh() {
     if [ "$FORCE" != 'yes' ] && [ -d $HOME/.oh-my-zsh ]; then
@@ -68,7 +85,7 @@ setup_zsh() {
         return
     fi
     git clone \
-        https://github.com/zsh-users/zsh-syntax-highlighting.git \
+        https://www.github.com/zsh-users/zsh-syntax-highlighting.git \
         $HOME/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
 }
 REINSTALLED_VIM=no
@@ -84,6 +101,7 @@ setup_vim() {
         (
             cd $HOME/clone
             git clone https://github.com/vim/vim.git
+            cd $HOME/clone/vim
             git checkout $VIM_TAG
         )
     else
@@ -101,6 +119,16 @@ setup_vim() {
         libcairo2-dev libx11-dev libxpm-dev libxt-dev python-dev \
         python3-dev ruby-dev lua5.1 lua5.1-dev libperl-dev git
 
+    HAS_PYTHON3="$(_has_exec python3)"
+    if [ $HAS_PYTHON3 = 'yes' ]; then
+        PYTHON_OPTS="--enable-python3interp=yes"
+    else
+        PYTHON_OPTS="--enable-pythoninterp=yes"
+    fi
+
+    _install_yum_group "Development Tools"
+    _install_yum ncurses-lib libgnome-devel ncurses-devel perl-devel python-devel ruby-devel rubygems perl-ExtUtils-Embed
+
     (
         cd $HOME/clone/vim
         # --enable-pythoninterp=yes
@@ -116,7 +144,7 @@ setup_vim() {
             --enable-multibyte \
             --enable-rubyinterp=yes \
             --with-python-config-dir=$VIM_PY2_CONFIG_DIR \
-            --enable-python3interp=yes \
+            "$PYTHON_OPTS" \
             --with-python3-config-dir=$VIM_PY3_CONFIG_DIR \
             --enable-perlinterp=yes \
             --enable-luainterp=yes \
@@ -124,7 +152,13 @@ setup_vim() {
             --enable-cscope \
             --prefix=$HOME/local
         make -j$NCPU install
+
+        if [ ! -d "$HOME/.vim/bundle/Vundle.vim" ]; then
+            git clone https://github.com/VundleVim/Vundle.vim.git $HOME/.vim/bundle/Vundle.vim
+        fi
+
         vim -c PluginInstall -c PluginUpdate -c quit -c quit
+
     )
 }
 setup_ycm_before() {
@@ -140,11 +174,13 @@ setup_ycm_after() {
     )
 }
 setup_vim_after() {
+    mkdir -p $HOME/bin
     cd $HOME/bin
     ln -s $HOME/.vim/bundle/YCM-Generator/config_gen.py . || true
 }
 setup_packages() {
-    _install htop zsh tree clang silversearcher-ag
+    _install htop zsh tree clang silversearcher-ag xclip
+    _install_yum the_silver_searcher
 }   
 setup_fzf() {
     if [ "$FORCE" != 'yes' ] && [ -d $HOME/.fzf ]; then
