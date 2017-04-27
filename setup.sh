@@ -59,7 +59,40 @@ _install_yum() {
     fi
     sudo yum install -y "$@"
 }
+_install_apt() {
+    if [ "$HAS_APT_GET" = 'no' ]; then
+        return
+    fi
+    sudo apt-get install -y "$@"
+}
 
+setup_tmux() {
+    if [ "$FORCE" != 'yes' ] && [ -f $HOME/local/bin/tmux ]; then
+        return
+    fi
+    mkdir -p $HOME/local
+    mkdir -p $HOME/clone
+    if [ ! -d $HOME/clone/tmux ]; then
+        (
+            cd $HOME/clone
+            git clone https://github.com/tmux/tmux.git
+            cd $HOME/clone/tmux
+        )
+    else
+        (
+            cd $HOME/clone/tmux
+            # make clean
+            git fetch
+        )
+    fi
+    ( 
+        cd $HOME/clone/tmux
+        git checkout master
+        ./configure --prefix=$HOME/local
+        make -j$NCPU
+        make install
+    )
+}
 setup_dotfiles() {
     local CLONE_DIR=$HOME/clone/dotfiles
     cd $HOME
@@ -157,7 +190,7 @@ setup_vim() {
             git clone https://github.com/VundleVim/Vundle.vim.git $HOME/.vim/bundle/Vundle.vim
         fi
 
-        vim -c PluginInstall -c PluginUpdate -c quit -c quit
+        $HOME/local/bin/vim -c PluginInstall -c PluginUpdate -c quit -c quit
 
     )
 }
@@ -180,7 +213,10 @@ setup_vim_after() {
 }
 setup_packages() {
     _install htop zsh tree clang silversearcher-ag xclip
+    _install_yum epel-release
     _install_yum the_silver_searcher
+    _install_yum libevent-devel libevent
+    _install_apt libevent libevent-dev
 }   
 setup_fzf() {
     if [ "$FORCE" != 'yes' ] && [ -d $HOME/.fzf ]; then
@@ -207,6 +243,7 @@ setup_all() {
     setup_vim
     setup_ycm_after
     setup_vim_after
+    setup_tmux
 }
 
 _setup_vim_all() {

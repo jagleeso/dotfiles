@@ -1,0 +1,17 @@
+#!/bin/bash
+if [ -e $HOME/clone/intel/compilervars.sh ]; then
+    source $HOME/clone/intel/compilervars.sh intel64
+fi
+
+export PHI=$HOME/phi
+export KERN=$PHI/modules/linux
+export KVM=$KERN/custom/kvm
+export C_MNT=$KVM/centos_root
+export C_BOOT=$KVM/centos_boot
+export MOD=$PHI/src/mpss/mpss-modules-srpm-3.8.1
+
+_pwd=$PWD
+cd $PHI
+source source_me.sh >/dev/null
+cd $_pwd
+unset _pwd

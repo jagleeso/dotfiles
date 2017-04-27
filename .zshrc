@@ -55,6 +55,7 @@ _source_if() {
 _source_if ~/.zshrc.gpu
 _source_if ~/.zshrc.vnc
 _source_if ~/.zshrc.vmgl
+_source_if ~/.zshrc.mic
 unset _source_if
 
 if [ -x "`which vimpager 2>/dev/null`" ]; then
