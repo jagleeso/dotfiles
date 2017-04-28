@@ -88,6 +88,7 @@ setup_tmux() {
     ( 
         cd $HOME/clone/tmux
         git checkout master
+        ./autogen.sh
         ./configure --prefix=$HOME/local
         make -j$NCPU
         make install
