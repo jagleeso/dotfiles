@@ -243,7 +243,7 @@ _wget() {
     fi
 }
 setup_emacs() {
-    if [ "$FORCE" != 'yes' ] && [ -d $HOME/local/bin/emacs ]; then
+    if [ "$FORCE" != 'yes' ] && [ -e $HOME/local/bin/emacs ]; then
         return
     fi
     cd $HOME/clone
@@ -258,7 +258,7 @@ setup_emacs() {
     make install
 }
 setup_spacemacs() {
-    if [ "$FORCE" != 'yes' ] && [ -d ~/.emacs.d ]; then
+    if [ "$FORCE" != 'yes' ] && [ -e ~/.emacs.d ]; then
         return
     fi
     git clone https://github.com/syl20bnr/spacemacs ~/.emacs.d
