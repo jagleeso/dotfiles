@@ -3,6 +3,10 @@ if [ -e $HOME/clone/intel/compilervars.sh ]; then
     source $HOME/clone/intel/compilervars.sh intel64
 fi
 
+if [ -e /opt/intel/compilers_and_libraries/linux/bin/compilervars.sh ]; then
+    source /opt/intel/compilers_and_libraries/linux/bin/compilervars.sh -arch intel64 -platform linux
+fi
+
 export PHI=$HOME/phi
 export KERN=$PHI/modules/linux
 export KVM=$KERN/custom/kvm
