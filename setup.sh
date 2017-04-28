@@ -235,6 +235,34 @@ setup_fzf() {
         git apply $HOME/clone/dotfiles/patches/fzf.patch
     )
 }
+_wget() {
+    local url="$1"
+    local base="$(basename "$url")"
+    if [ ! -e "$base" ]; then
+        wget "$url"
+    fi
+}
+setup_emacs() {
+    if [ "$FORCE" != 'yes' ] && [ -d $HOME/local/bin/emacs ]; then
+        return
+    fi
+    cd $HOME/clone
+    if [ ! -f emacs-25.2.tar.xz ]; then
+        _wget ftp://ftp.gnu.org/pub/gnu/emacs/emacs-25.2.tar.xz
+        tar xf emacs-25.2.tar.xz
+    fi
+    cd emacs-25.2
+    ./autogen.sh
+    ./configure --prefix=$HOME/local  --with-xpm=no --with-jpeg=no --with-gif=no --with-tiff=no
+    make -j$NCPU
+    make install
+}
+setup_spacemacs() {
+    if [ "$FORCE" != 'yes' ] && [ -d ~/.emacs.d ]; then
+        return
+    fi
+    git clone https://github.com/syl20bnr/spacemacs ~/.emacs.d
+}
 setup_all() {
     setup_packages
     setup_zsh
@@ -245,6 +273,8 @@ setup_all() {
     setup_ycm_after
     setup_vim_after
     setup_tmux
+    setup_emacs
+    setup_spacemacs
 }
 
 _setup_vim_all() {
