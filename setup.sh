@@ -5,7 +5,7 @@ if [ "$DEBUG" = 'yes' ]; then
 fi
 
 _yes_or_no() {
-    if "$@" 2>&1 > /dev/null; then
+    if "$@" > /dev/null 2>&1; then
         echo yes
     else 
         echo no
