@@ -1,0 +1,17 @@
+" Per-project .vimrc.
+"
+" Stick this in a project root directory, and it will automatically get sourced every 
+" time you're in that project directory.
+"
+" It will:
+" - set makeprg=./make.sh (if make.sh exists)
+" - cs add cscope.out     (if cscope.out exists)
+
+" Absolute path of script file:
+let s:path = expand('<sfile>:p:h')
+if filereadable(s:path . "/make.sh")
+    let &makeprg=s:path . "/make.sh"
+endif
+if filereadable("cscope.out")
+    execute 'cs add cscope.out ' . s:path
+endif
