@@ -1,0 +1,17 @@
+#!/bin/bash
+DOTFILES=$HOME/clone/dotfiles
+
+main() {
+    if [ ! -d $DOTFILES ]; then
+        echo "ERROR: $DOTFILES doesn't exist; did you clone it?" 
+        exit 1
+    fi
+    if [ -e .vimrc ]; then
+        echo "ERROR: .vimrc already exists in $PWD; skipping"
+        exit 1
+    fi
+    set -x
+    ln -s -T $DOTFILES/project_vimrc .vimrc
+    set +x
+}
+main "$@"
