@@ -20,8 +20,10 @@ if [ "$(hostname)" = "xen1" ]; then
     export PATH="$COI/build/device-linux-debug:$PATH"
 fi
 
-_pwd=$PWD
-cd $PHI
-source source_me.sh >/dev/null
-cd $_pwd
-unset _pwd
+if [ -e $PHI ]; then
+    _pwd=$PWD
+    cd $PHI
+    source source_me.sh >/dev/null
+    cd $_pwd
+    unset _pwd
+fi
