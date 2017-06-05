@@ -217,7 +217,9 @@ setup_packages() {
     _install_yum epel-release
     _install_yum the_silver_searcher
     _install_yum libevent-devel libevent
-    _install_apt libevent libevent-dev
+    _install_apt libevent-dev
+    _install_apt libevent || true
+    _install_apt build-essential autotools-dev autoconf
 }   
 setup_fzf() {
     if [ "$FORCE" != 'yes' ] && [ -d $HOME/.fzf ]; then
@@ -232,7 +234,8 @@ setup_fzf() {
     $HOME/.fzf/install.fzf --key-bindings --no-completion --update-rc
     (
         cd $HOME/.fzf
-        git apply $HOME/clone/dotfiles/patches/fzf.patch
+	# No longer applies.
+        # git apply $HOME/clone/dotfiles/patches/fzf.patch
     )
 }
 _wget() {
