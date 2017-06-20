@@ -1,1 +1,7 @@
-../uoftpc/rec
+#!/usr/bin/env bash
+# rm $KERN/kmsg.txt
+# reckmon $KERN/kmsg.txt
+while true; do
+    adb shell cat /proc/kmsg | tee $KERN/kmsg.txt
+    sleep 5
+done

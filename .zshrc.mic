@@ -16,6 +16,9 @@ export MOD=$PHI/src/mpss/mpss-modules-srpm-3.8.1
 export MPSS=$PHI/src/mpss/mpss-3.8.1
 export COI=$PHI/src/mpss/mpss-coi-3.8.1
 
+export KERN=$HOME/clone/ROCm/ROCK-Kernel-Driver
+export ROCM=$HOME/clone/ROCm
+
 if [ "$(hostname)" = "xen1" ]; then
     export PATH="$COI/build/device-linux-debug:$PATH"
 fi

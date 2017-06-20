@@ -17,8 +17,9 @@ _has_exec() {
 
 # Hopefully the most stable one.
 VIM_TAG="v8.0.0000"
-VIM_PY2_CONFIG_DIR=/usr/lib/python2.7/config
-VIM_PY3_CONFIG_DIR=/usr/lib/python3.5/config
+# VIM_TAG="master"
+VIM_PY2_CONFIG_DIR=/usr/lib64/python2.7/config
+VIM_PY3_CONFIG_DIR=/usr/lib64/python3.5/config
 
 # Force re-running setup
 if [ "$FORCE" = "" ]; then
@@ -147,11 +148,13 @@ setup_vim() {
         )
     fi
 
+    _install_yum ncurses-devel || true
+    _install libncurses5-dev || true
     _install \
-        libncurses5-dev libgnome2-dev libgnomeui-dev \
+        libgnome2-dev libgnomeui-dev \
         libgtk2.0-dev libatk1.0-dev libbonoboui2-dev \
         libcairo2-dev libx11-dev libxpm-dev libxt-dev python-dev \
-        python3-dev ruby-dev lua5.1 lua5.1-dev libperl-dev git
+        python3-dev ruby-dev lua5.1 lua5.1-dev libperl-dev git || true
 
     HAS_PYTHON3="$(_has_exec python3)"
     if [ $HAS_PYTHON3 = 'yes' ]; then
@@ -161,7 +164,8 @@ setup_vim() {
     fi
 
     _install_yum_group "Development Tools"
-    _install_yum ncurses-lib libgnome-devel ncurses-devel perl-devel python-devel ruby-devel rubygems perl-ExtUtils-Embed
+    _install_yum ncurses-lib ncurses-devel || true
+    _install_yum libgnome-devel perl-devel python-devel ruby-devel rubygems perl-ExtUtils-Embed
 
     (
         cd $HOME/clone/vim
@@ -174,18 +178,20 @@ setup_vim() {
         #
         # Solution: 
         # use only one, disable the other.
+        # CFLAGS="-fPIC -O -D_FORTIFY_SOURCE=0" 
+        # --prefix=$HOME/local
+        # --with-tlib=ncurses
         ./configure --with-features=huge \
             --enable-multibyte \
-            --enable-rubyinterp=yes \
             --with-python-config-dir=$VIM_PY2_CONFIG_DIR \
             "$PYTHON_OPTS" \
             --with-python3-config-dir=$VIM_PY3_CONFIG_DIR \
+            --enable-cscope \
+            --enable-gui=gtk2 \
             --enable-perlinterp=yes \
             --enable-luainterp=yes \
-            --enable-gui=gtk2 \
-            --enable-cscope \
-            --prefix=$HOME/local
-        make -j$NCPU install
+            --enable-rubyinterp=yes
+        sudo make -j$NCPU install
 
         if [ ! -d "$HOME/.vim/bundle/Vundle.vim" ]; then
             git clone https://github.com/VundleVim/Vundle.vim.git $HOME/.vim/bundle/Vundle.vim
@@ -196,7 +202,12 @@ setup_vim() {
     )
 }
 setup_ycm_before() {
-    _install build-essential cmake python-dev python3-dev
+    _install build-essential || true
+    _install python-dev python3-dev || true
+    _install cmake
+    _install_yum python-devel || true
+    _install_yum python3-devel || true
+    _install_yum_group "Development Tools" "Development Libraries"
 }
 setup_ycm_after() {
     if [ "$FORCE" != 'yes' ] && [ "$REINSTALLED_VIM" == 'no' ]; then
@@ -213,8 +224,9 @@ setup_vim_after() {
     ln -s $HOME/.vim/bundle/YCM-Generator/config_gen.py . || true
 }
 setup_packages() {
-    _install htop zsh tree clang silversearcher-ag xclip
-    _install_yum epel-release
+    _install silversearcher-ag || true
+    _install htop zsh tree clang xclip
+    _install_yum epel-release || true
     _install_yum the_silver_searcher
     _install_yum libevent-devel libevent
     _install_apt libevent-dev
@@ -225,7 +237,9 @@ setup_fzf() {
     if [ "$FORCE" != 'yes' ] && [ -d $HOME/.fzf ]; then
         return
     fi
-    _install libncurses5-dev ruby
+    _install libncurses5-dev || true
+    _install_yum ncurses-devel || true
+    _install ruby
     # curses is part of ruby for < 2.1.0?
     sudo gem install curses || true
     git clone --depth 1 https://github.com/junegunn/fzf.git $HOME/.fzf

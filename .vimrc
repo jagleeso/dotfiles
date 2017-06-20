@@ -47,7 +47,7 @@ Plugin 'rdnetto/YCM-Generator'
 
 Plugin 'MarcWeber/vim-addon-mw-utils'
 Plugin 'tomtom/tlib_vim'
-" Plugin 'garbas/vim-snipmate'
+Plugin 'garbas/vim-snipmate'
 
 Plugin 'https://github.com/davidhalter/jedi-vim.git'
 
@@ -462,8 +462,8 @@ set spell
 map <c-f> :tnext<CR>
 set autoread
 
-map <silent> <leader>f <esc>:!echo % \| xargs realpath \| cboard<cr><cr>
-map <silent> <leader>F <esc>:!echo % \| xargs realpath \| sed 's/$/:<C-R>=line(".")<cr>/' \| cboard<cr><cr>
+map <silent> <leader>f <esc>:!echo % \| xargs realpath \| xsel --clipboard -i<cr><cr>
+map <silent> <leader>F <esc>:!echo % \| xargs realpath \| sed 's/$/:<C-R>=line(".")<cr>/' \| xsel --clipboard -i<cr><cr>
 
 " Trigger prompt to reload changed files on buffer enter.
 au FocusGained,BufEnter * checktime
@@ -493,8 +493,8 @@ endif
 let g:goyo_width = 120
 au BufNewFile,BufRead *_defconfig setl keywordprg=kconf
 au BufNewFile,BufRead Kconfig setl keywordprg=kconf
-map <Leader>f <Esc>:!realpath % \| tr -d '\n' \| cboard<CR>
-map <Leader>F <Esc>:call system("echo " . shellescape(expand("%") . ":" . line(".")) . "\| tr -d '\n' \| cboard")<CR>
+map <Leader>f <Esc>:!realpath % \| tr -d '\n' \| xsel --clipboard -i<CR>
+map <Leader>F <Esc>:call system("echo " . shellescape(expand("%") . ":" . line(".")) . "\| tr -d '\n' \| xsel --clipboard -i")<CR>
 
 nmap <C-f> :tnext<CR>
 
@@ -520,3 +520,5 @@ smap <C-J> <Plug>snipMateNextOrTrigger
 " source ~/.vimrc.uoftpc
 
 " source ~/.vimrc.samsung.private
+
+source ~/.vimrc.rocm

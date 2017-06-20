@@ -1,1 +1,55 @@
-../uoftpc/reckmon
+#!/usr/bin/env bash
+source $(dirname $0)/common.sh
+set -e
+
+do_kmsg() {
+    while true; do
+        wait_for device_is_connected "device to be connected"
+        tail_piped_file /proc/kmsg $KERN/kmsg.txt
+    done
+}
+
+join() {
+    local sep="$1"
+    shift 1
+    ruby -e 'puts ARGV.join("'"$sep"'")' "$@"
+}
+
+FILTER=filter_alog
+do_logcat() {
+    while true; do
+        wait_for device_is_connected "device to be connected"
+        adb logcat '*:V' | $FILTER > $KERN/alog.txt
+    done
+}
+
+record() {
+    # set -x
+
+    trap 'previous_command=$this_command; this_command=$BASH_COMMAND' DEBUG
+    trap kill_bg_jobs EXIT
+    kill_bg_jobs() {
+        echo FAILED COMMAND: $previous_command
+        echo "KILLING $(jobs -p)"
+        set -x
+        kill $(jobs -p)
+        set +x
+    }
+
+    do_kmsg &
+    do_logcat
+}
+
+grep_TakeAPicture() {
+    local keep_apps=(AndroidRuntime Camera2BasicFragment)
+    local pattern="\($(join '\\|' ${keep_apps[@]})\)\s*("
+    set -x
+    grep "$pattern"
+}
+
+filter_alog() {
+    # This gets spammed.
+    grep -v 'SDP\.CRYPTO\|epmd\.fs_handler' 
+}
+
+"$@"

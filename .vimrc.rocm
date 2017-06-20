@@ -1,0 +1,5 @@
+cs add $ROCM/ROCK-Kernel-Driver/cscope.out $ROCM/ROCK-Kernel-Driver
+set tags+=$ROCM/ROCK-Kernel-Driver/tags
+
+cs add $ROCM/cscope.out $ROCM
+set tags+=$ROCM/tags

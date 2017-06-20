@@ -1,1 +1,2 @@
-../uoftpc/atop
+#!/usr/bin/env bash
+adb shell top -n 1

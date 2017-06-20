@@ -1,1 +1,4 @@
-../uoftpc/koops
+#!/usr/bin/env bash
+cd $HOME
+# oopsline.py --input - --just-first --obj $KERNL/vmlinux
+oopsline.py --input - --just-first --obj $KERN/vmlinux
