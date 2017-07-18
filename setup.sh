@@ -294,6 +294,11 @@ setup_all() {
     setup_spacemacs
 }
 
+_setup_emacs_all() {
+    setup_emacs
+    setup_spacemacs
+}
+
 _setup_vim_all() {
     setup_ycm_before
     setup_vim

@@ -1,0 +1,28 @@
+export KERN=$HOME/clone/ROCm/ROCK-Kernel-Driver
+export ROCM=$HOME/clone/ROCm
+
+# This is what is required in order to make "$ROCM/build/bin/hipconfig --check" happy.
+#
+# However... this isn't enough to make programs compile properly with our hipcc.
+# I had to modify HIP-Examples/vectorAdd/Makefile to pass additional flags to ld and clang, as given by hcc-config.
+# This is recommended by README.md in the hcc repo (i.e. https://github.com/RadeonOpenCompute/hcc).
+#
+# LDFLAGS += $(shell $(HCC_HOME)/bin/hcc-config --build --cxxflags --ldflags)
+# CXXFLAGS += $(shell $(HCC_HOME)/bin/hcc-config --build --cxxflags)
+#
+# NOTE:
+# I have yet to figure why my compiled clang is so much slower than /opt/rocm/bin/clang...
+# Perhaps try compiling clang in "Release" mode?
+export LD_LIBRARY_PATH=$ROCM/build/hsa:$LD_LIBRARY_PATH 
+export PATH=$ROCM/build/bin:$PATH
+export HSA_PATH=$ROCM/build/hsa
+export HCC_HOME=$ROCM/build
+export HIP_PATH=$ROCM/build
+export HCC_PATH=$ROCM/build
+
+# Used by hcc/CMakeLists.txt to search inside include directory for HSA header.
+export ROCM_ROOT=$ROCM/build
+
+if [ -e $ROCM/build/bin/hipconfig ] && ! $ROCM/build/bin/hipconfig --check >/dev/null 2>&1; then
+    echo "WARNING: \"$ROCM/build/bin/hipconfig --check\" failed; don't expect hpcc to compile properly!"
+fi
