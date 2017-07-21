@@ -167,6 +167,16 @@ setup_vim() {
     _install_yum ncurses-lib ncurses-devel || true
     _install_yum libgnome-devel perl-devel python-devel ruby-devel rubygems perl-ExtUtils-Embed
 
+    EXTRA_OPS=()
+    if [ "$HAS_YUM" != 'yes' ]; then
+        EXTRA_OPS=( \
+            --enable-gui=gtk2 \
+            --enable-perlinterp=yes \
+            --enable-luainterp=yes \
+            --enable-rubyinterp=yes \
+            "${EXTRA_OPS[@]}")
+    fi
+
     (
         cd $HOME/clone/vim
         # --enable-pythoninterp=yes
@@ -182,16 +192,14 @@ setup_vim() {
         # --prefix=$HOME/local
         # --with-tlib=ncurses
         ./configure --with-features=huge \
+	    --prefix=$HOME/local \
             --enable-multibyte \
             --with-python-config-dir=$VIM_PY2_CONFIG_DIR \
             "$PYTHON_OPTS" \
             --with-python3-config-dir=$VIM_PY3_CONFIG_DIR \
             --enable-cscope \
-            --enable-gui=gtk2 \
-            --enable-perlinterp=yes \
-            --enable-luainterp=yes \
-            --enable-rubyinterp=yes
-        sudo make -j$NCPU install
+            "${EXTRA_OPS[@]}"
+        make -j$NCPU install
 
         if [ ! -d "$HOME/.vim/bundle/Vundle.vim" ]; then
             git clone https://github.com/VundleVim/Vundle.vim.git $HOME/.vim/bundle/Vundle.vim
