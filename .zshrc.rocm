@@ -26,3 +26,7 @@ export ROCM_ROOT=$ROCM/build
 if [ -e $ROCM/build/bin/hipconfig ] && ! $ROCM/build/bin/hipconfig --check >/dev/null 2>&1; then
     echo "WARNING: \"$ROCM/build/bin/hipconfig --check\" failed; don't expect hpcc to compile properly!"
 fi
+
+if [ -e ~/clone/grpc/third_party/protobuf/src/protoc ]; then
+    export PATH="$HOME/clone/grpc/third_party/protobuf/src:$PATH"
+fi
