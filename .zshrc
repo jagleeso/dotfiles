@@ -57,6 +57,8 @@ _source_if ~/.zshrc.vnc
 _source_if ~/.zshrc.vmgl
 _source_if ~/.zshrc.mic
 _source_if ~/.zshrc.rocm
+_source_if ~/.zshrc.tensorflow
+_source_if ~/.zshrc.cuda
 unset _source_if
 
 if [ -x "`which vimpager 2>/dev/null`" ]; then

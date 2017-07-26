@@ -1,0 +1,20 @@
+# https://davidwpearson.wordpress.com/2017/01/12/installing-nvidias-cuda-8-0-on-fedora-25/
+export PATH=$PATH:/usr/local/cuda/bin
+
+if [ ! -e /etc/ld.so.conf.d/nvidia.so.conf ]; then
+    echo "WARNING: you need to"
+    echo "- put /usr/local/cuda/lib64 in /etc/ld.so.conf.d/nvidia.so.conf"
+    echo "- run \"sudo ldconfig\""
+fi
+
+if cat /etc/redhat-release | grep -q "Fedora.*25" && [ ! -e /opt/rh/devtoolset-4/enable ]; then
+    echo "WARNING: you need to install gcc 5.3.1 (for Fedora 25)"
+    echo "- download and install the SCL repos for CentOS 7:"
+    echo "  wget http://mirror.centos.org/centos/7/extras/x86_64/Packages/centos-release-scl-rh-2-2.el7.centos.noarch.rpm"
+    echo "  wget http://mirror.centos.org/centos/7/extras/x86_64/Packages/centos-release-scl-2-2.el7.centos.noarch.rpm"
+    echo "- install devtoolset-4 related packages:"
+    echo "  sudo yum install -y devtoolset-4-gcc devtoolset-4-gcc-c++ devtoolset-4-libgccjit devtoolset-4-gcc-gfortran devtoolset-4-libgccjit-docs devtoolset-4-libgccjit-devel devtoolset-4-gcc-plugin-devel devtoolset-4-libstdc++-docs devtoolset-4-libstdc++-devel devtoolset-4-gcc-gdb-plugin"
+else 
+    # "scl enable" doesn't work for some reason...
+    source /opt/rh/devtoolset-4/enable
+fi
