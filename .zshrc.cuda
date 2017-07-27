@@ -1,9 +1,9 @@
 # https://davidwpearson.wordpress.com/2017/01/12/installing-nvidias-cuda-8-0-on-fedora-25/
 export PATH=$PATH:/usr/local/cuda/bin
 
-if [ ! -e /etc/ld.so.conf.d/nvidia.so.conf ]; then
+if [ ! -e /etc/ld.so.conf.d/nvidia.conf ]; then
     echo "WARNING: you need to"
-    echo "- put /usr/local/cuda/lib64 in /etc/ld.so.conf.d/nvidia.so.conf"
+    echo "- put /usr/local/cuda/lib64 in /etc/ld.so.conf.d/nvidia.conf"
     echo "- run \"sudo ldconfig\""
 fi
 
@@ -17,4 +17,9 @@ if cat /etc/redhat-release | grep -q "Fedora.*25" && [ ! -e /opt/rh/devtoolset-4
 else 
     # "scl enable" doesn't work for some reason...
     source /opt/rh/devtoolset-4/enable
+fi
+
+export RD=$HOME/clone/RDMA-GPU
+if [ -e $RD/source_me.sh ]; then
+    source $RD/source_me.sh
 fi

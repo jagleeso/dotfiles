@@ -1,0 +1,3 @@
+if [ -e $HOME/clone/mvapich2-2.3a/build/bin ]; then
+    export PATH="$HOME/clone/mvapich2-2.3a/build/bin:$PATH"
+fi

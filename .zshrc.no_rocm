@@ -1,0 +1,7 @@
+unset LD_LIBRARY_PATH
+unset HSA_PATH
+unset HCC_HOME
+unset HIP_PATH
+unset HCC_PATH
+
+unset ROCM_ROOT
