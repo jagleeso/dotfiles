@@ -377,6 +377,17 @@ let marvim_store_key = '<Leader>d'     " change store key from <F3> to 'ms'
 command! MarSave call Marvim_macro_store()
 command! MarSearch call Marvim_search()
 
+function! ToggleYcm()
+    let s:prev = g:ycm_auto_trigger
+    let g:ycm_auto_trigger = !g:ycm_auto_trigger
+    if s:prev
+        echo "YCM auto-complete disabled"
+    else
+        echo "YCM auto-complete enabled"
+    endif
+endfunction
+command! ToggleYcm call ToggleYcm()
+
 set t_te= t_ti=
 let g:easytags_auto_update = 0
 set history=200
@@ -508,6 +519,12 @@ let g:ycm_global_ycm_extra_conf = '~/.ycm.py'
 " let g:ycm_global_ycm_extra_conf = g:dotvim.'/ycm.py'
 " let g:ycm_extra_conf_vim_data   = ['&filetype']
 let g:ycm_seed_identifiers_with_syntax = 1
+" Autocomplete keeps replacing text as I type for this filetypes...
+" Until I figure out why lets just disable it...
+" Doesn't work.. still triggers.. just use ToggleYcm
+" let g:ycm_filetype_specific_completion_to_disable = {
+"             \ 'sh': 1
+"             \}
 
 " imap <C-\> <Plug>snipMateNextOrTrigger
 " let g:snips_trigger_key = '<C-\>'

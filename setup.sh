@@ -232,6 +232,7 @@ setup_vim_after() {
     ln -s $HOME/.vim/bundle/YCM-Generator/config_gen.py . || true
 }
 setup_packages() {
+    _install xauth xterm || true
     _install silversearcher-ag || true
     _install htop zsh tree clang xclip
     _install_yum epel-release || true
