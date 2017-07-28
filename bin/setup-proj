@@ -6,12 +6,21 @@ main() {
         echo "ERROR: $DOTFILES doesn't exist; did you clone it?" 
         exit 1
     fi
-    if [ -e .vimrc ]; then
-        echo "ERROR: .vimrc already exists in $PWD; skipping"
-        exit 1
+    if [ ! -e .vimrc ]; then
+        set -x
+        ln -s -T $DOTFILES/project_vimrc .vimrc
+        set +x
+    else
+        echo "WARNING: .vimrc already exists in $PWD; skipping"
     fi
-    set -x
-    ln -s -T $DOTFILES/project_vimrc .vimrc
-    set +x
+    if [ ! -e .ycm_extra_confg.py ]; then
+        echo "NOTE: modify .ycm_extra_confg.py to include any important compiler options"
+        echo "  e.g. -Ibuild/path/include -I/usr/local/system/path/include"
+        set -x
+        cp $DOTFILES/.ycm_extra_confg.py.default .ycm_extra_confg.py
+        set +x
+    else 
+        echo "WARNING: .ycm_extra_confg.py already exists in $PWD; skipping"
+    fi
 }
 main "$@"
