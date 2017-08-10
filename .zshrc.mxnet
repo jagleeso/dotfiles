@@ -1,0 +1,3 @@
+export LD_LIBRARY_PATH="$HOME/clone/RDMA-GPU/build/lib:$LD_LIBRARY_PATH"
+export MX=$HOME/clone/incubator-mxnet
+export PYTHONPATH="$MX/python:$PYTHONPATH"

@@ -41,7 +41,7 @@ Plugin 'git://github.com/matze/vim-move'
 Plugin 'https://github.com/vim-scripts/Tail-Bundle.git'
 Plugin 'https://github.com/tpope/vim-dispatch.git'
 Plugin 'https://github.com/vim-scripts/Conque-GDB.git'
-Plugin 'https://github.com/Valloric/YouCompleteMe.git'
+" Plugin 'https://github.com/Valloric/YouCompleteMe.git'
 Plugin 'fatih/vim-go'
 Plugin 'rdnetto/YCM-Generator'
 
@@ -56,7 +56,7 @@ Plugin 'honza/vim-snippets'
 
 " if you use Vundle, load plugins:
 " Plugin 'ervandew/supertab'
-" Plugin 'Valloric/YouCompleteMe'
+Plugin 'Valloric/YouCompleteMe'
 Plugin 'SirVer/ultisnips'
 
 " " make YCM compatible with UltiSnips (using supertab)
@@ -515,7 +515,7 @@ command! MarRun call Marvim_search()
 
 " https://github.com/vheon/dotvim/blob/5321347027c21e4c22dc6fcea4cc315052ed25f1/vimrc
 let g:ycm_global_ycm_extra_conf = '~/.ycm.py'
-" let g:ycm_confirm_extra_conf    = 0
+let g:ycm_confirm_extra_conf    = 0
 " let g:ycm_global_ycm_extra_conf = g:dotvim.'/ycm.py'
 " let g:ycm_extra_conf_vim_data   = ['&filetype']
 let g:ycm_seed_identifiers_with_syntax = 1
@@ -537,5 +537,12 @@ smap <C-J> <Plug>snipMateNextOrTrigger
 " source ~/.vimrc.uoftpc
 
 " source ~/.vimrc.samsung.private
+
+function! AddSystemTags()
+   if filereadable("/usr/include/c++/tags")
+       set tags+=/usr/include/c++/tags
+   endif
+endfunction
+call AddSystemTags()
 
 source ~/.vimrc.rocm

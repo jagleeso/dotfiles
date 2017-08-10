@@ -60,6 +60,7 @@ _source_if ~/.zshrc.rocm
 _source_if ~/.zshrc.tensorflow
 _source_if ~/.zshrc.cuda
 _source_if ~/.zshrc.mpi
+_source_if ~/.zshrc.mxnet
 unset _source_if
 
 if [ -x "`which vimpager 2>/dev/null`" ]; then
@@ -105,6 +106,9 @@ afiles() {
     apt-file list --regexp  "^$1\$" | sed "s/^$1:\s*//"
 }
 alias gopen="gnome-open"
+
+# Takes forever to start over X11 otherwise...
+alias xterm='xterm +u8'
 
 gitdiff() {
     git diff --quiet "$@" ||
