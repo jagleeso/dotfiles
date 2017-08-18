@@ -41,7 +41,7 @@ Plugin 'git://github.com/matze/vim-move'
 Plugin 'https://github.com/vim-scripts/Tail-Bundle.git'
 Plugin 'https://github.com/tpope/vim-dispatch.git'
 Plugin 'https://github.com/vim-scripts/Conque-GDB.git'
-" Plugin 'https://github.com/Valloric/YouCompleteMe.git'
+Plugin 'https://github.com/Valloric/YouCompleteMe.git'
 Plugin 'fatih/vim-go'
 Plugin 'rdnetto/YCM-Generator'
 
@@ -56,7 +56,7 @@ Plugin 'honza/vim-snippets'
 
 " if you use Vundle, load plugins:
 " Plugin 'ervandew/supertab'
-Plugin 'Valloric/YouCompleteMe'
+" Plugin 'Valloric/YouCompleteMe'
 Plugin 'SirVer/ultisnips'
 
 " " make YCM compatible with UltiSnips (using supertab)
@@ -206,7 +206,7 @@ set wrapmargin=4
 " automatically re-adjust paragraphs on edits (a), but dont mess up pasted comments (w)
 set formatoptions+=w 
 
-set nowrap
+" set nowrap
 
 " set noincsearch
 set incsearch

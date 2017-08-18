@@ -1,3 +1,9 @@
-if [ -e $HOME/clone/mvapich2-2.3a/build/bin ]; then
-    export PATH="$HOME/clone/mvapich2-2.3a/build/bin:$PATH"
-fi
+# if [ -e $HOME/clone/mvapich2-2.3a/build/bin ]; then
+#     export PATH="$HOME/clone/mvapich2-2.3a/build/bin:$PATH"
+# fi
+# if [ -e $HOME/openmpi/bin ]; then
+#     export PATH="$HOME/openmpi/bin:$PATH"
+# fi
+# if [ -e $HOME/openmpi/lib ]; then
+#     export LD_LIBRARY_PATH="$HOME/openmpi/lib:$LD_LIBRARY_PATH"
+# fi
