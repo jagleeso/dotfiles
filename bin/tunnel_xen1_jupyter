@@ -1,0 +1,7 @@
+#!/bin/bash
+REMOTE_PORT=8888
+if [ "$port" = "" ]; then
+    port=$REMOTE_PORT
+fi
+# ssh -v -L$REMOTE_PORT:localhost:$REMOTE_PORT syslab -t ssh -v -L$REMOTE_PORT:localhost:$REMOTE_PORT xen1
+autossh -v -L$port:localhost:$port syslab -t ssh -v -L$port:localhost:$port james@10.70.2.2

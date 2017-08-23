@@ -1,0 +1,16 @@
+#!/bin/bash
+source $(dirname $0)/common.sh
+
+local_port=8787
+remote_syslab_port=8787
+remote_xen1_port=22
+
+# tunnel_everything \
+#     $local_port \
+#     $remote_syslab_port \
+#     $remote_xen1_port
+
+tunnel_only_to_syslab \
+    $local_port \
+    $remote_syslab_port \
+    $remote_xen1_port
