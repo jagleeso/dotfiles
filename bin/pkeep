@@ -9,11 +9,16 @@ def main():
     parser = argparse.ArgumentParser("filter lines by regex")
     parser.add_argument('regex')
     parser.add_argument('--remove', action='store_true')
+    parser.add_argument('-i', '--ignore-case', action='store_true')
     args = parser.parse_args()
+
+    re_flags = 0
+    if args.ignore_case:
+        re_flags = re_flags | re.IGNORECASE
 
     for line in sys.stdin:
         line = line.rstrip()
-        m = re.search(args.regex, line)
+        m = re.search(args.regex, line, re_flags)
         if (m and not args.remove) or (not m and args.remove):
             print line
 

@@ -11,6 +11,9 @@ _yes_or_no() {
         echo no
     fi
 }
+_has_sudo() {
+    _yes_or_no sudo -v
+}
 _has_exec() {
     _yes_or_no which "$@"
 }
@@ -31,10 +34,20 @@ if [ "$SKIP_PACKAGES" = "" ]; then
 fi
 HAS_APT_GET="$(_has_exec apt-get)"
 HAS_YUM="$(_has_exec yum)"
+HAS_SUDO="$(_has_sudo)"
 
 NCPU=$(grep -c ^processor /proc/cpuinfo)
 
+_sudo() {
+    if [ "$HAS_SUDO" = 'no' ]; then
+        return
+    fi
+    sudo "$@"
+}
 _install() {
+    if [ "$HAS_SUDO" = 'no' ]; then
+        return
+    fi
     if [ "$HAS_APT_GET" = 'yes' ]; then
         sudo apt-get install -y "$@"
     elif [ "$HAS_YUM" = 'yes' ]; then
@@ -49,18 +62,27 @@ _install() {
 }
 
 _install_yum_group() {
+    if [ "$HAS_SUDO" = 'no' ]; then
+        return
+    fi
     if [ "$HAS_YUM" = 'no' ]; then
         return
     fi
     sudo yum group install -y "$@"
 }
 _install_yum() {
+    if [ "$HAS_SUDO" = 'no' ]; then
+        return
+    fi
     if [ "$HAS_YUM" = 'no' ]; then
         return
     fi
     sudo yum install -y "$@"
 }
 _install_apt() {
+    if [ "$HAS_SUDO" = 'no' ]; then
+        return
+    fi
     if [ "$HAS_APT_GET" = 'no' ]; then
         return
     fi
@@ -250,7 +272,7 @@ setup_fzf() {
     _install_yum ncurses-devel || true
     _install ruby
     # curses is part of ruby for < 2.1.0?
-    sudo gem install curses || true
+    _sudo gem install curses || true
     git clone --depth 1 https://github.com/junegunn/fzf.git $HOME/.fzf
     mv $HOME/.fzf/install $HOME/.fzf/install.fzf
     mv $HOME/.fzf/uninstall $HOME/.fzf/uninstall.fzf
@@ -289,8 +311,21 @@ setup_spacemacs() {
     fi
     git clone https://github.com/syl20bnr/spacemacs ~/.emacs.d
 }
+setup_tree() {
+    mkdir -p $HOME/bin
+}
+setup_bin() {
+    for f in $HOME/clone/dotfiles/bin/*; do
+        if [ ! -f $f ]; then
+            continue
+        fi
+        ln -s -T $f $HOME/bin/$(basename $f) || true
+    done
+}
 setup_all() {
+    setup_tree
     setup_packages
+    setup_bin
     setup_zsh
     setup_fzf
     setup_dotfiles
