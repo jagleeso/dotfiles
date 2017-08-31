@@ -4,6 +4,10 @@ if [ "$DEBUG" = 'yes' ]; then
     set -x
 fi
 
+if [ "$MODE" = "" ]; then
+    MODE='full'
+fi
+
 _yes_or_no() {
     if "$@" > /dev/null 2>&1; then
         echo yes
@@ -223,12 +227,6 @@ setup_vim() {
             "${EXTRA_OPS[@]}"
         make -j$NCPU install
 
-        if [ ! -d "$HOME/.vim/bundle/Vundle.vim" ]; then
-            git clone https://github.com/VundleVim/Vundle.vim.git $HOME/.vim/bundle/Vundle.vim
-        fi
-
-        $HOME/local/bin/vim -c PluginInstall -c PluginUpdate -c quit -c quit
-
     )
 }
 setup_ycm_before() {
@@ -252,6 +250,12 @@ setup_vim_after() {
     mkdir -p $HOME/bin
     cd $HOME/bin
     ln -s $HOME/.vim/bundle/YCM-Generator/config_gen.py . || true
+
+    if [ ! -d "$HOME/.vim/bundle/Vundle.vim" ]; then
+        git clone https://github.com/VundleVim/Vundle.vim.git $HOME/.vim/bundle/Vundle.vim
+    fi
+
+    $HOME/local/bin/vim -c PluginInstall -c PluginUpdate -c quit -c quit
 }
 setup_packages() {
     _install xauth xterm || true
@@ -333,9 +337,11 @@ setup_all() {
     setup_vim
     setup_ycm_after
     setup_vim_after
-    setup_tmux
-    setup_emacs
-    setup_spacemacs
+    if [ "$MODE" != 'minimal' ]; then
+        setup_tmux
+        setup_emacs
+        setup_spacemacs
+    fi
 }
 
 _setup_emacs_all() {
