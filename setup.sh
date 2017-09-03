@@ -121,16 +121,30 @@ setup_tmux() {
         make install
     )
 }
+bkup() {
+	local file="$1"
+	shift 1
+	if [ -e "$file" ]; then
+		local new_f="$file.bkup"
+		mv -n $file $new_f
+	fi
+}
 setup_dotfiles() {
     local CLONE_DIR=$HOME/clone/dotfiles
+    (
     cd $HOME
     for f in $CLONE_DIR/.*; do
         if [ -f $f ]; then
+	    local new_f="$(basename $f)"
+	    if [ -e "$new_f" ]; then
+                bkup $new_f || true
+	    fi
             (
-                ln -s -T $f $(basename $f) 2>&1 | grep -v 'File exists'
+                ln -s -T $f $new_f 2>&1 | grep -v 'File exists'
             ) || true
         fi
     done
+    )
     # reload dotfiles
     # if [[ $SHELL =~ zsh ]]; then
     #    source $HOME/.zshrc
@@ -245,11 +259,11 @@ setup_ycm_after() {
         cd $HOME/.vim/bundle/YouCompleteMe
         ./install.py --clang-completer
     )
+    ln -s $HOME/.vim/bundle/YCM-Generator/config_gen.py . || true
 }
 setup_vim_after() {
     mkdir -p $HOME/bin
     cd $HOME/bin
-    ln -s $HOME/.vim/bundle/YCM-Generator/config_gen.py . || true
 
     if [ ! -d "$HOME/.vim/bundle/Vundle.vim" ]; then
         git clone https://github.com/VundleVim/Vundle.vim.git $HOME/.vim/bundle/Vundle.vim
@@ -335,8 +349,8 @@ setup_all() {
     setup_dotfiles
     setup_ycm_before
     setup_vim
-    setup_ycm_after
     setup_vim_after
+    setup_ycm_after
     if [ "$MODE" != 'minimal' ]; then
         setup_tmux
         setup_emacs
