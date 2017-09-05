@@ -24,6 +24,7 @@ Plugin 'VundleVim/Vundle.vim'
 " plugin from http://vim-scripts.org/vim/scripts.html
 Plugin 'L9'
 Plugin 'ctrlp.vim'
+Plugin 'kopischke/vim-fetch'
 Plugin 'tComment'
 Plugin 'git://github.com/zeis/vim-kolor.git'
 Plugin 'https://github.com/scrooloose/nerdtree.git'

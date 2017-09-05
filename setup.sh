@@ -277,6 +277,7 @@ setup_packages() {
     _install htop zsh tree clang xclip
     _install_yum epel-release || true
     _install_yum the_silver_searcher
+    _intsall_yum util-linux-user || true
     _install_yum libevent-devel libevent
     _install_apt libevent-dev
     _install_apt libevent || true
