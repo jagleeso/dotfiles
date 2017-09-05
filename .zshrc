@@ -149,6 +149,11 @@ export NODE_PATH=~/.jsctags/lib/jsctags/:$NODE_PATH
 
 # alias cboard="xsel -i --clipboard"
 
+export GOPATH=$HOME/gopath
+export GOROOT=$HOME/golang
+
+PATH=$HOME/bin:$HOME/local/bin:~/.fzf:$PATH:$HOME/.rvm/bin:$GOPATH/bin
+
 # set tmux options requiring if-statement checks (tmux.conf doesn't support this)
 if [ -n "$TMUX" ]; then
 
@@ -201,11 +206,6 @@ function android_bash() {
 # source ~/.zshrc_samsung
 
 unset ZSH_BIN
-
-export GOPATH=$HOME/gopath
-export GOROOT=$HOME/golang
-
-PATH=$HOME/bin:$HOME/local/bin:~/.fzf:$PATH:$HOME/.rvm/bin:$GOPATH/bin
 
 setopt HIST_IGNORE_SPACE
 setopt interactivecomments
