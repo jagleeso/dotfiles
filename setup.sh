@@ -16,7 +16,7 @@ _yes_or_no() {
     fi
 }
 _has_sudo() {
-    _yes_or_no sudo -v
+    _yes_or_no /usr/bin/sudo -v
 }
 _has_exec() {
     _yes_or_no which "$@"
@@ -274,10 +274,10 @@ setup_vim_after() {
 setup_packages() {
     _install xauth xterm || true
     _install silversearcher-ag || true
-    _install htop zsh tree clang xclip
+    _install htop zsh tree clang xclip ctags cscope
     _install_yum epel-release || true
     _install_yum the_silver_searcher
-    _intsall_yum util-linux-user || true
+    _install_yum util-linux-user || true
     _install_yum libevent-devel libevent
     _install_apt libevent-dev
     _install_apt libevent || true
