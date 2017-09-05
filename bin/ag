@@ -6,7 +6,7 @@ import common
 import sys
 import os
 
-AG = 'ag-grep'
+AG = '/usr/bin/ag'
 
 def main():
     parser = argparse.ArgumentParser("ag wrapper that looks for .agrc options file")

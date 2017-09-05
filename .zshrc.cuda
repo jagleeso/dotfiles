@@ -23,9 +23,11 @@ if [ -e /etc/redhat-release ]; then
     fi
 fi
 
+if [ -e /opt/rocm/bin ]; then
+    export PATH="/opt/rocm/bin:$PATH"
+fi
 export RD=$HOME/clone/RDMA-GPU
 export CN=$HOME/clone/CNTK
 if [ -e $RD/source_me.sh ]; then
     source $RD/source_me.sh
 fi
-
