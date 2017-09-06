@@ -4,13 +4,15 @@ source $(dirname $0)/common.sh
 local_port=1234
 remote_syslab_port=1234
 remote_xen1_port=1234
+remote_dst_ip="$REMOTE_XEN1_IP"
 
 # tunnel_everything \
 #     $local_port \
 #     $remote_syslab_port \
 #     $remote_xen1_port
 
-tunnel_only_to_syslab \
+tunnel_to_intrm \
     $local_port \
     $remote_syslab_port \
-    $remote_xen1_port
+    $remote_xen1_port \
+    $remote_dst_ip

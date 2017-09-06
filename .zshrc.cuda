@@ -26,8 +26,34 @@ fi
 if [ -e /opt/rocm/bin ]; then
     export PATH="/opt/rocm/bin:$PATH"
 fi
+
 export RD=$HOME/clone/RDMA-GPU
+# export RD=$HOME/clone/RDMA-GPU_amd
+
 export CN=$HOME/clone/CNTK
 if [ -e $RD/source_me.sh ]; then
     source $RD/source_me.sh
+fi
+
+if [ "$(hostname)" = 'james-laptop' ]; then
+    _rsync_from() {
+        files_from="$1"
+        shift 1
+        if [ ! -e "$files_from" ]; then
+            return
+        fi
+        rsync -L -avz --files-from=$files_from xen1:/ $CN/sysroot/  
+    }
+    _rsync_bin() {
+        local dir=/home/james/clone/CNTK/build/release/bin
+        rsync -L -avz xen1:$dir/ $CN/sysroot/$dir/  
+    }
+    sync_cntk_gdb_full() {
+        _rsync_from /home/james/clone/CNTK/Tutorials/HelloWorld-LogisticRegression/test_gdb_files.txt
+        _rsync_from /home/james/clone/CNTK/Tutorials/HelloWorld-LogisticRegression/gdb_files.txt
+        _rsync_bin
+    }
+    sync_cntk_gdb() {
+        _rsync_bin
+    }
 fi
