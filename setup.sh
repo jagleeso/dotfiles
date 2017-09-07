@@ -22,6 +22,8 @@ _has_exec() {
     _yes_or_no which "$@"
 }
 
+INSTALL_DIR=$HOME/local
+
 # Hopefully the most stable one.
 VIM_TAG="v8.0.0000"
 # VIM_TAG="master"
@@ -282,7 +284,19 @@ setup_packages() {
     _install_apt libevent-dev
     _install_apt libevent || true
     _install_apt build-essential autotools-dev autoconf
+    _install autossh || true
 }   
+setup_autossh() {
+    if [ "$FORCE" != 'yes' ] && which autossh > /dev/null >&2; then
+        return
+    fi
+    _wget_tar http://www.harding.motd.ca/autossh/autossh-1.4e.tgz
+    local out=$WGET_OUTPUT_DIR
+    (
+    cd $out
+    _configure_make_install
+    )
+}
 setup_fzf() {
     if [ "$FORCE" != 'yes' ] && [ -d $HOME/.fzf ]; then
         return
@@ -309,6 +323,38 @@ _wget() {
         wget "$url"
     fi
 }
+WGET_OUTPUT_DIR=
+_wget_tar() {
+    local url="$1"
+    shift 1
+
+    local path="$HOME/clone/$(basename $url)"
+    if [ ! -e "$path" ]; then
+        wget "$url" -O "$path"
+    fi
+    local first_dir=$(tar tf $path | perl -lape 's/(^[^\/]+)(\/.*)?/$1/' | sort --unique | head -n 1)
+    WGET_OUTPUT_DIR="$(dirname $path)/$first_dir" 
+    if [ ! -e $WGET_OUTPUT_DIR ]; then
+        (
+        cd $HOME/clone
+        tar xf "$path"
+        )
+    fi
+}
+CONFIG_FLAGS=()
+_configure() {
+    if [ ! -e ./configure ] && [ -e ./autogen.sh ]; then
+        ./autogen.sh
+    fi
+    ./configure "${CONFIG_FLAGS[@]}" --prefix=$INSTALL_DIR
+}
+_configure_make_install()
+{
+    _configure
+    CONFIG_FLAGS=()
+    make -j$NCPU
+    make install
+}
 setup_emacs() {
     if [ "$FORCE" != 'yes' ] && [ -e $HOME/local/bin/emacs ]; then
         return
@@ -331,7 +377,9 @@ setup_spacemacs() {
     git clone https://github.com/syl20bnr/spacemacs ~/.emacs.d
 }
 setup_tree() {
-    mkdir -p $HOME/bin
+    mkdir -p $HOME/bin \
+        $INSTALL_DIR \
+
 }
 setup_bin() {
     for f in $HOME/clone/dotfiles/bin/*; do
@@ -356,6 +404,7 @@ setup_all() {
         setup_tmux
         setup_emacs
         setup_spacemacs
+        setup_autossh
     fi
 }
 
