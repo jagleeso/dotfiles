@@ -1,4 +1,11 @@
 #!/bin/bash
+#
+# [MODE=full|minimal] 
+# [DEBUG=yes] 
+# [SKIP_FAILURES=yes] 
+# setup.sh
+#
+
 set -e
 if [ "$DEBUG" = 'yes' ]; then
     set -x
@@ -6,6 +13,10 @@ fi
 
 if [ "$MODE" = "" ]; then
     MODE='full'
+fi
+if [ "$SKIP_FAILURES" = "" ]; then
+    # If setup_* fails, continue on.
+    SKIP_FAILURES='no'
 fi
 
 _yes_or_no() {
@@ -389,35 +400,47 @@ setup_bin() {
         ln -s -T $f $HOME/bin/$(basename $f) || true
     done
 }
+do_setup() {
+    local setup_func="$1"
+    shift 1
+
+    if ! $setup_func "$@"; then
+        local ret="$?"
+        echo "ERROR: $setup_func failed with $ret" >&2
+        if [ "$SKIP_FAILURES" = 'no' ]; then
+            exit $ret
+        fi
+    fi
+}
 setup_all() {
-    setup_tree
-    setup_packages
-    setup_bin
-    setup_zsh
-    setup_fzf
-    setup_dotfiles
-    setup_ycm_before
-    setup_vim
-    setup_vim_after
-    setup_ycm_after
+    do_setup setup_tree
+    do_setup setup_packages
+    do_setup setup_bin
+    do_setup setup_zsh
+    do_setup setup_fzf
+    do_setup setup_dotfiles
+    do_setup setup_ycm_before
+    do_setup setup_vim
+    do_setup setup_vim_after
+    do_setup setup_ycm_after
     if [ "$MODE" != 'minimal' ]; then
-        setup_tmux
-        setup_emacs
-        setup_spacemacs
-        setup_autossh
+        do_setup setup_tmux
+        do_setup setup_emacs
+        do_setup setup_spacemacs
+        do_setup setup_autossh
     fi
 }
 
 _setup_emacs_all() {
-    setup_emacs
-    setup_spacemacs
+    do_setup setup_emacs
+    do_setup setup_spacemacs
 }
 
 _setup_vim_all() {
-    setup_ycm_before
-    setup_vim
-    setup_ycm_after
-    setup_vim_after
+    do_setup setup_ycm_before
+    do_setup setup_vim
+    do_setup setup_ycm_after
+    do_setup setup_vim_after
 }
 
 (
