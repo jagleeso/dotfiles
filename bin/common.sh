@@ -70,6 +70,41 @@ tunnel_to_intrm() {
         -L $local_port:localhost:$remote_intrm_port $INTERMEDIATE_NODE
 }
 
+CN=$HOME/clone/CNTK
+do_sync_cntk_gdb() {
+    _rsync_cntk_dir() {
+        local dir="$1"
+        shift 1
+        mkdir -p $CN/sysroot/$dir/
+        rsync -L -avz xen1:$CN/$dir/ $CN/sysroot/$CN/$dir/
+    }
+    _sync_files() {
+        _rsync_cntk_dir build/release/bin
+        _rsync_cntk_dir build/release/lib
+    }
+    _sync_files &
+    ssh xen1 'bash -c "killall --quiet gdbserver || true"' &
+    wait
+}
+
+sync_cntk_gdb_full() {
+    _rsync_from() {
+        files_from="$1"
+        shift 1
+        if [ ! -e "$files_from" ]; then
+            return
+        fi
+        rsync -L -avz --files-from=$files_from xen1:/ $CN/sysroot/  
+    }
+    _rsync_bin() {
+        local dir=/home/james/clone/CNTK/build/release/bin
+        rsync -L -avz xen1:$dir/ $CN/sysroot/$dir/  
+    }
+    _rsync_from /home/james/clone/CNTK/Tutorials/HelloWorld-LogisticRegression/test_gdb_files.txt
+    _rsync_from /home/james/clone/CNTK/Tutorials/HelloWorld-LogisticRegression/gdb_files.txt
+    _rsync_bin
+}
+
 if [ "$RUN_COMMON" == "yes" ]; then
     "$@"
 fi

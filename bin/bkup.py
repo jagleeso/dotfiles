@@ -46,19 +46,27 @@ class Bkup(object):
         new_path = self.recov_file(path)
         if not self.check_paths(path, new_path):
             return False
-        shutil.move(path, new_path)
+        self.move_file(path, new_path)
+
+    def move_file(self, old_path, new_path):
+        if self.args.copy:
+            shutil.copy(old_path, new_path)
+        else:
+            shutil.move(old_path, new_path)
 
     def bkup(self, path):
         new_path = self.bkup_file(path)
         if not self.check_paths(path, new_path):
             return False
-        shutil.move(path, new_path)
+        self.move_file(path, new_path)
 
 def main():
     parser = argparse.ArgumentParser("file.ext -> file.ext.bkup")
     parser.add_argument('files', nargs='*')
     parser.add_argument('--debug', action='store_true',
             help="debug")
+    parser.add_argument('-c', '--copy', action='store_true',
+            help="instead of moving the file, copy it")
     parser.add_argument('-f', '--clobber', action='store_true',
             help="overwrite <file>.bkup if it already exists")
     parser.add_argument('-r', '--recover', action='store_true',
