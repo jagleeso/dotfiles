@@ -37,6 +37,15 @@ fpath=($HOME/.zsh/completion $fpath)
 plugins=(git svn zsh-syntax-highlighting)
 
 source $ZSH/oh-my-zsh.sh
+
+export PYTHONPATH
+# http://www.zsh.org/mla/users/2012/msg00785.html
+# -T ties an environment variable to a zsh array
+# -U makes the elements of an array unique (i.e. it's a set)
+typeset -T PYTHONPATH pythonpath
+typeset -U pythonpath
+pythonpath=(. $HOME/python $HOME/clone/dotfiles/src/python $HOME/.vim/src/python $pythonpath)
+
 if [ -n "$TMUX" ]; then
     export TERM=screen-256color 
 else
@@ -68,14 +77,6 @@ if [ -x "`which vimpager 2>/dev/null`" ]; then
     alias less=$PAGER 
     alias zless=$PAGER
 fi
-
-export PYTHONPATH
-# http://www.zsh.org/mla/users/2012/msg00785.html
-# -T ties an environment variable to a zsh array
-# -U makes the elements of an array unique (i.e. it's a set)
-typeset -T PYTHONPATH pythonpath
-typeset -U pythonpath
-pythonpath=(. $HOME/python $HOME/.vim/src/python $pythonpath)
 
 # disable xoff ctrl-s shortcut that locks up vi
 # stty -ixon

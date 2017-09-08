@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-source $(dirname $0)/common.sh
+source $HOME/.dot_common.sh
 
 # adb shell dmesg > dmesg.txt
 adb_sh dmesg > dmesg.txt

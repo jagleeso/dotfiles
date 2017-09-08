@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 # RUN_COMMON=yes $CL/src/sh/common.sh "$@"
 # RUN_COMMON=yes $EXPR/scripts/sh/common.sh "$@"
-source $(dirname $(realpath $0))/common.sh
+source $HOME/.dot_common.sh
 "$@"

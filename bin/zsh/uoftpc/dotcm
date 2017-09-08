@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
-source $(dirname $0)/common.sh
+source $HOME/.dot_common.sh
 on_each_boot \
     tcm

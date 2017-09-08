@@ -1,5 +1,5 @@
 #!/bin/bash
-source $(dirname $0)/common.sh
+source $HOME/.dot_common.sh
 
 local_port=1234
 remote_syslab_port=1234

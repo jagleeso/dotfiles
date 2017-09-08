@@ -105,6 +105,13 @@ _install_apt() {
     fi
     sudo apt-get install -y "$@"
 }
+_install_pip() {
+    if [ "$HAS_SUDO" = 'no' ]; then
+        pip install "$@"
+    else
+        sudo pip install "$@"
+    fi
+}
 
 setup_tmux() {
     if [ "$FORCE" != 'yes' ] && [ -f $HOME/local/bin/tmux ]; then
@@ -296,6 +303,8 @@ setup_packages() {
     _install_apt libevent || true
     _install_apt build-essential autotools-dev autoconf
     _install autossh || true
+    _install_pip colorama watchdog
+    _install_apt entr
 }   
 setup_autossh() {
     if [ "$FORCE" != 'yes' ] && which autossh > /dev/null >&2; then
@@ -393,12 +402,18 @@ setup_tree() {
 
 }
 setup_bin() {
-    for f in $HOME/clone/dotfiles/bin/*; do
-        if [ ! -f $f ]; then
-            continue
-        fi
-        ln -s -T $f $HOME/bin/$(basename $f) || true
-    done
+    link_files_from() {
+        local dir="$1"
+        shift 1
+        for f in $dir/*; do
+            if [ ! -f $f ]; then
+                continue
+            fi
+            ln -s -T $f $HOME/bin/$(basename $f) || true
+        done
+    }
+    link_files_from $HOME/clone/dotfiles/bin
+    link_files_from $HOME/clone/dotfiles/src/python/scripts
 }
 do_setup() {
     local setup_func="$1"
@@ -412,8 +427,12 @@ do_setup() {
         fi
     fi
 }
+setup_dot_common() {
+    ln -s -f -T $HOME/clone/dotfiles/src/sh/common.sh $HOME/.dot_common.sh
+}
 setup_all() {
     do_setup setup_tree
+    do_setup setup_dot_common
     do_setup setup_packages
     do_setup setup_bin
     do_setup setup_zsh

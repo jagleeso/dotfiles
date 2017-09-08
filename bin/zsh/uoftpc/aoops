@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-source $(dirname $(realpath $0))/common.sh
+source $HOME/.dot_common.sh
 set -e
 
 ndk-stack -sym $AOSP/out/target/product/mako/symbols/system/lib < $KERN/alog.txt

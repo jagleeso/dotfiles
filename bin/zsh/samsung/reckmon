@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-source $(dirname $0)/common.sh
+source $HOME/.dot_common.sh
 set -e
 
 do_kmsg() {
