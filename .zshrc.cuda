@@ -32,5 +32,5 @@ export RD=$HOME/clone/RDMA-GPU
 
 export CN=$HOME/clone/CNTK
 if [ -e $RD/source_me.sh ]; then
-    source $RD/source_me.sh
+    source $RD/source_me.sh 2>& /dev/null
 fi

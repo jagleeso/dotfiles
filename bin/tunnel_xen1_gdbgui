@@ -1,9 +1,9 @@
 #!/bin/bash
 source $HOME/.dot_common.sh
 
-local_port=5000
-remote_syslab_port=5000
-remote_xen1_port=5000
+local_port=8888
+remote_syslab_port=8888
+remote_xen1_port=8888
 remote_dst_ip="$REMOTE_XEN1_IP"
 
 # tunnel_everything \

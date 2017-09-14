@@ -10,6 +10,7 @@ import hashlib
 import itertools
 import multiprocessing
 import os
+import pipes
 import re
 import socket
 import struct
@@ -352,18 +353,24 @@ def _ignore_empty(xs):
     return [x for x in xs if x is not None]
 
 def cmdline_str(shell_cmd):
-    cmdline = None
     if type(shell_cmd) == list:
-        cmdline = ' '.join([str(x) for x in _ignore_empty(shell_cmd)])
-    else:
-        assert type(shell_cmd) == str
-        cmdline = shell_cmd
-    return cmdline
+        cmdline = ' '.join(pipes.quote(x) for x in sanitize_cmdline(shell_cmd))
+        return cmdline
+    return sanitize_cmdline(shell_cmd)
+
+def sanitize_cmdline(shell_cmd):
+    if type(shell_cmd) == list:
+        # Preserve the list.
+        cmdline = [str(x) for x in _ignore_empty(shell_cmd)]
+        return cmdline
+    assert type(shell_cmd) == str
+    return shell_cmd
 
 def check_output(shell_cmd, shell=True, env=None, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, 
         ignore_error=False, silent=False, errcode=False):
 
-    cmdline = cmdline_str(shell_cmd)
+    cmdline = sanitize_cmdline(shell_cmd)
+    import ipdb; ipdb.set_trace()
 
     def should_write_manually(outstream):
         return isinstance(outstream, cStringIO.StringIO().__class__)
@@ -398,11 +405,12 @@ def check_output(shell_cmd, shell=True, env=None, stdout=subprocess.PIPE, stderr
     if err is not None:
         outs.append(_out(err))
     all_output = ''.join(outs)
-    if p.returncode != 0 and not ignore_error:
+    if p.returncode != 0 and not ignore_error and not errcode:
         ret = p.returncode
-        log("ERROR: return code was {ret} for: {shell_cmd}".format(**locals()))
+        cmd = cmdline_str(shell_cmd)
+        log("ERROR: return code was {ret} for: {cmd}".format(**locals()))
         log(all_output)
-        raise subprocess.CalledProcessError(ret, shell_cmd)
+        raise subprocess.CalledProcessError(ret, cmdline)
     if errcode:
         return all_output, p.returncode
     return all_output

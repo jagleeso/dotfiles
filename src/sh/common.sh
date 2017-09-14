@@ -87,6 +87,87 @@ do_sync_cntk_gdb() {
     wait
 }
 
+RD=$HOME/clone/RDMA-GPU
+do_sync_benchmark_gdb() {
+    _rsync_dir() {
+        local dir="$1"
+        shift 1
+        mkdir -p $RD/sysroot/$RD/$dir/
+        rsync -L -avz xen1:$RD/$dir/ $RD/sysroot/$RD/$dir/
+    }
+    _rsync_files_from() {
+        local files_from="$1"
+        shift 1
+        rsync -L -avz --files-from=$files_from xen1:/ $RD/sysroot/
+    }
+
+    _sync_files() {
+        local files_from="$1"
+        shift 1
+        _rsync_dir build
+        _rsync_dir install/bin
+        _rsync_files_from "$files_from"
+    }
+
+    # loading symbols from...
+#    /home/james/clone/RDMA-GPU/install/bin/gpu_benchmark
+#    /lib64/.debug/ld-2.24.so.debug
+#    /lib64/.debug/libc-2.24.so.debug
+#    /lib64/.debug/libdl-2.24.so.debug
+#    /lib64/.debug/libgcc_s-6.4.1-20170727.so.1.debug
+#    /lib64/.debug/libm-2.26.so.debug
+#    /lib64/.debug/libpthread-2.24.so.debug
+#    /lib64/.debug/librt-2.24.so.debug
+#    /lib64/.debug/libstdc++.so.6.0.22.debug
+#    /lib64/ld-2.24.so.debug
+#    /lib64/ld-linux-x86-64.so.2
+#    /lib64/libc-2.24.so.debug
+#    /lib64/libc.so.6
+#    /lib64/libcuda.so.1
+#    /lib64/libdl-2.24.so.debug
+#    /lib64/libdl.so.2
+#    /lib64/libgcc_s-6.4.1-20170727.so.1.debug
+#    /lib64/libgcc_s.so.1
+#    /lib64/libm-2.24.so.debug
+#    /lib64/libm.so.6
+#    /lib64/libnvidia-fatbinaryloader.so.367.57
+#    /lib64/libpthread-2.24.so.debug
+#    /lib64/libpthread.so.0
+#    /lib64/librt-2.24.so.debug
+#    /lib64/librt.so.1
+#    /lib64/libstdc++.so.6
+#    /lib64/libstdc++.so.6.0.22.debug
+#    /usr/local/cuda/lib64/libcudart.so.8.0
+
+    # NOTE:
+    # Always make sure you go into GDB and type "info sharedlibrary"
+    # and sync over all those .so files.
+    # For some reason, it appears GDB won't read symbols from your
+    # binary even if its missed those.
+    GDB_FILES=( \
+        /lib64/libcuda.so.1 \
+        /usr/local/cuda/lib64/libcudart.so.8.0 \
+        /lib64/libpthread.so.0 \
+        /lib64/libdl.so.2 \
+        /lib64/librt.so.1 \
+        /lib64/libstdc++.so.6 \
+        /lib64/libm.so.6 \
+        /lib64/libgcc_s.so.1 \
+        /lib64/libc.so.6 \
+        /lib64/libnvidia-fatbinaryloader.so.367.57 \
+        /lib64/ld-linux-x86-64.so.2 \
+        )
+    local files_from="$(mktemp)"
+    for f in "${GDB_FILES[@]}"; do
+        echo "$f" >> $files_from
+    done
+
+    _sync_files "$files_from" &
+    ssh xen1 'bash -c "killall --quiet gdbserver || true"' &
+    wait
+    rm $files_from
+}
+
 sync_cntk_gdb_full() {
     _rsync_from() {
         files_from="$1"
