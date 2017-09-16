@@ -4,6 +4,8 @@ source $HOME/.dot_common.sh
 
 tunnel_amd_gdb
 tunnel_amd_ssh
+tunnel_ml_gdb
+tunnel_ml_ssh
 tunnel_xen1_gdb
 tunnel_xen1_gdb_mathunittests
 tunnel_xen1_ssh

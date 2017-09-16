@@ -1,10 +1,10 @@
 #!/bin/bash
 source $HOME/.dot_common.sh
 
-local_port=1234
-remote_syslab_port=1234
-remote_xen1_port=1234
-remote_dst_ip="$REMOTE_XEN1_IP"
+local_port=$XEN1_GDB_PORT
+remote_syslab_port=$XEN1_GDB_PORT
+remote_xen1_port=$XEN1_GDB_PORT
+remote_dst_node="$REMOTE_XEN1_NODE"
 
 # tunnel_everything \
 #     $local_port \
@@ -15,4 +15,4 @@ tunnel_to_intrm \
     $local_port \
     $remote_syslab_port \
     $remote_xen1_port \
-    $remote_dst_ip
+    $remote_dst_node

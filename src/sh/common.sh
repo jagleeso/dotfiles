@@ -3,11 +3,24 @@
 # INTERMEDIATE_NODE="syslab"
 INTERMEDIATE_NODE="apps"
 
-REMOTE_XEN1_IP=10.70.2.2
-REMOTE_AMD_IP=165.204.53.15
+REMOTE_XEN1_NODE=xen1
+REMOTE_AMD_NODE=amd
+REMOTE_ML_NODE=ml
 # VERBOSE="-v"
 VERBOSE=
 TUNNEL_FLAGS="$VERBOSE -f -N"
+
+# Local tunneling ports that have been allocated.
+AMD_GDB_PORT=1235
+AMD_SSH_PORT=8686
+ML_GDB_PORT=1237
+ML_SSH_PORT=8989
+XEN1_GDBGUI_PORT=8888
+XEN1_SSH_PORT=8787
+XEN1_GDB_PORT=1234
+XEN1_GDB_MATHUNITTESTS_PORT=1236
+
+DOT_HOME="$HOME/clone/dotfiles"
 
 if [ "$DEBUG" = 'yes' ]; then
     set -x
@@ -56,13 +69,15 @@ tunnel_to_intrm() {
     local local_port="$1"
     local remote_intrm_port="$2"
     local remote_dst_port="$3"
-    local remote_dst_ip="$4"
+    local remote_node="$4"
     shift 4
     # NOTE: this assumes a tunnel is already setup on syslab.
+    local remote_username="$(ssh_config.py --user --host=$remote_node)"
+    local remote_identity_file="$(ssh_config.py --identity-file --host=$remote_node)"
     if ! intrm_is_tunneling_to_dst $remote_intrm_port; then
-        echo "ERROR: You need to login to $INTERMEDIATE_NODE and tunnel from $INTERMEDIATE_NODE to xen1:"
+        echo "ERROR: You need to login to $INTERMEDIATE_NODE and tunnel from $INTERMEDIATE_NODE to $remote_node:"
         echo "  $ ssh $INTERMEDIATE_NODE"
-        echo "  $ ssh $TUNNEL_FLAGS -L $remote_intrm_port:localhost:$remote_dst_port james@$remote_dst_ip"
+        echo "  $ ssh $TUNNEL_FLAGS -L $remote_intrm_port:localhost:$remote_dst_port $remote_username@$remote_node -i $remote_identity_file"
         exit 1
     fi
     # Try using autossh locally to keep connection alive.

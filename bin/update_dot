@@ -1,0 +1,16 @@
+#!/bin/bash
+source $HOME/.dot_common.sh
+set -x
+
+main() {
+
+    cd $DOT_HOME
+    git pull
+
+    # Quickly update things.
+    # Skip anything that takes long.
+    MODE=update $DOT_HOME/setup.sh
+
+}
+
+main "$@"

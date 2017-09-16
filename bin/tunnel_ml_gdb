@@ -1,10 +1,10 @@
 #!/bin/bash
 source $HOME/.dot_common.sh
 
-local_port=$XEN1_GDBGUI_PORT
-remote_syslab_port=$XEN1_GDBGUI_PORT
-remote_xen1_port=$XEN1_GDBGUI_PORT
-remote_dst_node="$REMOTE_XEN1_NODE"
+local_port=$ML_GDB_PORT
+remote_syslab_port=$ML_GDB_PORT
+remote_xen1_port=$ML_GDB_PORT
+remote_dst_node="$REMOTE_ML_NODE"
 
 # tunnel_everything \
 #     $local_port \

@@ -1,10 +1,10 @@
 #!/bin/bash
 source $HOME/.dot_common.sh
 
-local_port=8686
-remote_syslab_port=8686
+local_port=$AMD_SSH_PORT
+remote_syslab_port=$AMD_SSH_PORT
 remote_xen1_port=22
-remote_dst_ip="$REMOTE_AMD_IP"
+remote_dst_node="$REMOTE_AMD_NODE"
 
 # tunnel_everything \
 #     $local_port \
@@ -15,4 +15,4 @@ tunnel_to_intrm \
     $local_port \
     $remote_syslab_port \
     $remote_xen1_port \
-    $remote_dst_ip
+    $remote_dst_node

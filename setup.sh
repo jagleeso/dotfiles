@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# [MODE=full|minimal|minimal-no-vim] 
+# [MODE=full|minimal|minimal-no-vim|update]
 # [DEBUG=yes] 
 # [SKIP_FAILURES=yes] 
 # setup.sh
@@ -19,15 +19,49 @@ if [ "$SKIP_FAILURES" = "" ]; then
     SKIP_FAILURES='no'
 fi
 
+HAS_SUDO=""
+
+# vim setup.
+SETUP_VIM='yes'
+# Anything that needs sudo, like installing packages.
+SETUP_SUDO='yes'
+# Anything that needs ./configure
+SETUP_NEEDS_BUILDING='yes'
+
+#
+# Determine what to do based on "$MODE"
+#
+
+if [ "$MODE" = 'minimal-no-vim' ] || [ "$MODE" = 'update' ]; then
+    SETUP_VIM='no'
+fi
+if [ "$MODE" = 'minimal-no-vim' ] || [ "$MODE" = 'update' ]; then
+    SETUP_SUDO='no'
+    HAS_SUDO='no'
+fi
+if [ "$MODE" != 'minimal' ] || [ "$MODE" = 'minimal-no-vim' ] || [ "$MODE" = 'update' ]; then
+    SETUP_NEEDS_BUILDING='no'
+fi
+
+echo
+echo "> MODE = $MODE"
+echo "> SETUP_VIM = $SETUP_VIM"
+echo "> SETUP_SUDO = $SETUP_SUDO"
+echo "> SETUP_NEEDS_BUILDING = $SETUP_NEEDS_BUILDING"
+echo
+
 _yes_or_no() {
     if "$@" > /dev/null 2>&1; then
         echo yes
-    else 
+    else
         echo no
     fi
 }
 _has_sudo() {
-    _yes_or_no /usr/bin/sudo -v
+    if [ "$HAS_SUDO" = '' ]; then
+        HAS_SUDO="$(_yes_or_no /usr/bin/sudo -v)"
+    fi
+    echo $HAS_SUDO
 }
 _has_exec() {
     _yes_or_no which "$@"
@@ -51,18 +85,17 @@ if [ "$SKIP_PACKAGES" = "" ]; then
 fi
 HAS_APT_GET="$(_has_exec apt-get)"
 HAS_YUM="$(_has_exec yum)"
-HAS_SUDO="$(_has_sudo)"
 
 NCPU=$(grep -c ^processor /proc/cpuinfo)
 
 _sudo() {
-    if [ "$HAS_SUDO" = 'no' ]; then
+    if [ "$(_has_sudo)" = 'no' ]; then
         return
     fi
     sudo "$@"
 }
 _install() {
-    if [ "$HAS_SUDO" = 'no' ]; then
+    if [ "$(_has_sudo)" = 'no' ]; then
         return
     fi
     if [ "$HAS_APT_GET" = 'yes' ]; then
@@ -79,7 +112,7 @@ _install() {
 }
 
 _install_yum_group() {
-    if [ "$HAS_SUDO" = 'no' ]; then
+    if [ "$(_has_sudo)" = 'no' ]; then
         return
     fi
     if [ "$HAS_YUM" = 'no' ]; then
@@ -88,7 +121,7 @@ _install_yum_group() {
     sudo yum group install -y "$@"
 }
 _install_yum() {
-    if [ "$HAS_SUDO" = 'no' ]; then
+    if [ "$(_has_sudo)" = 'no' ]; then
         return
     fi
     if [ "$HAS_YUM" = 'no' ]; then
@@ -97,7 +130,7 @@ _install_yum() {
     sudo yum install -y "$@"
 }
 _install_apt() {
-    if [ "$HAS_SUDO" = 'no' ]; then
+    if [ "$(_has_sudo)" = 'no' ]; then
         return
     fi
     if [ "$HAS_APT_GET" = 'no' ]; then
@@ -106,7 +139,7 @@ _install_apt() {
     sudo apt-get install -y "$@"
 }
 _install_pip() {
-    if [ "$HAS_SUDO" = 'no' ]; then
+    if [ "$(_has_sudo)" = 'no' ]; then
         pip install "$@"
     else
         sudo pip install "$@"
@@ -405,11 +438,22 @@ setup_bin() {
     link_files_from() {
         local dir="$1"
         shift 1
+        local ignore_re='\.(pyc)$'
         for f in $dir/*; do
+            if grep --perl-regexp --quiet "$ignore_re" <<<"$(basename $f)"; then
+                continue
+            fi
+            if [[ "$(basename $f)" =~ ".(pyc)$" ]]; then
+                continue
+            fi
             if [ ! -f $f ]; then
                 continue
             fi
-            ln -s -T $f $HOME/bin/$(basename $f) || true
+            link_file=$HOME/bin/$(basename $f)
+            if [ -e $link_file ] && [ ! -L $link_file ]; then
+                echo "WARNING: non-symbolic link exists @ $link_file; skipping"
+            fi
+            ln -f -s -T $f $link_file
         done
     }
     link_files_from $HOME/clone/dotfiles/bin
@@ -438,13 +482,13 @@ setup_all() {
     do_setup setup_zsh
     do_setup setup_fzf
     do_setup setup_dotfiles
-    if [ "$MODE" != 'minimal-no-vim' ]; then
+    if [ "$SETUP_VIM" = 'yes' ]; then
         do_setup setup_ycm_before
         do_setup setup_vim
         do_setup setup_vim_after
         do_setup setup_ycm_after
     fi
-    if [ "$MODE" != 'minimal' ] && [ "$MODE" != 'minimal-no-vim' ]; then
+    if [ "$SETUP_NEEDS_BUILDING" = 'yes' ]; then
         do_setup setup_tmux
         do_setup setup_emacs
         do_setup setup_spacemacs

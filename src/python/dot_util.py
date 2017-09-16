@@ -27,6 +27,8 @@ import psutil
 
 import dot_config
 
+HOME = os.path.abspath(os.path.expanduser('~'))
+
 def yes_or_no(boolean):
     return 'yes' if boolean else 'no'
 
