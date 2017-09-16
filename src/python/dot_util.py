@@ -370,7 +370,6 @@ def check_output(shell_cmd, shell=True, env=None, stdout=subprocess.PIPE, stderr
         ignore_error=False, silent=False, errcode=False):
 
     cmdline = sanitize_cmdline(shell_cmd)
-    import ipdb; ipdb.set_trace()
 
     def should_write_manually(outstream):
         return isinstance(outstream, cStringIO.StringIO().__class__)

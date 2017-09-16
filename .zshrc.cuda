@@ -34,3 +34,29 @@ export CN=$HOME/clone/CNTK
 if [ -e $RD/source_me.sh ]; then
     source $RD/source_me.sh 2>& /dev/null
 fi
+
+gdbforever() {
+    (
+    set -e
+    local port=
+    if [ "$PORT" = "" ]; then
+        port=1234
+    else
+        port=$PORT
+    fi
+
+    (
+    while true; do; 
+        ~/gdb8/bin/gdbserver localhost:$port "$@" || true
+    done
+    ) &
+    local loop_pid=$!
+
+    sleep 0.5
+    echo
+    echo "To stop, type:"
+    echo "$ kill $loop_pid && killall gdbserver"
+
+    wait
+    )
+}

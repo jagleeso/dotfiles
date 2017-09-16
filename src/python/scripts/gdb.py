@@ -23,15 +23,13 @@ class GDB(object):
         cmdline = dot_util.sanitize_cmdline(gdbserver_cmd)
 
         while True:
-            # out, ret = dot_util.run_cmd(cmdline, errcode=True)
-            try:
-                out = dot_util.run_cmd(cmdline)
-            except Exception as e:
-                import ipdb; ipdb.set_trace()
-                raise e
-            # if ret != 0:
-            #     dot_util.log("gdbserver stopped; restarting")
-            #     time.sleep(0.5)
+            if args.debug:
+                out = dot_util.run_cmd(cmdline, errcode=True)
+            else:
+                out, ret = dot_util.run_cmd(cmdline, errcode=True)
+                if ret != 0:
+                    dot_util.log("gdbserver stopped; restarting")
+                    time.sleep(0.5)
 
     def check_paths(self, src, dst):
         if not os.path.exists(src):
@@ -66,8 +64,8 @@ class GDB(object):
 def main():
     parser = argparse.ArgumentParser("file.ext -> file.ext.bkup")
     parser.add_argument('cmd', nargs='*')
-    # parser.add_argument('--debug', action='store_true',
-    #         help="debug")
+    parser.add_argument('--debug', action='store_true',
+            help="debug")
     parser.add_argument('-p', '--port', type=int,
                         default=1234)
     parser.add_argument('--gdbserver', default="gdbserver")
