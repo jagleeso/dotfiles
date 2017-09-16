@@ -2,6 +2,9 @@
 if [ -e /usr/local/cuda/bin ]; then
     export PATH=$PATH:/usr/local/cuda/bin
 fi
+if [ -e /pkgs/cuda-8.0/bin ]; then
+    export PATH=$PATH:/pkgs/cuda-8.0/bin
+fi
 
 if [ -e /usr/local/cuda/bin ] && [ ! -e /etc/ld.so.conf.d/nvidia.conf ]; then
     echo "WARNING: you need to"

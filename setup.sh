@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# [MODE=full|minimal] 
+# [MODE=full|minimal|minimal-no-vim] 
 # [DEBUG=yes] 
 # [SKIP_FAILURES=yes] 
 # setup.sh
@@ -438,11 +438,13 @@ setup_all() {
     do_setup setup_zsh
     do_setup setup_fzf
     do_setup setup_dotfiles
-    do_setup setup_ycm_before
-    do_setup setup_vim
-    do_setup setup_vim_after
-    do_setup setup_ycm_after
-    if [ "$MODE" != 'minimal' ]; then
+    if [ "$MODE" != 'minimal-no-vim' ]; then
+        do_setup setup_ycm_before
+        do_setup setup_vim
+        do_setup setup_vim_after
+        do_setup setup_ycm_after
+    fi
+    if [ "$MODE" != 'minimal' ] && [ "$MODE" != 'minimal-no-vim' ]; then
         do_setup setup_tmux
         do_setup setup_emacs
         do_setup setup_spacemacs
