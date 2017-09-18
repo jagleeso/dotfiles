@@ -31,6 +31,10 @@ ZSH_THEME="james"
 # add user defined locations for completion scripts
 fpath=($HOME/.zsh/completion $fpath)
 
+# Suggested by _bazel autocmplete
+zstyle ':completion:*' use-cache on
+zstyle ':completion:*' cache-path ~/.zsh/cache
+
 # Which plugins would you like to load? (plugins can be found in ~/.oh-my-zsh/plugins/*)
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # plugins=(zsh-syntax-highlighting)

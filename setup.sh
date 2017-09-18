@@ -68,6 +68,7 @@ _has_exec() {
 }
 
 INSTALL_DIR=$HOME/local
+DOT_HOME=$HOME/clone/dotfiles
 
 # Hopefully the most stable one.
 VIM_TAG="v8.0.0000"
@@ -183,10 +184,9 @@ bkup() {
 	fi
 }
 setup_dotfiles() {
-    local CLONE_DIR=$HOME/clone/dotfiles
     (
     cd $HOME
-    for f in $CLONE_DIR/.*; do
+    for f in $DOT_HOME/.*; do
         if [ -f $f ]; then
 	    local new_f="$(basename $f)"
 	    if [ -e "$new_f" ]; then
@@ -203,18 +203,24 @@ setup_dotfiles() {
     #    source $HOME/.zshrc
     # fi 
 }
-setup_zsh() {
+setup_oh_my_zsh() {
     if [ "$FORCE" != 'yes' ] && [ -d $HOME/.oh-my-zsh ]; then
         return
     fi
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
-    cp -r $HOME/clone/dotfiles/.oh-my-zsh/* $HOME/.oh-my-zsh
+    cp -r $DOT_HOME/.oh-my-zsh/* $HOME/.oh-my-zsh
     if [ -d $HOME/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting ]; then
         return
     fi
     git clone \
         https://www.github.com/zsh-users/zsh-syntax-highlighting.git \
         $HOME/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
+}
+setup_zsh() {
+    setup_oh_my_zsh
+
+    _link_files $HOME/.zsh/completion $DOT_HOME/.zsh/completion
+    _link_files $HOME/.oh-my-zsh/themes $DOT_HOME/.oh-my-zsh/themes
 }
 REINSTALLED_VIM=no
 setup_vim() {
@@ -366,7 +372,7 @@ setup_fzf() {
     (
         cd $HOME/.fzf
 	# No longer applies.
-        # git apply $HOME/clone/dotfiles/patches/fzf.patch
+        # git apply $DOT_HOME/patches/fzf.patch
     )
 }
 _wget() {
@@ -434,30 +440,33 @@ setup_tree() {
         $INSTALL_DIR \
 
 }
+LINK_FILES_IGNORE_RE='\.(pyc)$'
+_link_files() {
+    local to_dir="$1"
+    local from_dir="$2"
+    shift 2
+
+    mkdir -p $to_dir
+    for f in $from_dir/*; do
+        if grep --perl-regexp --quiet "$LINK_FILES_IGNORE_RE" <<<"$(basename $f)"; then
+            continue
+        fi
+        if [[ "$(basename $f)" =~ ".(pyc)$" ]]; then
+            continue
+        fi
+        if [ ! -f $f ]; then
+            continue
+        fi
+        link_file=$to_dir/$(basename $f)
+        if [ -e $link_file ] && [ ! -L $link_file ]; then
+            echo "WARNING: non-symbolic link exists @ $link_file; skipping"
+        fi
+        ln -f -s -T $f $link_file
+    done
+}
 setup_bin() {
-    link_files_from() {
-        local dir="$1"
-        shift 1
-        local ignore_re='\.(pyc)$'
-        for f in $dir/*; do
-            if grep --perl-regexp --quiet "$ignore_re" <<<"$(basename $f)"; then
-                continue
-            fi
-            if [[ "$(basename $f)" =~ ".(pyc)$" ]]; then
-                continue
-            fi
-            if [ ! -f $f ]; then
-                continue
-            fi
-            link_file=$HOME/bin/$(basename $f)
-            if [ -e $link_file ] && [ ! -L $link_file ]; then
-                echo "WARNING: non-symbolic link exists @ $link_file; skipping"
-            fi
-            ln -f -s -T $f $link_file
-        done
-    }
-    link_files_from $HOME/clone/dotfiles/bin
-    link_files_from $HOME/clone/dotfiles/src/python/scripts
+    _link_files $HOME/bin $DOT_HOME/bin
+    _link_files $HOME/bin $DOT_HOME/src/python/scripts
 }
 do_setup() {
     local setup_func="$1"
@@ -472,7 +481,11 @@ do_setup() {
     fi
 }
 setup_dot_common() {
-    ln -s -f -T $HOME/clone/dotfiles/src/sh/common.sh $HOME/.dot_common.sh
+    ln -s -f -T $DOT_HOME/src/sh/common.sh $HOME/.dot_common.sh
+}
+
+setup_ipython() {
+    _link_files $HOME/.ipython/profile_default/startup $DOT_HOME/.ipython/profile_default/startup
 }
 setup_all() {
     do_setup setup_tree
@@ -480,6 +493,7 @@ setup_all() {
     do_setup setup_packages
     do_setup setup_bin
     do_setup setup_zsh
+    do_setup setup_ipython
     do_setup setup_fzf
     do_setup setup_dotfiles
     if [ "$SETUP_VIM" = 'yes' ]; then
