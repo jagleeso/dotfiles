@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from __future__ import print_function
+
 import argparse
 import os
 import shutil
@@ -32,10 +34,10 @@ class Bkup(object):
 
     def check_paths(self, src, dst):
         if not os.path.exists(src):
-            print "{src} doesn't exist; skip.".format(**locals())
+            print("{src} doesn't exist; skip.".format(**locals()))
             return False
         if not self.args.clobber and os.path.exists(dst):
-            print "{dst} already exists; skip (use -f).".format(**locals())
+            print("{dst} already exists; skip (use -f).".format(**locals()))
             return False
         return True
 
