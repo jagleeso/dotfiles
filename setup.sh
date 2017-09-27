@@ -343,8 +343,34 @@ setup_packages() {
     _install_apt build-essential autotools-dev autoconf
     _install autossh || true
     _install_pip colorama watchdog
-    _install_apt entr
+    _install entr || true
 }   
+_clone() {
+    local path="$1"
+    local repo="$2"
+    local commit="$3"
+    if [ ! -e "$path" ]; then
+        (
+        git clone --recursive $repo $path
+        )
+    fi
+    (
+    cd $path
+    git checkout $commit
+    git submodule update --init
+    )
+}
+setup_ag() {
+    if [ "$FORCE" != 'yes' ] && [ -e /usr/bin/ag ]; then
+        return
+    fi
+    local commit="master"
+    _clone $HOME/clone/the_silver_searcher \
+        https://github.com/ggreer/the_silver_searcher.git \
+        $commit
+    cd $HOME/clone/the_silver_searcher
+    _configure_make_install
+}
 setup_autossh() {
     if [ "$FORCE" != 'yes' ] && which autossh > /dev/null >&2; then
         return
@@ -425,12 +451,19 @@ setup_emacs() {
     fi
     cd emacs-25.2
     ./autogen.sh
-    ./configure --prefix=$HOME/local  --with-xpm=no --with-jpeg=no --with-gif=no --with-tiff=no
+    ./configure \
+        --prefix=$HOME/local \
+        --with-xpm=no \
+        --with-jpeg=no \
+        --with-gif=no \
+        --with-tiff=no \
+        --with-png=no \
+
     make -j$NCPU
     make install
 }
 setup_spacemacs() {
-    if [ "$FORCE" != 'yes' ] && [ -e ~/.emacs.d ]; then
+    if [ "$FORCE" != 'yes' ] && [ -e ~/.emacs.d/spacemacs.mk ]; then
         return
     fi
     git clone https://github.com/syl20bnr/spacemacs ~/.emacs.d
@@ -460,6 +493,7 @@ _link_files() {
         link_file=$to_dir/$(basename $f)
         if [ -e $link_file ] && [ ! -L $link_file ]; then
             echo "WARNING: non-symbolic link exists @ $link_file; skipping"
+            continue
         fi
         ln -f -s -T $f $link_file
     done
@@ -487,6 +521,30 @@ setup_dot_common() {
 setup_ipython() {
     _link_files $HOME/.ipython/profile_default/startup $DOT_HOME/.ipython/profile_default/startup
 }
+GDB_PRETTY_PRINTERS=$HOME/clone/gdb_printers__python
+setup_gdb() {
+    if [ "$FORCE" != 'yes' ] && [ -e $GDB_PRETTY_PRINTERS ]; then
+        return
+    fi
+    svn co -r r250458 svn://gcc.gnu.org/svn/gcc/trunk/libstdc++-v3/python $GDB_PRETTY_PRINTERS
+}
+setup_entr() {
+    if [ "$FORCE" != 'yes' ] && [ "$(_has_exec entr)" = 'yes' ]; then
+        return
+    fi
+    local commit="master"
+    _clone $HOME/clone/entr \
+        https://github.com/clibs/entr.git \
+        $commit
+    cd $HOME/clone/entr
+    (
+    # Custom configure script, uses environment variables.
+    export PREFIX=$INSTALL_DIR
+    ./configure 
+    make -j$NCPU
+    make install
+    )
+}
 setup_all() {
     do_setup setup_tree
     do_setup setup_dot_common
@@ -496,6 +554,7 @@ setup_all() {
     do_setup setup_ipython
     do_setup setup_fzf
     do_setup setup_dotfiles
+    do_setup setup_gdb
     if [ "$SETUP_VIM" = 'yes' ]; then
         do_setup setup_ycm_before
         do_setup setup_vim
@@ -507,6 +566,8 @@ setup_all() {
         do_setup setup_emacs
         do_setup setup_spacemacs
         do_setup setup_autossh
+        do_setup setup_ag
+        do_setup setup_entr
     fi
 }
 

@@ -48,9 +48,24 @@ gdbforever() {
         port=$PORT
     fi
 
+    local GDBSERVER=
+    if which "$HOME/gdb8/bin/gdbserver"; then
+        GDBSERVER="$HOME/gdb8/bin/gdbserver"
+    elif which gdbserver; then
+        GDBSERVER=gdbserver
+    fi
+    # GDBSERVER=gdbserver
+    echo "GDBSERVER=$GDBSERVER"
+
+    if [ "$GDBSERVER" = '' ]; then
+        echo "ERROR: couldn't find gdbserver"
+        return 1
+    fi
+
     (
     while true; do; 
-        ~/gdb8/bin/gdbserver localhost:$port "$@" || true
+        echo $GDBSERVER localhost:$port "$@"
+        $GDBSERVER localhost:$port "$@" || true
     done
     ) &
     local loop_pid=$!
