@@ -1,0 +1,4 @@
+#!/bin/bash
+source $HOME/.dot_common.sh
+
+do_sync_benchmark_expr

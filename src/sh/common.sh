@@ -85,43 +85,131 @@ tunnel_to_intrm() {
         -L $local_port:localhost:$remote_intrm_port $INTERMEDIATE_NODE
 }
 
+# For debugging.
+RSYNC_FLAGS=
+#RSYNC_FLAGS="-n"
+# set -x
+_rsync_remote_dir() {
+    local remote_node="$1"
+    local remote_root="$2"
+    local dir="$3"
+    shift 3
+
+    mkdir -p $local_path
+    if [ "$RSYNC_FLAGS" = "-n" ]; then
+        echo "WARNING: rsync is disabled" 1>&2
+    fi
+    rsync $RSYNC_FLAGS -L -avz $remote_node:$remote_root/$dir/ $local_path/$dir/
+}
+
 CN=$HOME/clone/CNTK
-do_sync_cntk_gdb() {
+_do_sync_cntk_gdb() {
+    local remote_node="$1"
+    local remote_cntk_root="$2"
+    
+    shift 2
+
+    local local_sysroot_path=$CN/sysroot/$remote_node
+    local local_cntk_path=$local_sysroot_path/$remote_cntk_root
+
     _rsync_cntk_dir() {
         local dir="$1"
         shift 1
-        mkdir -p $CN/sysroot/$dir/
-        rsync -L -avz xen1:$CN/$dir/ $CN/sysroot/$CN/$dir/
+
+        _rsync_remote_dir $remote_node $remote_cntk_root $dir
     }
+
+    # NOTE:
+    # Always make sure you go into GDB and type "info sharedlibrary"
+    # and sync over all those .so files.
+    # For some reason, it appears GDB won't read symbols from your
+    # binary even if its missed those.
+    _sync_gdb_files_ml() {
+        GDB_FILES=( \
+            /lib64/ld-linux-x86-64.so.2 \
+            /home/jgleeson/clone/RDMA-GPU/install/lib/libboost_unit_test_framework.so.1.60.0 \
+            /pkgs/cuda-8.0/lib64/libcudart.so.8.0 \
+            /usr/lib/x86_64-linux-gnu/libnvidia-ml.so.1 \
+            /lib/x86_64-linux-gnu/libpthread.so.0 \
+            /home/jgleeson/clone/CNTK/build/debug/bin/../lib/libCntk.Math-2.1d.so \
+            /home/jgleeson/clone/RDMA-GPU/install/lib/libmpi_cxx.so.1 \
+            /home/jgleeson/clone/RDMA-GPU/install/lib/libmpi.so.12 \
+            /usr/lib/x86_64-linux-gnu/libstdc++.so.6 \
+            /lib/x86_64-linux-gnu/libm.so.6 \
+            /lib/x86_64-linux-gnu/libgcc_s.so.1 \
+            /lib/x86_64-linux-gnu/libc.so.6 \
+            /lib/x86_64-linux-gnu/libdl.so.2 \
+            /lib/x86_64-linux-gnu/librt.so.1 \
+            /pkgs/cuda-8.0/lib64/libcublas.so.8.0 \
+            /pkgs/cuda-8.0/lib64/libcurand.so.8.0 \
+            /pkgs/cuda-8.0/lib64/libcusparse.so.8.0 \
+            /home/jgleeson/clone/cudnn/cuda/lib64/libcudnn.so.5 \
+            /home/jgleeson/clone/RDMA-GPU/install/CNTKCustomMKL/3/x64/parallel/libmkl_cntk_p.so \
+            /home/jgleeson/clone/RDMA-GPU/install/CNTKCustomMKL/3/x64/parallel/libiomp5.so \
+            /home/jgleeson/clone/CNTK/build/debug/bin/../lib/libCntk.PerformanceProfiler-2.1d.so \
+            /home/jgleeson/clone/RDMA-GPU/install/lib/libopen-pal.so.13 \
+            /home/jgleeson/clone/RDMA-GPU/install/lib/libopen-rte.so.12 \
+            /usr/lib/x86_64-linux-gnu/libnuma.so.1 \
+            /usr/lib/x86_64-linux-gnu/libpciaccess.so.0 \
+            /lib/x86_64-linux-gnu/libutil.so.1 \
+            /lib/x86_64-linux-gnu/libz.so.1 \
+            /usr/lib/x86_64-linux-gnu/libcuda.so.1 \
+            /usr/lib/x86_64-linux-gnu/libnvidia-fatbinaryloader.so.375.39 \
+            )
+        local files_from="$(mktemp)"
+        for f in "${GDB_FILES[@]}"; do
+            echo "$f" >> $files_from
+        done
+
+        _rsync_files_from $files_from $remote_node $local_sysroot_path
+        rm $files_from
+    }
+
     _sync_files() {
-        _rsync_cntk_dir build/release/bin
-        _rsync_cntk_dir build/release/lib
+        _rsync_cntk_dir build/debug/bin
+        _rsync_cntk_dir build/debug/lib
+        if [ "$remote_node" = 'ml' ]; then
+            _sync_gdb_files_ml
+        fi
     }
     _sync_files &
-    ssh xen1 'bash -c "killall --quiet gdbserver || true"' &
+    _kill_remote_gdb $remote_node &
     wait
+}
+_kill_remote_gdb() {
+    local remote_node="$1"
+    shift 1
+    ssh $remote_node 'bash -c "killall --quiet gdbserver || true"'
+}
+do_sync_cntk_gdb_xen1() {
+    _do_sync_cntk_gdb xen1 $CN
+}
+do_sync_cntk_gdb_ml() {
+    _do_sync_cntk_gdb ml /home/jgleeson/clone/CNTK
+}
+
+_rsync_files_from() {
+    local files_from="$1"
+    local remote_node="$2"
+    local local_path="$3"
+    shift 3
+    rsync -L -avz --files-from=$files_from $remote_node:/ $local_path/
 }
 
 RD=$HOME/clone/RDMA-GPU
-do_sync_benchmark_gdb() {
-    _rsync_dir() {
+_do_sync_benchmark_gdb() {
+    local remote_node="$1"
+    local remote_root="$2"
+    shift 2
+
+    local local_sysroot_path=$RD/sysroot/$remote_node
+    local local_path=$local_sysroot_path/$remote_root
+
+    _rsync_benchmark_dir() {
         local dir="$1"
         shift 1
-        mkdir -p $RD/sysroot/$RD/$dir/
-        rsync -L -avz xen1:$RD/$dir/ $RD/sysroot/$RD/$dir/
-    }
-    _rsync_files_from() {
-        local files_from="$1"
-        shift 1
-        rsync -L -avz --files-from=$files_from xen1:/ $RD/sysroot/
-    }
 
-    _sync_files() {
-        local files_from="$1"
-        shift 1
-        _rsync_dir build
-        _rsync_dir install/bin
-        _rsync_files_from "$files_from"
+        _rsync_remote_dir $remote_node $remote_root $dir
     }
 
     # loading symbols from...
@@ -154,34 +242,83 @@ do_sync_benchmark_gdb() {
 #    /lib64/libstdc++.so.6.0.22.debug
 #    /usr/local/cuda/lib64/libcudart.so.8.0
 
+    _sync_ml_files() {
+        GDB_FILES=( \
+            /lib64/ld-linux-x86-64.so.2 \
+            /lib/x86_64-linux-gnu/libpthread.so.0 \
+            /lib/x86_64-linux-gnu/libdl.so.2 \
+            /lib/x86_64-linux-gnu/librt.so.1 \
+            /home/jgleeson/clone/RDMA-GPU/install/lib/libboost_unit_test_framework.so.1.60.0 \
+            /usr/lib/x86_64-linux-gnu/libstdc++.so.6 \
+            /lib/x86_64-linux-gnu/libm.so.6 \
+            /lib/x86_64-linux-gnu/libgcc_s.so.1 \
+            /lib/x86_64-linux-gnu/libc.so.6 \
+            /usr/lib/x86_64-linux-gnu/libcuda.so.1 \
+            /usr/lib/x86_64-linux-gnu/libnvidia-fatbinaryloader.so.375.39 \
+            )
+        local files_from="$(mktemp)"
+        for f in "${GDB_FILES[@]}"; do
+            echo "$f" >> $files_from
+        done
+        _rsync_files_from $files_from $remote_node $local_sysroot_path
+        rm $files_from
+    }
+
     # NOTE:
     # Always make sure you go into GDB and type "info sharedlibrary"
     # and sync over all those .so files.
     # For some reason, it appears GDB won't read symbols from your
     # binary even if its missed those.
-    GDB_FILES=( \
-        /lib64/libcuda.so.1 \
-        /usr/local/cuda/lib64/libcudart.so.8.0 \
-        /lib64/libpthread.so.0 \
-        /lib64/libdl.so.2 \
-        /lib64/librt.so.1 \
-        /lib64/libstdc++.so.6 \
-        /lib64/libm.so.6 \
-        /lib64/libgcc_s.so.1 \
-        /lib64/libc.so.6 \
-        /lib64/libnvidia-fatbinaryloader.so.367.57 \
-        /lib64/ld-linux-x86-64.so.2 \
-        )
-    local files_from="$(mktemp)"
-    for f in "${GDB_FILES[@]}"; do
-        echo "$f" >> $files_from
-    done
+    _sync_xen1_files() {
+        GDB_FILES=( \
+            /lib64/libcuda.so.1 \
+            /usr/local/cuda/lib64/libcudart.so.8.0 \
+            /lib64/libpthread.so.0 \
+            /lib64/libdl.so.2 \
+            /lib64/librt.so.1 \
+            /lib64/libstdc++.so.6 \
+            /lib64/libm.so.6 \
+            /lib64/libgcc_s.so.1 \
+            /lib64/libc.so.6 \
+            /lib64/libnvidia-fatbinaryloader.so.367.57 \
+            /lib64/ld-linux-x86-64.so.2 \
+            )
+        local files_from="$(mktemp)"
+        for f in "${GDB_FILES[@]}"; do
+            echo "$f" >> $files_from
+        done
+        _rsync_files_from $files_from $remote_node $local_sysroot_path
+        rm $files_from
+    }
 
-    _sync_files "$files_from" &
-    ssh xen1 'bash -c "killall --quiet gdbserver || true"' &
+    _sync_files() {
+        _rsync_benchmark_dir build
+        _rsync_benchmark_dir install/bin
+        if [ "$remote_node" = 'ml' ]; then
+            _sync_ml_files
+        elif [ "$remote_node" = 'xen1' ]; then
+            _sync_xen1_files
+        fi
+    }
+    _sync_files &
+    _kill_remote_gdb $remote_node &
     wait
-    rm $files_from
 }
+do_sync_benchmark_gdb_xen1() {
+    _do_sync_benchmark_gdb xen1 $RD
+}
+do_sync_benchmark_gdb_ml() {
+    _do_sync_benchmark_gdb ml /home/jgleeson/clone/RDMA-GPU
+}
+
+do_sync_benchmark_expr() {
+    _rsync() {
+        rsync -avz "$@"
+    }
+    _rsync xen1:$RD/experiment/out/ $RD/experiment/out/
+    _rsync ml:/home/jgleeson/clone/RDMA-GPU/experiment/out/ $RD/experiment/out/
+}
+
 
 sync_cntk_gdb_full() {
     _rsync_from() {

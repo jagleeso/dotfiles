@@ -10,4 +10,4 @@ tunnel_xen1_gdb
 tunnel_xen1_gdb_mathunittests
 tunnel_xen1_ssh
 tunnel_xen1_gdbgui
-tunnel_xen1_jupyter
+# tunnel_xen1_jupyter

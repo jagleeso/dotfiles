@@ -72,6 +72,7 @@ _source_if ~/.zshrc.vmgl
 _source_if ~/.zshrc.rocm
 _source_if ~/.zshrc.tensorflow
 _source_if ~/.zshrc.cuda
+_source_if ~/.zshrc.school
 _source_if ~/.zshrc.mpi
 _source_if ~/.zshrc.mxnet
 unset _source_if
