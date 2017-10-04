@@ -1,7 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import cPickle
-import cStringIO
+from __future__ import print_function
+
+import pickle
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
 import datetime
 import distutils.spawn
 import errno
@@ -21,13 +26,15 @@ import traceback
 from os.path import join as _j
 from socket import error as socket_error
 
-import bencode
+# import bencode
 import paramiko
 import psutil
 
 import dot_config
 
 HOME = os.path.abspath(os.path.expanduser('~'))
+
+FLOAT_RE = r'(?:[+\-]?(?:0|[1-9]\d*)(?:\.\d*)?(?:[eE][+\-]?\d+)?)'
 
 def yes_or_no(boolean):
     return 'yes' if boolean else 'no'
@@ -60,8 +67,8 @@ def fork_process(f, *args, **kwargs):
     def run_process():
         try:
             f(*args, **kwargs)
-        except Exception, e:
-            exc_buffer = cStringIO.StringIO()
+        except Exception as e:
+            exc_buffer = StringIO.StringIO()
             traceback.print_exc(file=exc_buffer)
             log(exc_buffer.getvalue())
             raise
@@ -87,7 +94,7 @@ def kill_matching(pattern):
                     continue
                 if p.pid == os.getpid():
                     continue
-            except psutil.NoSuchProcess, e:
+            except psutil.NoSuchProcess as e:
                 continue
             yield p
     procs = list(each_to_kill(pattern))
@@ -96,7 +103,7 @@ def kill_matching(pattern):
         try:
             log("TERMINATE {0}".format(' '.join(p.cmdline())))
             p.terminate()
-        except psutil.NoSuchProcess, e:
+        except psutil.NoSuchProcess as e:
             continue
     gone, alive = psutil.wait_procs(procs, timeout=3)
     # SIGKILL
@@ -104,14 +111,14 @@ def kill_matching(pattern):
         try:
             log("KILL {0}".format(' '.join(p.cmdline())))
             p.kill()
-        except psutil.NoSuchProcess, e:
+        except psutil.NoSuchProcess as e:
             continue
     # Better be dead...
     gone, alive = psutil.wait_procs(procs, timeout=3)
     for p in alive:
         try:
             log("Failed to KILL {0}".format(' '.join(p.cmdline())))
-        except psutil.NoSuchProcess, e:
+        except psutil.NoSuchProcess as e:
             continue
     if len(alive) > 0:
         sys.exit(1)
@@ -136,7 +143,7 @@ def memoize_newer_than_subdirs(func, args, pickle_file, directory):
                 ]:
             continue
         if os.path.getmtime(d_path) > pickle_mtime:
-            # print "INVALID: {d_path} > {pickle_file}".format(**locals())
+            # print ("INVALID: {d_path} > {pickle_file}".format(**locals()))
             return False
     # Valid
     return True
@@ -176,8 +183,9 @@ class PickleMemoize(object):
         self.valid = valid
 
     def _hash_python(self, data_structure):
-        sha = hashlib.sha256(bencode.bencode(data_structure)).hexdigest()
-        return sha
+        raise NotImplementedError()
+        # sha = hashlib.sha256(bencode.bencode(data_structure)).hexdigest()
+        # return sha
 
     def argument_hash(self, args):
         return self._hash_python(args)
@@ -259,7 +267,7 @@ def connect_to_socket(ip, port, max_time_sec=dot_config.MAX_TIME_SEC, sec_betwee
     return None 
 
 def recv_line(s):
-    string = cStringIO.StringIO()
+    string = StringIO.StringIO()
     while True:
         ch = s.recv(1, socket.MSG_WAITALL)
         if ch == '\n':
@@ -273,7 +281,7 @@ def recv_expect(s, expect):
     return msg
 def recvd_expect(msg, expect):
     if msg != expect:
-        print "ERROR: got \"{msg}\" on socket but expected \"{expect}\"".format(**locals())
+        print ("ERROR: got \"{msg}\" on socket but expected \"{expect}\"".format(**locals()))
         assert msg == expect
 def send(s, msg):
     n = s.send(msg)
@@ -374,7 +382,7 @@ def check_output(shell_cmd, shell=True, env=None, stdout=subprocess.PIPE, stderr
     cmdline = sanitize_cmdline(shell_cmd)
 
     def should_write_manually(outstream):
-        return isinstance(outstream, cStringIO.StringIO().__class__)
+        return isinstance(outstream, StringIO.StringIO().__class__)
 
     user_stdout = stdout
     write_out = False
@@ -395,7 +403,7 @@ def check_output(shell_cmd, shell=True, env=None, stdout=subprocess.PIPE, stderr
             user_stdout.write(out)
         if write_err:
             user_stderr.write(err)
-    except Exception, e:
+    except Exception as e:
         _terminate_proc(p)
         raise e
     def _out(stream):
@@ -492,7 +500,7 @@ def proc_output_value(output, default=None):
     if output == '':
         return default
     return output
-def _str_as_number(string, default=None):
+def as_number(string, default=None):
     try:
         val = int(string)
         return val
@@ -506,7 +514,7 @@ def _str_as_number(string, default=None):
     return default
 def proc_output_number(output, default=None):
     val = proc_output_value(output, default=default)
-    val = _str_as_number(val, default=default)
+    val = as_number(val, default=default)
     return val
 def proc_output_as_list(output, default=[]):
     string = proc_output_value(output)

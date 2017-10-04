@@ -1,0 +1,16 @@
+#!/bin/bash
+
+export ML=$HOME/clone/csc2515
+
+activate_school() {
+    if [ -e $HOME/clone/csc2515/source_me.sh ]; then
+        source $HOME/clone/csc2515/source_me.sh
+    fi
+}
+
+# Presets for compressing scanned problems
+# GIMP: brightness/contrast -100/100
+# Then this.
+compress_jpeg() {
+    jpegoptim -d compressed -m25 "$@"
+}

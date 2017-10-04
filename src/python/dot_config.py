@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from __future__ import print_function
+
 import argparse
 import os
 import subprocess
@@ -18,7 +20,7 @@ import dot_util
 
 ROOT = _d(_d(_d(_r(__file__))))
 if not os.path.exists(ROOT):
-    print "ERROR: ROOT ({ROOT}) doesn't exist".format(ROOT=ROOT)
+    print ("ERROR: ROOT ({ROOT}) doesn't exist".format(ROOT=ROOT))
     sys.exit(1)
 
 # Time to wait to connect to various things.
@@ -52,11 +54,11 @@ def main():
         if not hasattr(dot_config, args.get_config):
             sys.stderr.write("Unknown config variable; try these:\n")
             for attr in config_vars():
-                print "  {attr}".format(**locals())
+                print ("  {attr}".format(**locals()))
             parser.print_usage()
             sys.exit(1)
         var = getattr(dot_config, args.get_config)
-        print var
+        print (var)
         return
 
     parser.error("Give a command")
