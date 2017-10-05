@@ -304,6 +304,13 @@ inoremap <C-S>		<C-O>:update!<CR><Esc>
 " CTRL-C and CTRL-Insert are Copy
 " vnoremap <C-C> "+y
 
+if executable('xclip')
+    " Use xclip for seamless remote copy/paste.
+    " https://defuse.ca/blog/clipboard-over-ssh-with-vim.html
+    vmap "+y :!xclip -f -sel clip
+    map "+p :r!xclip -o -sel clip
+endif
+
 " CTRL-V and SHIFT-Insert are Paste
 " vnoremap <C-V>		"+gP
 " inoremap <C-V> <Esc>"+gP<Return>i

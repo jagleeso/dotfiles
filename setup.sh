@@ -428,8 +428,12 @@ _wget_tar() {
 }
 CONFIG_FLAGS=()
 _configure() {
-    if [ ! -e ./configure ] && [ -e ./autogen.sh ]; then
-        ./autogen.sh
+    if [ ! -e ./configure ]; then
+        if [ -e ./autogen.sh ]; then
+            ./autogen.sh
+        elif [ -e ./configure.ac ]; then
+            autoreconf
+        fi
     fi
     ./configure "${CONFIG_FLAGS[@]}" --prefix=$INSTALL_DIR
 }
@@ -545,6 +549,18 @@ setup_entr() {
     make install
     )
 }
+setup_xclip() {
+    if [ "$FORCE" != 'yes' ] && [ "$(_has_exec xclip)" = 'yes' ]; then
+        return
+    fi
+    local commit="master"
+    local srcdir=$HOME/clone/xclip
+    _clone $srcdir \
+        https://github.com/astrand/xclip.git \
+        $commit
+    cd $srcdir
+    _configure_make_install
+}
 setup_all() {
     do_setup setup_tree
     do_setup setup_dot_common
@@ -568,6 +584,7 @@ setup_all() {
         do_setup setup_autossh
         do_setup setup_ag
         do_setup setup_entr
+        do_setup setup_xclip
     fi
 }
 

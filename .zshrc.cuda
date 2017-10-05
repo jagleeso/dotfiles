@@ -38,6 +38,10 @@ if [ -e $RD/source_me.sh ]; then
     source $RD/source_me.sh 2>& /dev/null
 fi
 
+fresh_cntk() {
+    $CN/build/fresh/bin/cntk "$@"
+}
+
 gdbforever() {
     (
     set -e
@@ -46,6 +50,20 @@ gdbforever() {
         port=1234
     else
         port=$PORT
+    fi
+
+    local output=
+    if [ "$OUTPUT" = "" ]; then
+        output=gdb.output
+    else
+        output=$OUTPUT
+    fi
+
+    local kill_gdb_sh=
+    if [ "$KILL_GDB_SH" = "" ]; then
+        kill_gdb_sh=kill_gdb.sh
+    else
+        kill_gdb_sh=$KILL_GDB_SH
     fi
 
     local GDBSERVER=
@@ -64,16 +82,25 @@ gdbforever() {
 
     (
     while true; do; 
-        echo $GDBSERVER localhost:$port "$@"
-        $GDBSERVER localhost:$port "$@" || true
+        echo $GDBSERVER localhost:$port "$@" " | tee $(realpath $output)"
+        ( $GDBSERVER localhost:$port "$@" 2>&1 | tee $output ) || true
     done
     ) &
     local loop_pid=$!
 
     sleep 0.5
+
+    cat <<EOF > $kill_gdb_sh
+#!/bin/bash
+kill $loop_pid && killall gdbserver
+EOF
+    chmod +x $kill_gdb_sh
+
     echo
     echo "To stop, type:"
     echo "$ kill $loop_pid && killall gdbserver"
+    echo "Or run:"
+    echo "$ $(realpath $kill_gdb_sh)"
 
     wait
     )
