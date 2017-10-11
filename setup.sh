@@ -66,6 +66,22 @@ _has_sudo() {
 _has_exec() {
     _yes_or_no which "$@"
 }
+_has_lib() {
+    local lib="$1"
+    shift 1
+    on_ld_path() {
+        ldconfig -p \
+            | grep --quiet "$lib"
+    }
+    in_local_path() {
+        ls $INSTALL_DIR/lib \
+            | grep --quiet "$lib"
+    }
+    __has_lib() {
+        on_ld_path || in_local_path
+    }
+    _yes_or_no __has_lib
+}
 
 INSTALL_DIR=$HOME/local
 DOT_HOME=$HOME/clone/dotfiles
@@ -86,6 +102,8 @@ if [ "$SKIP_PACKAGES" = "" ]; then
 fi
 HAS_APT_GET="$(_has_exec apt-get)"
 HAS_YUM="$(_has_exec yum)"
+
+HAS_LIB_EVENT="$(_has_lib libevent.so)"
 
 NCPU=$(grep -c ^processor /proc/cpuinfo)
 
@@ -146,33 +164,21 @@ _install_pip() {
         sudo pip install "$@"
     fi
 }
-
 setup_tmux() {
     if [ "$FORCE" != 'yes' ] && [ -f $HOME/local/bin/tmux ]; then
         return
     fi
-    mkdir -p $HOME/local
-    mkdir -p $HOME/clone
-    if [ ! -d $HOME/clone/tmux ]; then
-        (
-            cd $HOME/clone
-            git clone https://github.com/tmux/tmux.git
-            cd $HOME/clone/tmux
-        )
-    else
-        (
-            cd $HOME/clone/tmux
-            # make clean
-            git fetch
-        )
-    fi
-    ( 
-        cd $HOME/clone/tmux
-        git checkout master
-        ./autogen.sh
-        ./configure --prefix=$HOME/local
-        make -j$NCPU
-        make install
+
+    setup_libevent
+
+    local commit="$(_git_latest_tag)"
+    local dir=$HOME/clone/tmux
+    _clone $dir \
+        https://github.com/tmux/tmux.git \
+        $commit
+    (
+    cd $dir
+    _configure_make_install
     )
 }
 bkup() {
@@ -345,6 +351,10 @@ setup_packages() {
     _install_pip colorama watchdog
     _install entr || true
 }   
+_git_latest_tag() {
+    # Assuming git tags that look like numbers.
+    git tag | sort --human | tail -n 1
+}
 _clone() {
     local path="$1"
     local repo="$2"
@@ -427,6 +437,9 @@ _wget_tar() {
     fi
 }
 CONFIG_FLAGS=()
+CONFIG_LDFLAGS=(-Wl,-rpath,$INSTALL_DIR/lib -L$INSTALL_DIR/lib)
+CONFIG_CFLAGS=(-I$INSTALL_DIR/include)
+CONFIG_CXXFLAGS=(-I$INSTALL_DIR/include)
 _configure() {
     if [ ! -e ./configure ]; then
         if [ -e ./autogen.sh ]; then
@@ -439,10 +452,15 @@ _configure() {
 }
 _configure_make_install()
 {
+    (
+    export LDFLAGS="$LDFLAGS ${CONFIG_LDFLAGS[@]}"
+    export CXXFLAGS="$CXXFLAGS ${CONFIG_CXXFLAGS[@]}"
+    export CFLAGS="$CFLAGS ${CONFIG_CFLAGS[@]}"
     _configure
-    CONFIG_FLAGS=()
     make -j$NCPU
     make install
+    )
+    CONFIG_FLAGS=()
 }
 setup_emacs() {
     if [ "$FORCE" != 'yes' ] && [ -e $HOME/local/bin/emacs ]; then
@@ -560,6 +578,21 @@ setup_xclip() {
         $commit
     cd $srcdir
     _configure_make_install
+}
+setup_libevent() {
+
+    if [ "$FORCE" != 'yes' ] && [ $HAS_LIB_EVENT = 'yes' ]; then
+        return
+    fi
+    local commit="master"
+    local dir=$HOME/clone/libevent
+    _clone $dir \
+        https://github.com/libevent/libevent.git \
+        $commit
+    (
+    cd $dir
+    _configure_make_install
+    )
 }
 setup_all() {
     do_setup setup_tree

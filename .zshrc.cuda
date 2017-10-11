@@ -34,9 +34,16 @@ export RD=$HOME/clone/RDMA-GPU
 # export RD=$HOME/clone/RDMA-GPU_amd
 
 export CN=$HOME/clone/CNTK
-if [ -e $RD/source_me.sh ]; then
-    source $RD/source_me.sh 2>& /dev/null
-fi
+activate_cntk() {
+    if [ -e $RD/source_me.sh ]; then
+        source $RD/source_me.sh 2>& /dev/null
+    fi
+}
+activate_cntk_fresh() {
+    if [ -e  $HOME/clone/CNTK_fresh ] && [ -e $RD/source_me.sh ]; then
+        CNTK_DIR=$HOME/clone/CNTK_fresh source $RD/source_me.sh 2>& /dev/null
+    fi
+}
 
 fresh_cntk() {
     $CN/build/fresh/bin/cntk "$@"
@@ -75,6 +82,11 @@ gdbforever() {
     # GDBSERVER=gdbserver
     echo "GDBSERVER=$GDBSERVER"
 
+    local args=( "$@" )
+    local executable="${args[1]}"
+    echo "ARGS = ${args[@]}"
+    echo "executable = $executable"
+
     if [ "$GDBSERVER" = '' ]; then
         echo "ERROR: couldn't find gdbserver"
         return 1
@@ -82,6 +94,12 @@ gdbforever() {
 
     (
     while true; do; 
+        if [ ! -e "$executable" ]; then
+            echo "Waiting for $executable to exist..."
+            while [ ! -e "$executable" ]; do
+                sleep 1
+            done
+        fi
         echo $GDBSERVER localhost:$port "$@" " | tee $(realpath $output)"
         ( $GDBSERVER localhost:$port "$@" 2>&1 | tee $output ) || true
     done
