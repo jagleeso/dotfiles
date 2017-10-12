@@ -15,6 +15,7 @@ AMD_GDB_PORT=1235
 AMD_SSH_PORT=8686
 ML_GDB_PORT=1237
 ML_SSH_PORT=8989
+ML_JUPYTER_PORT=5757
 XEN1_GDBGUI_PORT=8888
 XEN1_SSH_PORT=8787
 XEN1_GDB_PORT=1234
@@ -85,21 +86,27 @@ tunnel_to_intrm() {
         -L $local_port:localhost:$remote_intrm_port $INTERMEDIATE_NODE
 }
 
-# For debugging.
-RSYNC_FLAGS=
-#RSYNC_FLAGS="-n"
-# set -x
-_rsync_remote_dir() {
-    local remote_node="$1"
-    local remote_root="$2"
-    local dir="$3"
-    shift 3
+RSYNC_DEBUG_FLAGS=
+if [ "$DEBUG" = 'yes' ]; then
+#    RSYNC_DEBUG_FLAGS="-n"
+    true
+fi
+_rsync() {
+    rsync $RSYNC_DEBUG_FLAGS "$@"
+}
 
-    mkdir -p $local_path
-    if [ "$RSYNC_FLAGS" = "-n" ]; then
-        echo "WARNING: rsync is disabled" 1>&2
+_rsync_remote_dir() {
+    local local_path="$2"
+    local remote_node="$2"
+    local remote_root="$3"
+    local dir="$4"
+    shift 4
+
+    mkdir -p $local_path/$dir
+    if [ "$RSYNC_DEBUG_FLAGS" = "-n" ]; then
+        echo "WARNING: _rsync is disabled" 1>&2
     fi
-    rsync $RSYNC_FLAGS -L -avz $remote_node:$remote_root/$dir/ $local_path/$dir/
+    _rsync -L -avz $remote_node:$remote_root/$dir/ $local_path/$dir/
 }
 
 CN=$HOME/clone/CNTK
@@ -116,7 +123,7 @@ _do_sync_cntk_gdb() {
         local dir="$1"
         shift 1
 
-        _rsync_remote_dir $remote_node $remote_cntk_root $dir
+        _rsync_remote_dir $local_cntk_path $remote_node $remote_cntk_root $dir
     }
 
     # NOTE:
@@ -127,26 +134,26 @@ _do_sync_cntk_gdb() {
     _sync_gdb_files_ml() {
         GDB_FILES=( \
             /lib64/ld-linux-x86-64.so.2 \
-            /home/jgleeson/clone/RDMA-GPU/install/lib/libboost_unit_test_framework.so.1.60.0 \
             /pkgs/cuda-8.0/lib64/libcudart.so.8.0 \
             /usr/lib/x86_64-linux-gnu/libnvidia-ml.so.1 \
+            /home/jgleeson/clone/RDMA-GPU/install/CNTKCustomMKL/3/x64/parallel/libiomp5.so \
             /lib/x86_64-linux-gnu/libpthread.so.0 \
             /home/jgleeson/clone/CNTK/build/debug/bin/../lib/libCntk.Math-2.1d.so \
+            /home/jgleeson/clone/CNTK/build/debug/bin/../lib/libCntk.PerformanceProfiler-2.1d.so \
+            /home/jgleeson/clone/CNTK/build/debug/bin/../lib/libmultiverso.so \
+            /lib/x86_64-linux-gnu/libdl.so.2 \
             /home/jgleeson/clone/RDMA-GPU/install/lib/libmpi_cxx.so.1 \
             /home/jgleeson/clone/RDMA-GPU/install/lib/libmpi.so.12 \
             /usr/lib/x86_64-linux-gnu/libstdc++.so.6 \
             /lib/x86_64-linux-gnu/libm.so.6 \
             /lib/x86_64-linux-gnu/libgcc_s.so.1 \
             /lib/x86_64-linux-gnu/libc.so.6 \
-            /lib/x86_64-linux-gnu/libdl.so.2 \
             /lib/x86_64-linux-gnu/librt.so.1 \
             /pkgs/cuda-8.0/lib64/libcublas.so.8.0 \
             /pkgs/cuda-8.0/lib64/libcurand.so.8.0 \
             /pkgs/cuda-8.0/lib64/libcusparse.so.8.0 \
             /home/jgleeson/clone/cudnn/cuda/lib64/libcudnn.so.5 \
             /home/jgleeson/clone/RDMA-GPU/install/CNTKCustomMKL/3/x64/parallel/libmkl_cntk_p.so \
-            /home/jgleeson/clone/RDMA-GPU/install/CNTKCustomMKL/3/x64/parallel/libiomp5.so \
-            /home/jgleeson/clone/CNTK/build/debug/bin/../lib/libCntk.PerformanceProfiler-2.1d.so \
             /home/jgleeson/clone/RDMA-GPU/install/lib/libopen-pal.so.13 \
             /home/jgleeson/clone/RDMA-GPU/install/lib/libopen-rte.so.12 \
             /usr/lib/x86_64-linux-gnu/libnuma.so.1 \
@@ -155,7 +162,9 @@ _do_sync_cntk_gdb() {
             /lib/x86_64-linux-gnu/libz.so.1 \
             /usr/lib/x86_64-linux-gnu/libcuda.so.1 \
             /usr/lib/x86_64-linux-gnu/libnvidia-fatbinaryloader.so.375.39 \
-            )
+            /home/jgleeson/clone/CNTK/build/debug/bin/../lib/Cntk.Deserializers.TextFormat-2.1d.so \
+        )
+
         local files_from="$(mktemp)"
         for f in "${GDB_FILES[@]}"; do
             echo "$f" >> $files_from
@@ -193,7 +202,7 @@ _rsync_files_from() {
     local remote_node="$2"
     local local_path="$3"
     shift 3
-    rsync -L -avz --files-from=$files_from $remote_node:/ $local_path/
+    _rsync -L -avz --files-from=$files_from $remote_node:/ $local_path/
 }
 
 RD=$HOME/clone/RDMA-GPU
@@ -209,7 +218,7 @@ _do_sync_benchmark_gdb() {
         local dir="$1"
         shift 1
 
-        _rsync_remote_dir $remote_node $remote_root $dir
+        _rsync_remote_dir $local_path $remote_node $remote_root $dir
     }
 
     # loading symbols from...
@@ -313,7 +322,7 @@ do_sync_benchmark_gdb_ml() {
 
 do_sync_benchmark_expr() {
     _rsync() {
-        rsync -avz "$@"
+        _rsync -avz "$@"
     }
     _rsync xen1:$RD/experiment/out/ $RD/experiment/out/
     _rsync ml:/home/jgleeson/clone/RDMA-GPU/experiment/out/ $RD/experiment/out/
@@ -327,11 +336,11 @@ sync_cntk_gdb_full() {
         if [ ! -e "$files_from" ]; then
             return
         fi
-        rsync -L -avz --files-from=$files_from xen1:/ $CN/sysroot/  
+        _rsync -L -avz --files-from=$files_from xen1:/ $CN/sysroot/
     }
     _rsync_bin() {
         local dir=/home/james/clone/CNTK/build/release/bin
-        rsync -L -avz xen1:$dir/ $CN/sysroot/$dir/  
+        _rsync -L -avz xen1:$dir/ $CN/sysroot/$dir/
     }
     _rsync_from /home/james/clone/CNTK/Tutorials/HelloWorld-LogisticRegression/test_gdb_files.txt
     _rsync_from /home/james/clone/CNTK/Tutorials/HelloWorld-LogisticRegression/gdb_files.txt
@@ -344,6 +353,15 @@ do_cntk_test_log() {
     shopt -s globstar
     ls -rt /tmp/cntk-test-*/**/output.txt | tail -n 1
     )
+}
+
+do_kill_gdbserver() {
+    local remote_node="$1"
+    shift 1
+    ssh $remote_node bash <<EOF
+    killall gdbserver || true
+    sleep 0.5
+EOF
 }
 
 if [ "$RUN_COMMON" == "yes" ]; then
