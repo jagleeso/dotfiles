@@ -338,6 +338,14 @@ sync_cntk_gdb_full() {
     _rsync_bin
 }
 
+do_cntk_test_log() {
+    # latest TestDriver logfile.
+    (
+    shopt -s globstar
+    ls -rt /tmp/cntk-test-*/**/output.txt | tail -n 1
+    )
+}
+
 if [ "$RUN_COMMON" == "yes" ]; then
     "$@"
 fi

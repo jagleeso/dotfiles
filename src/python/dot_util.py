@@ -377,7 +377,7 @@ def sanitize_cmdline(shell_cmd):
     return shell_cmd
 
 def check_output(shell_cmd, shell=True, env=None, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, 
-        ignore_error=False, silent=False, errcode=False):
+        ignore_error=False, silent=False, errcode=False, dry_run=False):
 
     cmdline = sanitize_cmdline(shell_cmd)
 
@@ -396,33 +396,42 @@ def check_output(shell_cmd, shell=True, env=None, stdout=subprocess.PIPE, stderr
         write_err = True
         stderr = subprocess.PIPE
 
-    p = subprocess.Popen(cmdline, shell=True, stdout=stdout, stderr=stderr, env=env)
-    try:
-        out, err = p.communicate()
-        if write_out:
-            user_stdout.write(out)
-        if write_err:
-            user_stderr.write(err)
-    except Exception as e:
-        _terminate_proc(p)
-        raise e
-    def _out(stream):
-        return stream.rstrip("\n") + "\n"
-    outs = []
-    if out is not None:
-        outs.append(_out(out))
-    if err is not None:
-        outs.append(_out(err))
-    all_output = ''.join(outs)
-    if p.returncode != 0 and not ignore_error and not errcode:
-        ret = p.returncode
-        cmd = cmdline_str(shell_cmd)
-        log("ERROR: return code was {ret} for: {cmd}".format(**locals()))
-        log(all_output)
-        raise subprocess.CalledProcessError(ret, cmdline)
-    if errcode:
-        return all_output, p.returncode
-    return all_output
+    def run_proc():
+        p = subprocess.Popen(cmdline, shell=True, stdout=stdout, stderr=stderr, env=env)
+        try:
+            out, err = p.communicate()
+            if write_out:
+                user_stdout.write(out)
+            if write_err:
+                user_stderr.write(err)
+        except Exception as e:
+            _terminate_proc(p)
+            raise e
+        def _out(stream):
+            return stream.rstrip("\n") + "\n"
+        outs = []
+        if out is not None:
+            outs.append(_out(out))
+        if err is not None:
+            outs.append(_out(err))
+        all_output = ''.join(outs)
+        if p.returncode != 0 and not ignore_error and not errcode:
+            ret = p.returncode
+            cmd = cmdline_str(shell_cmd)
+            log("ERROR: return code was {ret} for: {cmd}".format(**locals()))
+            log(all_output)
+            raise subprocess.CalledProcessError(ret, cmdline)
+        if errcode:
+            return all_output, p.returncode
+        return all_output
+    if dry_run:
+        all_output = ''
+        ret_code = 0
+        if errcode:
+            return all_output, ret_code
+        return all_output
+    else:
+        return run_proc()
 
 def check_call(cmdline, **kwargs):
     def flush_handle(name):

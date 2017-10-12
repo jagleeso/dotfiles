@@ -6,6 +6,11 @@ if [ -e /pkgs/cuda-8.0/bin ]; then
     export PATH=$PATH:/pkgs/cuda-8.0/bin
 fi
 
+if [ -e $HOME/clone/CNTK_data_dir ]; then
+    # wget https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz
+    export CNTK_EXTERNAL_TESTDATA_SOURCE_DIRECTORY=$HOME/clone/CNTK_data_dir
+fi
+
 if [ "$(hostname)" != "james-laptop" ] && [ -e /usr/local/cuda/bin ] && [ ! -e /etc/ld.so.conf.d/nvidia.conf ]; then
     echo "WARNING: you need to"
     echo "- put /usr/local/cuda/lib64 in /etc/ld.so.conf.d/nvidia.conf"
@@ -31,9 +36,9 @@ if [ -e /opt/rocm/bin ]; then
 fi
 
 export RD=$HOME/clone/RDMA-GPU
-# export RD=$HOME/clone/RDMA-GPU_amd
 
 export CN=$HOME/clone/CNTK
+export RV=$HOME/clone/parallel-revnet
 activate_cntk() {
     if [ -e $RD/source_me.sh ]; then
         source $RD/source_me.sh 2>& /dev/null
