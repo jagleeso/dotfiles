@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from __future__ import print_function
 
 import argparse
 import re
@@ -20,7 +21,7 @@ def main():
         line = line.rstrip()
         m = re.search(args.regex, line, re_flags)
         if (m and not args.remove) or (not m and args.remove):
-            print line
+            print(line)
 
 if __name__ == "__main__":
     main()
