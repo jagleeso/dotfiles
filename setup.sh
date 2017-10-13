@@ -233,7 +233,9 @@ setup_windows_symlinks() {
         _ln $WINDOWS_HOME/$dir $HOME/$dir
     }
     _move_and_link_home_dir clone
-    _move_and_link_home_dir .ssh
+    # Doesn't work, permissions issues once on the windows partition.
+    # Need to copy .ssh over to linux partition.
+#    _move_and_link_home_dir .ssh
 }
 setup_windows_packages() {
     _install_apt gnome-terminal
@@ -436,22 +438,27 @@ setup_packages() {
         silversearcher-ag \
         htop zsh tree clang xclip ctags cscope \
         autossh \
-        pip \
+        python-pip \
         entr \
     )
     local apt_packages=( \
         libevent-dev \
         libevent \
         build-essential autotools-dev autoconf \
+        libssl-dev \
     )
     local yum_packages=( \
         epel-release \
         the_silver_searcher \
         util-linux-user \
         libevent-devel libevent \
+        libssl-devel \
     )
     local pip_packages=( \
         colorama watchdog \
+        paramiko \
+        ipython \
+        ipdb \
     )
     _install "${apt_or_yum_packages[@]}"
     _install_apt "${apt_packages[@]}"
