@@ -7,7 +7,10 @@
 #
 
 set -e
-if [ "$DEBUG" = 'yes' ]; then
+if [ "$DEBUG" = 'yes' ] && [ "$DEBUG_SHELL" = '' ]; then
+    DEBUG_SHELL='yes'
+fi
+if [ "$DEBUG" = 'yes' ] && [ "$DEBUG_SHELL" = 'yes' ]; then
     set -x
 fi
 
@@ -125,8 +128,39 @@ DOT_HOME=$HOME/clone/dotfiles
 # Hopefully the most stable one.
 VIM_TAG="v8.0.0000"
 # VIM_TAG="master"
-VIM_PY2_CONFIG_DIR=/usr/lib64/python2.7/config
-VIM_PY3_CONFIG_DIR=/usr/lib64/python3.5/config
+# VIM_PY2_CONFIG_DIR=/usr/lib64/python2.7/config
+# VIM_PY3_CONFIG_DIR=/usr/lib64/python3.5/config
+
+_first_exists() {
+    # First argument that exists, otherwise do nothing
+    # (doesn't fail).
+    local path="$1"
+    shift 1
+    for path in "$@"; do 
+        if [ -e "$path" ]; then
+            echo "$path"
+            return
+        fi
+    done
+}
+_find_python_config_dir() {
+    local pymajor_version="$1"
+    shift 1
+    ( find /usr -type d | \
+        grep --perl-regexp "python${pymajor_version}.*/config.*" | \
+        grep -v dist-packages ) \
+        || true
+}
+# _python_config_dir() {
+#     # "$VIM_PY3_CONFIG_DIR"
+#     # "$VIM_PY2_CONFIG_DIR"
+#     # $VIM_PYTHON_DIR/bin/python3-config
+#     # $VIM_PYTHON_DIR/bin/python-config
+#     _first_exists \
+#         "$(_find_python_config_dir 3)" \
+#         "$(_find_python_config_dir 2)"
+# }
+# PY_CONFIG_DIR=$(_python_config_dir)
 
 # Force re-running setup
 if [ "$FORCE" = "" ]; then
@@ -323,6 +357,33 @@ setup_zsh() {
     _link_files $HOME/.oh-my-zsh/themes $DOT_HOME/.oh-my-zsh/themes
 }
 REINSTALLED_VIM=no
+VIM_PYTHON_DIR=$HOME/vim-python
+setup_vim_python() {
+    # TODO: I can't figure out how to do install a "config" directory.
+    #
+    # Need python-dev to build vim with python support.
+    # If we cannot install it with a package manager, 
+    # just build python from source just for vim's use.
+    if [ "$FORCE" != 'yes' ] &&  \
+       [ "$(_python_config_dir)" != '' ] && \
+       [ -e "$(_python_config_dir)" ]; then
+        return
+    fi
+
+    echo "ERROR: not implemented"
+    exit 1
+
+    local dir=$HOME/clone/vim-python
+    CLONE_TAG_PATTERN="3.6.3"
+    _clone $dir \
+        https://github.com/python/cpython.git \
+        $commit
+    (
+    INSTALL_DIR="$VIM_PYTHON_DIR"
+    cd $dir
+    _configure_make_install
+    )
+}
 setup_vim() {
     if [ "$FORCE" != 'yes' ] && [ -f $HOME/local/bin/vim ]; then
         return
@@ -331,40 +392,53 @@ setup_vim() {
     REINSTALLED_VIM=yes
     mkdir -p $HOME/local
     mkdir -p $HOME/clone
-    if [ ! -d $HOME/clone/vim ]; then
-        (
-            cd $HOME/clone
-            git clone https://github.com/vim/vim.git
-            cd $HOME/clone/vim
-            git checkout $VIM_TAG
-        )
-    else
-        (
-            cd $HOME/clone/vim
-            # make clean
-            git fetch
-            git checkout $VIM_TAG
-        )
-    fi
+    _clone $HOME/clone/vim \
+        https://github.com/vim/vim.git \
+        $VIM_TAG
 
-    _install_yum ncurses-devel || true
-    _install libncurses5-dev || true
+    _install_yum ncurses-lib ncurses-devel || true
+    _install_yum libgnome-devel perl-devel python-devel \
+        ruby-devel rubygems perl-ExtUtils-Embed
+    _install_yum_group "Development Tools"
+
     _install \
+        libncurses5-dev \
         libgnome2-dev libgnomeui-dev \
         libgtk2.0-dev libatk1.0-dev libbonoboui2-dev \
         libcairo2-dev libx11-dev libxpm-dev libxt-dev python-dev \
         python3-dev ruby-dev lua5.1 lua5.1-dev libperl-dev git || true
 
     HAS_PYTHON3="$(_has_exec python3)"
-    if [ $HAS_PYTHON3 = 'yes' ]; then
-        PYTHON_OPTS="--enable-python3interp=yes"
-    else
-        PYTHON_OPTS="--enable-pythoninterp=yes"
+    # if ! ( _python_config_dir | _fail_if_empty ); then
+    PYTHON_OPTS=()
+    local py_config_dir=
+    local py_header=
+    _has_python_header() {
+        local pymajor_version="$1"
+        shift 1
+        ( find /usr/include -type f | \
+            grep --perl-regexp "python${pymajor_version}.*/Python.h$" 
+        )
+    }
+    if [ $HAS_PYTHON3 = 'yes' ] && _has_python_header 3 > /dev/null; then
+        py_config_dir="$(_find_python_config_dir 3)"
+        py_header="$(_has_python_header 3)"
+        PYTHON_OPTS=( \
+            "--with-python3-config-dir=$py_config_dir" \
+            "--enable-python3interp=yes" \
+        )
+    elif _has_python_header 2 > /dev/null; then
+        py_config_dir="$(_find_python_config_dir 2)"
+        py_header="$(_has_python_header 2)"
+        PYTHON_OPTS=( \
+            "--with-python-config-dir=$py_config_dir" \
+            "--enable-pythoninterp=yes" \
+        )
     fi
-
-    _install_yum_group "Development Tools"
-    _install_yum ncurses-lib ncurses-devel || true
-    _install_yum libgnome-devel perl-devel python-devel ruby-devel rubygems perl-ExtUtils-Embed
+    if [ "$py_config_dir" = '' ] || [ "$py_header" = '' ]; then
+        echo "ERROR: cannot find python config directory or Python.h; vim need python support (install python-dev?)"
+        exit 1
+    fi
 
     EXTRA_OPS=()
     if [ "$HAS_YUM" != 'yes' ]; then
@@ -378,6 +452,7 @@ setup_vim() {
 
     (
         cd $HOME/clone/vim
+        make distclean
         # --enable-pythoninterp=yes
         # http://stackoverflow.com/questions/23023783/vim-compiled-with-python-support-but-cant-see-sys-version
         #
@@ -390,16 +465,23 @@ setup_vim() {
         # CFLAGS="-fPIC -O -D_FORTIFY_SOURCE=0" 
         # --prefix=$HOME/local
         # --with-tlib=ncurses
-        ./configure --with-features=huge \
-	    --prefix=$HOME/local \
+        if [ -e $VIM_PYTHON_DIR ]; then
+            CONFIG_CFLAGS=( \
+                "-I$VIM_PYTHON_DIR/include" \
+            )
+            CONFIG_LDFLAGS=( \
+                "-Wl,-rpath,$VIM_PYTHON_DIR/lib -L$VIM_PYTHON_DIR/lib" \
+            )
+        fi
+        
+        CONFIG_FLAGS=( \
+            --with-features=huge \
             --enable-multibyte \
-            --with-python-config-dir=$VIM_PY2_CONFIG_DIR \
-            "$PYTHON_OPTS" \
-            --with-python3-config-dir=$VIM_PY3_CONFIG_DIR \
+            "${PYTHON_OPTS[@]}" \
             --enable-cscope \
             "${EXTRA_OPS[@]}"
-        make -j$NCPU install
-
+        )
+        _configure_make_install
     )
 }
 setup_ycm_before() {
@@ -469,20 +551,67 @@ _git_latest_tag() {
     # Assuming git tags that look like numbers.
     git tag | sort --human | tail -n 1
 }
+_fail_if_empty() {
+    local script=$(cat <<EOF
+from __future__ import print_function
+import sys
+import re
+import os
+import argparse
+
+parser = argparse.ArgumentParser("output stdin, and fail if stdin contains nothing")
+args = parser.parse_args()
+
+cin = sys.stdin
+cout = sys.stdout
+
+saw_line = False
+for line in cin:
+    saw_line = True
+    line = line.rstrip()
+    cout.write(line)
+    cout.write("\n")
+ret_code = 0 if saw_line else 1
+sys.exit(ret_code)
+EOF
+)
+    python -c "$script" "$@"
+}
+_git_latest_tag_like() {
+    local pattern="$1"
+    shift 1
+    (
+    # Fail if any process (grep) fails.
+    set -o pipefail
+    git tag | \
+        grep --perl-regexp "$pattern" | \
+        tail -n 1
+    )
+}
+CLONE_TAG_PATTERN=
 _clone() {
     local path="$1"
     local repo="$2"
-    local commit="$3"
+    shift 2
+    local commit=
+    if [ $# -ge 1 ]; then
+        commit="$1"
+        shift 1
+    elif [ "$CLONE_TAG_PATTERN" != '' ]; then
+        commit="$(
+            cd $dir
+            _git_latest_tag_like "$CLONE_TAG_PATTERN"
+        )"
+    fi
     if [ ! -e "$path" ]; then
-        (
         git clone --recursive $repo $path
-        )
     fi
     (
     cd $path
     git checkout $commit
     git submodule update --init
     )
+    CLONE_TAG_PATTERN=
 }
 setup_ag() {
     if [ "$FORCE" != 'yes' ] && [ -e /usr/bin/ag ]; then
@@ -554,6 +683,22 @@ CONFIG_FLAGS=()
 CONFIG_LDFLAGS=(-Wl,-rpath,$INSTALL_DIR/lib -L$INSTALL_DIR/lib)
 CONFIG_CFLAGS=(-I$INSTALL_DIR/include)
 CONFIG_CXXFLAGS=(-I$INSTALL_DIR/include)
+_maybe() {
+    set +x
+    # Maybe run the command.
+    # If DEBUG, just print it, else run it.
+    if _DEBUG; then
+        echo "$ $@"
+        if _DEBUG_SHELL; then
+            set -x
+        fi
+        return
+    fi
+    if _DEBUG_SHELL; then
+        set -x
+    fi
+    "$@"
+}
 _configure() {
     if [ ! -e ./configure ]; then
         if [ -e ./autogen.sh ]; then
@@ -562,7 +707,7 @@ _configure() {
             autoreconf
         fi
     fi
-    ./configure "${CONFIG_FLAGS[@]}" --prefix=$INSTALL_DIR
+    _maybe ./configure "${CONFIG_FLAGS[@]}" --prefix=$INSTALL_DIR
 }
 _configure_make_install()
 {
@@ -571,8 +716,8 @@ _configure_make_install()
     export CXXFLAGS="$CXXFLAGS ${CONFIG_CXXFLAGS[@]}"
     export CFLAGS="$CFLAGS ${CONFIG_CFLAGS[@]}"
     _configure
-    make -j$NCPU
-    make install
+    _maybe make -j$NCPU
+    _maybe make install
     )
     CONFIG_FLAGS=()
 }
@@ -725,6 +870,7 @@ setup_all() {
     do_setup setup_gdb
     if [ "$SETUP_VIM" = 'yes' ]; then
         do_setup setup_ycm_before
+        # do_setup setup_vim_python
         do_setup setup_vim
         do_setup setup_vim_after
         do_setup setup_ycm_after
@@ -750,6 +896,23 @@ _setup_vim_all() {
     do_setup setup_vim
     do_setup setup_ycm_after
     do_setup setup_vim_after
+}
+
+decho() {
+    set +x
+    if ! _DEBUG; then
+        return
+    fi
+    echo "DEBUG :: $@"
+    if _DEBUG_SHELL; then
+        set -x
+    fi
+}
+_DEBUG() {
+    [ "$DEBUG" = 'yes' ]
+}
+_DEBUG_SHELL() {
+    [ "$DEBUG_SHELL" = 'yes' ]
 }
 
 append_if_not_exists() {

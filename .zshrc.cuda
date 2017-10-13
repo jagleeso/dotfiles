@@ -49,6 +49,11 @@ activate_cntk_fresh() {
         CNTK_DIR=$HOME/clone/CNTK_fresh source $RD/source_me.sh 2>& /dev/null
     fi
 }
+activate_revnet() {
+    if [ -e ~/anaconda3/envs/revnet ]; then
+        source activate revnet
+    fi
+}
 
 fresh_cntk() {
     $CN/build/fresh/bin/cntk "$@"

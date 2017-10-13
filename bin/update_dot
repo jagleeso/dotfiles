@@ -1,6 +1,5 @@
 #!/bin/bash
 source $HOME/.dot_common.sh
-set -x
 
 main() {
 
@@ -9,7 +8,7 @@ main() {
 
     # Quickly update things.
     # Skip anything that takes long.
-    MODE=update $DOT_HOME/setup.sh
+    MODE=update $DOT_HOME/setup.sh "$@"
 
 }
 

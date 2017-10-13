@@ -23,7 +23,7 @@ XEN1_GDB_MATHUNITTESTS_PORT=1236
 
 DOT_HOME="$HOME/clone/dotfiles"
 
-if [ "$DEBUG" = 'yes' ]; then
+if [ "$DEBUG" = 'yes' ] && [ "$DEBUG_SHELL" != 'no' ]; then
     set -x
 fi
 
