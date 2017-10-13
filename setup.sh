@@ -19,6 +19,17 @@ if [ "$SKIP_FAILURES" = "" ]; then
     SKIP_FAILURES='no'
 fi
 
+_is_ubuntu_on_windows() {
+    grep -q Microsoft /proc/version
+}
+_yes_or_no() {
+    if "$@" > /dev/null 2>&1; then
+        echo yes
+    else
+        echo no
+    fi
+}
+
 HAS_SUDO=""
 
 # vim setup.
@@ -27,6 +38,37 @@ SETUP_VIM='yes'
 SETUP_SUDO='yes'
 # Anything that needs ./configure
 SETUP_NEEDS_BUILDING='yes'
+# If we're running ubuntu on windows, setup stuff..
+SETUP_WINDOWS="$(_yes_or_no _is_ubuntu_on_windows)"
+
+WINDOWS_DRIVE='c'
+_windows_home() {
+    if [ ! -d /mnt/$WINDOWS_DRIVE/Users ]; then
+        echo "ERROR: couldn't guess WINDOWS_DRIVE (it's not $WINDOWS_DRIVE)"
+        exit 1
+    fi
+    __windows_home_folders() {
+        ls /mnt/$WINDOWS_DRIVE/Users/* -d | grep --perl-regexp -v '/(desktop\.ini|Public|Default)$'
+    }
+    local num_home_folders=$(__windows_home_folders | wc --lines)
+    if [ $num_home_folders -gt 1 ]; then
+        echo "ERROR: couldn't guess windows home folders; choices are:"
+        __windows_home_folders
+        exit 1
+    fi
+    [ $num_home_folders -eq 1 ]
+    __windows_home_folders
+}
+# /mnt/c/Users/<username>
+WSL_WINDOWS_HOME=
+if _is_ubuntu_on_windows; then
+    WSL_WINDOWS_HOME=$(_windows_home)
+fi
+# /home/<username>/windows -> /mnt/c/Users/<username>
+WINDOWS_HOME=
+if _is_ubuntu_on_windows; then
+    WINDOWS_HOME=$HOME/windows
+fi
 
 #
 # Determine what to do based on "$MODE"
@@ -48,15 +90,9 @@ echo "> MODE = $MODE"
 echo "> SETUP_VIM = $SETUP_VIM"
 echo "> SETUP_SUDO = $SETUP_SUDO"
 echo "> SETUP_NEEDS_BUILDING = $SETUP_NEEDS_BUILDING"
+echo "> SETUP_WINDOWS = $SETUP_WINDOWS"
 echo
 
-_yes_or_no() {
-    if "$@" > /dev/null 2>&1; then
-        echo yes
-    else
-        echo no
-    fi
-}
 _has_sudo() {
     if [ "$HAS_SUDO" = '' ]; then
         HAS_SUDO="$(_yes_or_no /usr/bin/sudo -v)"
@@ -102,6 +138,7 @@ if [ "$SKIP_PACKAGES" = "" ]; then
 fi
 HAS_APT_GET="$(_has_exec apt-get)"
 HAS_YUM="$(_has_exec yum)"
+HAS_PIP="$(_has_exec pip)"
 
 HAS_LIB_EVENT="$(_has_lib libevent.so)"
 
@@ -158,11 +195,61 @@ _install_apt() {
     sudo apt-get install -y "$@"
 }
 _install_pip() {
+    if [ "$HAS_PIP" = 'no' ]; then
+        return
+    fi
     if [ "$(_has_sudo)" = 'no' ]; then
         pip install "$@"
     else
         sudo pip install "$@"
     fi
+}
+_ln() {
+    local target="$1"
+    local link="$2"
+    shift 2
+    if [ -e "$target" ]; then
+        if [ -L "$link" ]; then
+            rm "$link"
+        fi
+        ln -s -T "$target" "$link"
+    fi
+}
+setup_windows_symlinks() {
+    # Move ~/clone to windows directory, so we can access it from windows.
+    # Still symlink to it from ~/clone though.
+    _ln $WSL_WINDOWS_HOME $WINDOWS_HOME
+    _move_and_link_home_dir() {
+        # (1) Move:    $HOME/$dir -> /mnt/c/Users/<username>
+        # (2) Symlink: $HOME/$dir -> /mnt/c/Users/<username>/$dir
+        #
+        # Some directory inside the $HOME directory
+        # (.e.g. $HOME/.ssh)
+        local dir="$1"
+        shift 1
+        if [ ! -L $HOME/$dir ] && [ ! -e $WINDOWS_HOME/$dir ]; then
+            mv $HOME/$dir $WINDOWS_HOME
+        fi
+        _ln $WINDOWS_HOME/$dir $HOME/$dir
+    }
+    _move_and_link_home_dir clone
+    _move_and_link_home_dir .ssh
+}
+setup_windows_packages() {
+    _install_apt gnome-terminal
+}
+setup_windows_bashrc() {
+    lines=$(cat <<EOF
+if [ -e ~/.bashrc.windows ]; then
+    source ~/.bashrc.windows
+fi
+EOF
+)
+
+    append_if_not_exists \
+        --in-place ~/.bashrc \
+        --pattern 'source ~/.bashrc.windows' \
+        "$lines"
 }
 setup_tmux() {
     if [ "$FORCE" != 'yes' ] && [ -f $HOME/local/bin/tmux ]; then
@@ -215,16 +302,21 @@ setup_oh_my_zsh() {
     fi
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
     cp -r $DOT_HOME/.oh-my-zsh/* $HOME/.oh-my-zsh
-    if [ -d $HOME/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting ]; then
+}
+setup_zsh_syntax_highlighting() {
+    if [ "$FORCE" != 'yes' ] && [ -d $HOME/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting ]; then
         return
     fi
-    git clone \
-        https://www.github.com/zsh-users/zsh-syntax-highlighting.git \
-        $HOME/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
+    local commit="master"
+    _clone \
+        $HOME/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting \
+        https://github.com/zsh-users/zsh-syntax-highlighting.git \
+        $commit
 }
 setup_zsh() {
     setup_oh_my_zsh
 
+    setup_zsh_syntax_highlighting
     _link_files $HOME/.zsh/completion $DOT_HOME/.zsh/completion
     _link_files $HOME/.oh-my-zsh/themes $DOT_HOME/.oh-my-zsh/themes
 }
@@ -337,19 +429,34 @@ setup_vim_after() {
     $HOME/local/bin/vim -c PluginInstall -c PluginUpdate -c quit -c quit
 }
 setup_packages() {
-    _install xauth xterm || true
-    _install silversearcher-ag || true
-    _install htop zsh tree clang xclip ctags cscope
-    _install_yum epel-release || true
-    _install_yum the_silver_searcher
-    _install_yum util-linux-user || true
-    _install_yum libevent-devel libevent
-    _install_apt libevent-dev
-    _install_apt libevent || true
-    _install_apt build-essential autotools-dev autoconf
-    _install autossh || true
-    _install_pip colorama watchdog
-    _install entr || true
+    local apt_or_yum_packages=( \
+        xsel \
+        subversion \
+        xauth xterm \
+        silversearcher-ag \
+        htop zsh tree clang xclip ctags cscope \
+        autossh \
+        pip \
+        entr \
+    )
+    local apt_packages=( \
+        libevent-dev \
+        libevent \
+        build-essential autotools-dev autoconf \
+    )
+    local yum_packages=( \
+        epel-release \
+        the_silver_searcher \
+        util-linux-user \
+        libevent-devel libevent \
+    )
+    local pip_packages=( \
+        colorama watchdog \
+    )
+    _install "${apt_or_yum_packages[@]}"
+    _install_apt "${apt_packages[@]}"
+    _install_yum "${yum_packages[@]}"
+    _install_pip "${pip_packages[@]}"
 }   
 _git_latest_tag() {
     # Assuming git tags that look like numbers.
@@ -595,6 +702,11 @@ setup_libevent() {
     )
 }
 setup_all() {
+    if [ "$SETUP_WINDOWS" = 'yes' ]; then
+        do_setup setup_windows_symlinks
+        do_setup setup_windows_packages
+        do_setup setup_windows_bashrc
+    fi
     do_setup setup_tree
     do_setup setup_dot_common
     do_setup setup_packages
@@ -631,6 +743,48 @@ _setup_vim_all() {
     do_setup setup_vim
     do_setup setup_ycm_after
     do_setup setup_vim_after
+}
+
+append_if_not_exists() {
+    local script=$(cat <<EOF
+import sys
+import re
+import os
+import argparse
+
+parser = argparse.ArgumentParser("append a line if it doesn't exist")
+parser.add_argument("lines", nargs="+")
+parser.add_argument("--pattern", required=True,
+    help="if no line matches --pattern, append lines to the bottom of stdin")
+parser.add_argument("--in-place",
+    help="modify file in-place")
+args = parser.parse_args()
+
+in_stream = sys.stdin
+out_stream = sys.stdout
+lines = []
+if args.in_place is not None:
+    if not os.path.exists(args.in_place):
+        parser.error("File --in-place = \"{0}\" doesn't exist".format(args.in_place))
+    in_stream = open(args.in_place)
+lines = [line.rstrip() for line in in_stream]
+if args.in_place is not None:
+    in_stream.close()
+    out_stream = open(args.in_place, 'w')
+
+matches_pattern = any(re.search(args.pattern, l) for l in lines)
+
+if not matches_pattern:
+    lines.extend(args.lines)
+
+for l in lines:
+    out_stream.write(l)
+    out_stream.write("\n")
+if args.in_place is not None:
+    out_stream.close()
+EOF
+)
+    python -c "$script" "$@"
 }
 
 (

@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+_is_ubuntu_on_windows() {
+    grep -q Microsoft /proc/version
+}
+
+activate_windows() {
+    if [ -e /bin/zsh ]; then
+        case "$-" in
+        *i*)
+            # This shell is interactive
+            /bin/zsh
+            ;;
+        *)
+            # This shell is not interactive
+            ;;
+        esac
+    fi
+}
+
+if _is_ubuntu_on_windows; then
+    activate_windows
+fi
