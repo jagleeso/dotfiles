@@ -3,6 +3,7 @@
 	email = jagleeso@gmail.com
 [core]
 	excludesfile = ~/.gitignore
+	fileMode = false
 [diff]
     tool = vimdiff
 [difftool]
