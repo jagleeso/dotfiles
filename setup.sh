@@ -41,6 +41,8 @@ SETUP_VIM='yes'
 SETUP_SUDO='yes'
 # Anything that needs ./configure
 SETUP_NEEDS_BUILDING='yes'
+# Anything that needs apt, pip, etc
+SETUP_NEEDS_INSTALLING='yes'
 # If we're running ubuntu on windows, setup stuff..
 SETUP_WINDOWS="$(_yes_or_no is_ubuntu_on_windows)"
 
@@ -86,6 +88,7 @@ if [ "$MODE" = 'minimal-no-vim' ] || [ "$MODE" = 'update' ]; then
 fi
 if [ "$MODE" != 'minimal' ] || [ "$MODE" = 'minimal-no-vim' ] || [ "$MODE" = 'update' ]; then
     SETUP_NEEDS_BUILDING='no'
+    SETUP_NEEDS_INSTALLING='no'
 fi
 
 echo
@@ -93,6 +96,7 @@ echo "> MODE = $MODE"
 echo "> SETUP_VIM = $SETUP_VIM"
 echo "> SETUP_SUDO = $SETUP_SUDO"
 echo "> SETUP_NEEDS_BUILDING = $SETUP_NEEDS_BUILDING"
+echo "> SETUP_NEEDS_INSTALLING = $SETUP_NEEDS_INSTALLING"
 echo "> SETUP_WINDOWS = $SETUP_WINDOWS"
 echo
 
@@ -536,18 +540,20 @@ setup_packages() {
         libevent-devel libevent \
         libssl-devel \
     )
+    _install "${apt_or_yum_packages[@]}"
+    _install_apt "${apt_packages[@]}"
+    _install_yum "${yum_packages[@]}"
+}
+setup_pip() {
     local pip_packages=( \
         colorama watchdog \
         paramiko \
         ipython \
         ipdb \
     )
-    _install "${apt_or_yum_packages[@]}"
-    _install_apt "${apt_packages[@]}"
-    _install_yum "${yum_packages[@]}"
     _install_pip "${pip_packages[@]}"
-}   
-_git_latest_tag() {
+}
+git_latest_tag() {
     # Assuming git tags that look like numbers.
     git tag | sort --human | tail -n 1
 }
@@ -862,6 +868,9 @@ setup_all() {
     do_setup setup_tree
     do_setup setup_dot_common
     do_setup setup_packages
+    if [ "$SETUP_NEEDS_INSTALLING" = 'yes' ]; then
+        do_setup setup_pip
+    fi
     do_setup setup_bin
     do_setup setup_zsh
     do_setup setup_ipython

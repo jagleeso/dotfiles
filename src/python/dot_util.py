@@ -3,6 +3,7 @@
 from __future__ import print_function
 
 import pickle
+import contextlib
 
 try:
     from StringIO import StringIO
@@ -736,3 +737,54 @@ def human2bytes(s):
 def is_windows_on_ubuntu():
     out, ret_code = sh_run(['is_ubuntu_on_windows'])
     return ret_code == SHELL_SUCCESS
+
+@contextlib.contextmanager
+def _as_stream(path, mode='r', default=sys.stdin):
+    stream = None
+    if path == '-':
+        stream = default
+    else:
+        stream = open(path, mode)
+    try:
+        yield stream
+    finally:
+        if stream != sys.stdin:
+            stream.close()
+
+class ShellScript(object):
+    """
+    Boilerplate for shell scripts.
+    """
+    def __init__(self, args, parser,
+                 debug_option='debug',
+                 dry_run_option='dry_run'):
+        self.args = args
+        self.parser = parser
+        self.debug_option = debug_option
+        self.dry_run_option = dry_run_option
+
+    def run(self):
+        raise NotImplementedError
+
+    def _getopt(self, attr, default=None):
+        return self.args.__dict__.get(attr, default)
+
+    @staticmethod
+    def as_input_stream(mode='r'):
+        return _as_stream(mode, default=sys.stdin)
+
+    @staticmethod
+    def as_output_stream(mode='w'):
+        return _as_stream(mode, default=sys.stdout)
+
+    @property
+    def _debug(self):
+        return self._getopt(self.debug_option, False)
+
+    @property
+    def _dry_run(self):
+        return self._getopt(self.dry_run_option, False)
+
+    def _log(self, msg):
+        if self._debug:
+            print(msg)
