@@ -3,6 +3,7 @@
 from __future__ import print_function
 
 import pickle
+
 try:
     from StringIO import StringIO
 except ImportError:
@@ -27,7 +28,10 @@ from os.path import join as _j
 from socket import error as socket_error
 
 # import bencode
-import paramiko
+try:
+    import paramiko
+except ImportError:
+    paramiko = None
 import psutil
 
 import dot_config
@@ -36,21 +40,23 @@ HOME = os.path.abspath(os.path.expanduser('~'))
 
 FLOAT_RE = r'(?:[+\-]?(?:0|[1-9]\d*)(?:\.\d*)?(?:[eE][+\-]?\d+)?)'
 
+SHELL_SUCCESS = 0
+
 def yes_or_no(boolean):
     return 'yes' if boolean else 'no'
 
-def sh_run(cmdargs, skip_sudo=False, sudo_passwd=None):
+def sh_run(cmdargs, skip_sudo=False, sudo_passwd=None, **kwargs):
     env = dict(os.environ)
     env['RUN'] = 'yes'
     env['SKIP_SUDO'] = yes_or_no(skip_sudo)
     if sudo_passwd is not None:
         env['SUDO_PASSWD'] = sudo_passwd
-    run_cmd([dot_config.COMMON_SH] + cmdargs, stderr=sys.stderr, stdout=sys.stdout,
-            env=env)
+    return run_cmd([dot_config.COMMON_SH] + cmdargs, stderr=sys.stderr, stdout=sys.stdout,
+            env=env, **kwargs)
 
 def run_cmd(cmdline, **kwargs):
-    env = kwargs.get('env', dict(os.environ))
-    kwargs['env'] = env
+    if 'env' not in kwargs:
+        kwargs['env'] = dict(os.environ)
     cmdline = ignore_empty(cmdline)
     return check_call(cmdline, **kwargs)
 
@@ -68,7 +74,7 @@ def fork_process(f, *args, **kwargs):
         try:
             f(*args, **kwargs)
         except Exception as e:
-            exc_buffer = StringIO.StringIO()
+            exc_buffer = StringIO()
             traceback.print_exc(file=exc_buffer)
             log(exc_buffer.getvalue())
             raise
@@ -267,7 +273,7 @@ def connect_to_socket(ip, port, max_time_sec=dot_config.MAX_TIME_SEC, sec_betwee
     return None 
 
 def recv_line(s):
-    string = StringIO.StringIO()
+    string = StringIO()
     while True:
         ch = s.recv(1, socket.MSG_WAITALL)
         if ch == '\n':
@@ -376,13 +382,14 @@ def sanitize_cmdline(shell_cmd):
     assert type(shell_cmd) == str
     return shell_cmd
 
-def check_output(shell_cmd, shell=True, env=None, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, 
+def check_output(shell_cmd, shell=None, env=None, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
         ignore_error=False, silent=False, errcode=False, dry_run=False):
+    shell = type(shell_cmd) != list
 
     cmdline = sanitize_cmdline(shell_cmd)
 
     def should_write_manually(outstream):
-        return isinstance(outstream, StringIO.StringIO().__class__)
+        return isinstance(outstream, StringIO().__class__)
 
     user_stdout = stdout
     write_out = False
@@ -397,7 +404,7 @@ def check_output(shell_cmd, shell=True, env=None, stdout=subprocess.PIPE, stderr
         stderr = subprocess.PIPE
 
     def run_proc():
-        p = subprocess.Popen(cmdline, shell=True, stdout=stdout, stderr=stderr, env=env)
+        p = subprocess.Popen(cmdline, shell=shell, stdout=stdout, stderr=stderr, env=env)
         try:
             out, err = p.communicate()
             if write_out:
@@ -408,7 +415,7 @@ def check_output(shell_cmd, shell=True, env=None, stdout=subprocess.PIPE, stderr
             _terminate_proc(p)
             raise e
         def _out(stream):
-            return stream.rstrip("\n") + "\n"
+            return str(stream).rstrip("\n") + "\n"
         outs = []
         if out is not None:
             outs.append(_out(out))
@@ -435,7 +442,7 @@ def check_output(shell_cmd, shell=True, env=None, stdout=subprocess.PIPE, stderr
 
 def check_call(cmdline, **kwargs):
     def flush_handle(name):
-        if name in kwargs and type(kwargs[name]) == file:
+        if name in kwargs and hasattr(kwargs[name], "flush"):
             kwargs[name].flush()
     if not kwargs.get('silent', False):
         log(cmdline_str(cmdline))
@@ -725,3 +732,7 @@ def human2bytes(s):
     for i, s in enumerate(sset[1:]):
         prefix[s] = 1 << (i+1)*10
     return int(num * prefix[letter])
+
+def is_windows_on_ubuntu():
+    out, ret_code = sh_run(['is_ubuntu_on_windows'])
+    return ret_code == SHELL_SUCCESS

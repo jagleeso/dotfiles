@@ -54,7 +54,7 @@ activate_revnet() {
         source activate revnet
     fi
 }
-activate_cntk || true
+( activate_cntk > /dev/null 2>&1 ) || true
 
 fresh_cntk() {
     $CN/build/fresh/bin/cntk "$@"

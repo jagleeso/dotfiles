@@ -22,7 +22,7 @@ if [ "$SKIP_FAILURES" = "" ]; then
     SKIP_FAILURES='no'
 fi
 
-_is_ubuntu_on_windows() {
+is_ubuntu_on_windows() {
     grep -q Microsoft /proc/version
 }
 _yes_or_no() {
@@ -42,7 +42,7 @@ SETUP_SUDO='yes'
 # Anything that needs ./configure
 SETUP_NEEDS_BUILDING='yes'
 # If we're running ubuntu on windows, setup stuff..
-SETUP_WINDOWS="$(_yes_or_no _is_ubuntu_on_windows)"
+SETUP_WINDOWS="$(_yes_or_no is_ubuntu_on_windows)"
 
 WINDOWS_DRIVE='c'
 _windows_home() {
@@ -64,12 +64,12 @@ _windows_home() {
 }
 # /mnt/c/Users/<username>
 WSL_WINDOWS_HOME=
-if _is_ubuntu_on_windows; then
+if is_ubuntu_on_windows; then
     WSL_WINDOWS_HOME=$(_windows_home)
 fi
 # /home/<username>/windows -> /mnt/c/Users/<username>
 WINDOWS_HOME=
-if _is_ubuntu_on_windows; then
+if is_ubuntu_on_windows; then
     WINDOWS_HOME=$HOME/windows
 fi
 

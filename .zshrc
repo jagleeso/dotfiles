@@ -84,10 +84,6 @@ if [ -x "`which vimpager 2>/dev/null`" ]; then
     alias zless=$PAGER
 fi
 
-# disable xoff ctrl-s shortcut that locks up vi
-# stty -ixon
-stty stop '' -ixoff
-
 bindkey ^u undo
 bindkey ^e kill-word
 bindkey ^f forward-word
@@ -138,7 +134,10 @@ svndiff() {
 # source ~/.school
 
 # disable ctrl-s scroll locking
-stty -ixon
+if [ "$WINDOWS_SCRIPT" != 'yes' ]; then
+    stty stop '' -ixoff
+    stty -ixon
+fi
 
 alias sml="socat READLINE EXEC:sml"
 

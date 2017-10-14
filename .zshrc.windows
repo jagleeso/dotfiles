@@ -1,6 +1,6 @@
 #!/bin/bash
 
-_is_ubuntu_on_windows() {
+is_ubuntu_on_windows() {
     grep -q Microsoft /proc/version
 }
 
@@ -9,6 +9,6 @@ activate_windows() {
     # TODO: how to fix dbus when launching GUI apps...?
 }
 
-if _is_ubuntu_on_windows; then
+if is_ubuntu_on_windows; then
     activate_windows
 fi

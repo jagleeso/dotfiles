@@ -355,6 +355,17 @@ do_cntk_test_log() {
     )
 }
 
+do_cntk_remote_compile() {
+    local remote_node="$1"
+    shift 1
+    echo "HELLO WORLD, CONNECT!"
+#    ssh $remote_node <<EOF
+#    set -e
+#    cd ~/clone/CNTK
+#    ./make.sh
+#EOF
+}
+
 do_kill_gdbserver() {
     local remote_node="$1"
     shift 1
