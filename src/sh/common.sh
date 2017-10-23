@@ -66,6 +66,15 @@ intrm_is_tunneling_to_dst() {
     ssh $INTERMEDIATE_NODE "ps aux | grep -v grep | grep -q 'ssh.*-L.*$remote_intrm_port'"
 }
 
+remote_home()
+{
+    local remote_node="$1"
+    shift 1
+
+    local remote_username="$(ssh_config.py --user --host=$remote_node)"
+    echo "/home/$remote_username"
+}
+
 tunnel_to_intrm() {
     local local_port="$1"
     local remote_intrm_port="$2"
@@ -352,6 +361,31 @@ do_cntk_test_log() {
     (
     shopt -s globstar
     ls -rt /tmp/cntk-test-*/**/output.txt | tail -n 1
+    )
+}
+
+is_ubuntu_on_windows() {
+    grep -q Microsoft /proc/version
+}
+
+do_cntk_remote_compile() {
+    local remote_node="$1"
+    shift 1
+
+    local build_remote_sh="$(cat <<EOF
+set -e
+cd ~/clone/CNTK
+./make.sh
+EOF
+)"
+
+    (
+    cd $HOME/clone/CNTK
+    ( ssh $remote_node 2>&1 ) <<<"$build_remote_sh" | \
+        replace_paths.py \
+            --local "$HOME/clone/CNTK" \
+            --remote "$(remote_home $remote_node)/clone/CNTK" \
+            --full-path
     )
 }
 

@@ -1,0 +1,4 @@
+#!/bin/bash
+source $HOME/.dot_common.sh
+
+do_cntk_remote_compile $REMOTE_ML_NODE
