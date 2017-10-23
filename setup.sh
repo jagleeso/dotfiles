@@ -294,7 +294,8 @@ setup_tmux() {
 
     setup_libevent
 
-    local commit="$(_git_latest_tag)"
+    # local commit="$(_git_latest_tag)"
+    local commit="2.5"
     local dir=$HOME/clone/tmux
     _clone $dir \
         https://github.com/tmux/tmux.git \
