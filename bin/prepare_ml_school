@@ -1,0 +1,10 @@
+#!/bin/bash
+source $HOME/.dot_common.sh
+
+remote_node="$REMOTE_ML_NODE"
+
+mount_ml
+
+do_kill_gdbserver \
+    $remote_node
+

@@ -20,7 +20,7 @@ import sys
 import dot_util
 from dot_util import ShellScript
 
-ERROR_PATTERN_DEFAULT = '\berror\b'
+ERROR_PATTERN_DEFAULT = r'\berror\b'
 
 class ReplacePaths(ShellScript):
     def __init__(self, args, parser):
@@ -50,7 +50,7 @@ class ReplacePaths(ShellScript):
         return new_line.getvalue()
 
     @staticmethod
-    def replace_paths(f, out, local, remote, error_pattern=ERROR_PATTERN_DEFAULT, full_path=True):
+    def replace_paths(f, out, local, remote, error_pattern=ERROR_PATTERN_DEFAULT, full_path=True, debug=False):
         # for line in f:
         #     line = line.rstrip()
         while True:
@@ -64,6 +64,8 @@ class ReplacePaths(ShellScript):
                 new_line = ReplacePaths.full_path(new_line)
 
             if error_pattern is not None and re.search(error_pattern, new_line, re.IGNORECASE):
+                if debug:
+                    sys.stderr.write("ERROR LINE:\n")
                 sys.stderr.write(new_line)
                 sys.stderr.write("\n")
                 sys.stderr.flush()
@@ -89,7 +91,7 @@ class ReplacePaths(ShellScript):
         #     sys.stdout.write(line)
         with ShellScript.as_input_stream(args.file) as f, \
              ShellScript.as_output_stream(args.out) as out:
-            ReplacePaths.replace_paths(f, out, args.local, args.remote)
+            ReplacePaths.replace_paths(f, out, args.local, args.remote, debug=args.debug)
 
 
 def main():

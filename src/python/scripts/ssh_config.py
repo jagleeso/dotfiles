@@ -106,7 +106,7 @@ class SSHConfig(object):
         if self.args.no_newline:
             sys.stdout.write(value)
         else:
-            print value
+            print(value)
 
     @staticmethod
     def _option_name(ssh_name, sep="_"):
@@ -166,7 +166,7 @@ class SSHConfig(object):
 def take(n, ys):
     it = iter(ys)
     while n > 0:
-        yield it.next()
+        yield next(it)
         n -= 1
 
 def groups_of(xs, n):

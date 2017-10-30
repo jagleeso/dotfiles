@@ -51,7 +51,7 @@ activate_cntk_fresh() {
 }
 activate_revnet() {
     if [ -e ~/anaconda3/envs/revnet ]; then
-        source activate revnet
+        source ~/anaconda3/envs/revnet/bin/activate revnet
     fi
 }
 ( activate_cntk > /dev/null 2>&1 ) || true

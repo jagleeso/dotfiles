@@ -389,6 +389,18 @@ EOF
     )
 }
 
+_is_mounted() {
+    local mount_point="$1"
+    shift 1
+    cat /proc/mounts | grep -q --fixed-strings "$mount_point"
+}
+REMOTE_ML_MOUNTPOINT=$HOME/clone/ml
+mount_ml() {
+    mkdir -p $REMOTE_ML_MOUNTPOINT
+    if ! _is_mounted "$REMOTE_ML_MOUNTPOINT"; then
+        sshfs $REMOTE_ML_NODE:/ $REMOTE_ML_MOUNTPOINT
+    fi
+}
 do_kill_gdbserver() {
     local remote_node="$1"
     shift 1

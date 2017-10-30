@@ -18,7 +18,7 @@ def each_procline(proc):
 def which(fname):
     proc = subprocess.Popen(['which', fname], stdout=subprocess.PIPE)
     try:
-        return each_procline(proc).next()
+        return next(each_procline(proc))
     except StopIteration:
         return None
 

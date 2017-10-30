@@ -95,7 +95,7 @@ def summary_stats(input):
     it = iter(input)
     try:
         while True:
-            line = it.next()
+            line = next(it)
             m = re.search(r'^([a-zA-Z][a-zA-Z0-9\._]+)$', line)
             if m:
                 func = m.group(1)
@@ -109,7 +109,7 @@ def summary_stats(input):
                 func = None
                 nargs = None
                 while True:
-                    line = it.next()
+                    line = next(it)
                     if re.search(r'^\s*$', line):
                         break
 

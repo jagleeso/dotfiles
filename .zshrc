@@ -176,8 +176,12 @@ if [ -n "$TMUX" ]; then
         # For some reason, xclip is hanging in ubuntu with tmux1.8, until I open vim and yank 
         # a line, which causes all tmux events to suddenly stream in...just use xsel instead.
         # tmux bind-key C-f run "tmux show-buffer | xclip -i -selection clipboard"
-        # tmux bind-key C-f run "tmux show-buffer | xsel -i --clipboard" 
-        tmux bind-key C-f run "tmux show-buffer | xclip -i -selection clipboard" 
+        #
+        # For some reason, xsel WORKS, but xclip causes 
+        # tmux Ctrl-a <anything> to not work.
+        #
+        tmux bind-key C-f run "tmux show-buffer | xsel -i --clipboard" 
+        # tmux bind-key C-f run "tmux show-buffer | xclip -i -selection clipboard" 
         #Copy CLIPBOARD to tmux paste buffer and paste tmux paste buffer
         tmux bind-key C-v run "tmux set-buffer \"$(xclip -o -selection clipboard)\"; tmux paste-buffer"
     fi
