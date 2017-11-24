@@ -12,9 +12,10 @@ if [ -e $HOME/clone/CNTK_data_dir ]; then
 fi
 
 if [ "$(hostname)" != "james-laptop" ] && [ -e /usr/local/cuda/bin ] && [ ! -e /etc/ld.so.conf.d/nvidia.conf ]; then
-    echo "WARNING: you need to"
-    echo "- put /usr/local/cuda/lib64 in /etc/ld.so.conf.d/nvidia.conf"
-    echo "- run \"sudo ldconfig\""
+    # echo "WARNING: you need to"
+    # echo "- put /usr/local/cuda/lib64 in /etc/ld.so.conf.d/nvidia.conf"
+    # echo "- run \"sudo ldconfig\""
+    true
 fi
 
 if [ -e /etc/redhat-release ]; then
@@ -27,7 +28,9 @@ if [ -e /etc/redhat-release ]; then
         echo "  sudo yum install -y devtoolset-4-gcc devtoolset-4-gcc-c++ devtoolset-4-libgccjit devtoolset-4-gcc-gfortran devtoolset-4-libgccjit-docs devtoolset-4-libgccjit-devel devtoolset-4-gcc-plugin-devel devtoolset-4-libstdc++-docs devtoolset-4-libstdc++-devel devtoolset-4-gcc-gdb-plugin"
     else 
         # "scl enable" doesn't work for some reason...
-        source /opt/rh/devtoolset-4/enable
+        if [ -e /opt/rh/devtoolset-4/enable ]; then
+            source /opt/rh/devtoolset-4/enable
+        fi
     fi
 fi
 

@@ -18,4 +18,5 @@
 [color]
 	ui = auto
 [push]
-	default = simple
+        # default = simple
+	default = matching

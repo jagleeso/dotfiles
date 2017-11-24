@@ -152,6 +152,7 @@ _find_python_config_dir() {
     shift 1
     ( find /usr -type d | \
         grep --perl-regexp "python${pymajor_version}.*/config.*" | \
+        perl -lane 'if (/config[^\/]*$/) { print; }' | \
         grep -v dist-packages ) \
         || true
 }
@@ -212,7 +213,7 @@ _install_yum_group() {
     if [ "$HAS_YUM" = 'no' ]; then
         return
     fi
-    sudo yum group install -y "$@"
+    sudo yum groupinstall -y "$@"
 }
 _install_yum() {
     if [ "$(_has_sudo)" = 'no' ]; then
@@ -494,7 +495,7 @@ setup_ycm_before() {
     _install python-dev python3-dev || true
     _install cmake
     _install_yum python-devel || true
-    _install_yum python3-devel || true
+    _install_yum python34-devel || true
     _install_yum_group "Development Tools" "Development Libraries"
 }
 setup_ycm_after() {
