@@ -1,11 +1,10 @@
 #!/usr/bin/env bash
-# laptop -> ____ -> xen1
-# INTERMEDIATE_NODE="syslab"
-INTERMEDIATE_NODE="apps"
 
 REMOTE_XEN1_NODE=xen1
 REMOTE_AMD_NODE=amd
 REMOTE_ML_NODE=ml
+REMOTE_CLUSTER1_NODE=cluster1
+REMOTE_LOGAN_NODE=logan
 # VERBOSE="-v"
 VERBOSE=
 TUNNEL_FLAGS="$VERBOSE -f -N"
@@ -20,6 +19,8 @@ XEN1_GDBGUI_PORT=8888
 XEN1_SSH_PORT=8787
 XEN1_GDB_PORT=1234
 XEN1_GDB_MATHUNITTESTS_PORT=1236
+CLUSTER1_SSH_PORT=8181
+LOGAN_SSH_PORT=8282
 
 DOT_HOME="$HOME/clone/dotfiles"
 
@@ -46,24 +47,14 @@ kwin() {
     done
 }
 
-tunnel_everything() {
-    local local_port="$1"
-    local remote_intrm_port="$2"
-    local remote_dst_port="$3"
-    local remote_dst_ip="$4"
-    shift 4
-    ssh $TUNNEL_FLAGS \
-        -L$local_port:localhost:$remote_intrm_port $INTERMEDIATE_NODE -t ssh $TUNNEL_FLAGS \
-        -L$remote_intrm_port:localhost:$remote_dst_port \
-        james@$remote_dst_ip
-}
-
 intrm_is_tunneling_to_dst() {
-    local remote_intrm_port="$1"
-    shift 1
+    local remote_node="$1"
+    local remote_intrm_port="$2"
+    shift 2
+    local intrm_node="$(_get_intrm_node $remote_node)"
     # Make sure this is running:
     # ssh $TUNNEL_FLAGS -L 8787:localhost:22 james@10.70.2.2
-    ssh $INTERMEDIATE_NODE "ps aux | grep -v grep | grep -q 'ssh.*-L.*$remote_intrm_port'"
+    ssh $intrm_node "ps aux | grep -v grep | grep -q 'ssh.*-L.*$remote_intrm_port'"
 }
 
 remote_home()
@@ -75,6 +66,12 @@ remote_home()
     echo "/home/$remote_username"
 }
 
+_get_intrm_node() {
+    local remote_node="$1"
+    shift
+    ssh_config.py --proxy-command --host=$remote_node | \
+        perl -lape 's/ssh -q (\w+) nc.*/$1/'
+}
 tunnel_to_intrm() {
     local local_port="$1"
     local remote_intrm_port="$2"
@@ -84,15 +81,16 @@ tunnel_to_intrm() {
     # NOTE: this assumes a tunnel is already setup on syslab.
     local remote_username="$(ssh_config.py --user --host=$remote_node)"
     local remote_identity_file="$(ssh_config.py --identity-file --host=$remote_node)"
-    if ! intrm_is_tunneling_to_dst $remote_intrm_port; then
-        echo "ERROR: You need to login to $INTERMEDIATE_NODE and tunnel from $INTERMEDIATE_NODE to $remote_node:"
-        echo "  $ ssh $INTERMEDIATE_NODE"
+    local intrm_node="$(_get_intrm_node $remote_node)"
+    if ! intrm_is_tunneling_to_dst $remote_node $remote_intrm_port; then
+        echo "ERROR: You need to login to $intrm_node and tunnel from $intrm_node to $remote_node:"
+        echo "  $ ssh $intrm_node"
         echo "  $ ssh $TUNNEL_FLAGS -L $remote_intrm_port:localhost:$remote_dst_port $remote_username@$remote_node -i $remote_identity_file"
         exit 1
     fi
     # Try using autossh locally to keep connection alive.
     autossh $TUNNEL_FLAGS \
-        -L $local_port:localhost:$remote_intrm_port $INTERMEDIATE_NODE
+        -L $local_port:localhost:$remote_intrm_port $intrm_node
 }
 
 RSYNC_DEBUG_FLAGS=

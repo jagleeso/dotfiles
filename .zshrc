@@ -241,6 +241,10 @@ TIMEFMT=$'\nreal\t%E\nuser\t%U\nsys\t%S'
 export FZF_COMPLETION_TRIGGER='##'
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
+if [ -e ~/anaconda3/bin/conda ]; then
+    alias aconda=~/anaconda3/bin/conda
+fi
+
 if [ -f ~/.zshrc.db ]; then 
     source ~/.zshrc.db
 fi

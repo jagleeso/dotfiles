@@ -57,6 +57,16 @@ activate_revnet() {
         source ~/anaconda3/envs/revnet/bin/activate revnet
     fi
 }
+activate_gym() {
+    if [ -e ~/anaconda3/envs/gym ]; then
+        source ~/anaconda3/envs/gym/bin/activate gym
+    fi
+}
+activate_rllab3() {
+    if [ -e ~/anaconda3/envs/rllab3 ]; then
+        source ~/anaconda3/envs/rllab3/bin/activate rllab3
+    fi
+}
 ( activate_cntk > /dev/null 2>&1 ) || true
 
 fresh_cntk() {
