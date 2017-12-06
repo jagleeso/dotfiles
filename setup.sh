@@ -302,6 +302,23 @@ EOF
         --pattern 'source ~/.bashrc.windows' \
         "$lines"
 }
+setup_windows_dotfiles() {
+    # Copy over any $DOT_HOME/.* files AS-IS.
+    # (since they DON'T work properly on windows as sym-linked files).
+    local as_is_files=( \
+      .ideavimrc \
+    )
+    for f in "${as_is_files[@]}"; do
+        if [ -e $WINDOWS_HOME/$f ] && [ -L $WINDOWS_HOME/$f ]; then
+            # Remove any sym-links if they exist.
+            rm $WINDOWS_HOME/$f
+        fi
+        # Overwrite anything that already exists.
+        #
+        # WARNING: that means don't make changes to these files on windows.
+        cp $DOT_HOME/$f $WINDOWS_HOME/$f
+    done
+}
 setup_tmux() {
     if [ "$FORCE" != 'yes' ] && [ -f $HOME/local/bin/tmux ]; then
         return
@@ -877,6 +894,7 @@ setup_all() {
         do_setup setup_windows_symlinks
         do_setup setup_windows_packages
         do_setup setup_windows_bashrc
+        do_setup setup_windows_dotfiles
     fi
     do_setup setup_tree
     do_setup setup_dot_common

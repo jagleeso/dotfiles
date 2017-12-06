@@ -4,7 +4,14 @@
 [core]
 	excludesfile = ~/.gitignore
 	fileMode = false
+	# https://stackoverflow.com/a/33424884
+	#
+	# eol = lf
+	#   When we checkout, use lf / whatever is in the repo.
+	# autocrlf = input
+	#   When we checkin, force any CRLF to LF.
 	autocrlf = input
+	eol = lf
 [diff]
     tool = vimdiff
 [difftool]
@@ -22,5 +29,5 @@
 [color]
 	ui = auto
 [push]
-        # default = simple
+    # default = simple
 	default = matching
