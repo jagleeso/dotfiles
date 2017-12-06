@@ -75,20 +75,29 @@ if is_ubuntu_on_windows; then
     WINDOWS_HOME=$HOME/windows
 fi
 
+_set_if_not() {
+    local varname="$1"
+    local value="$2"
+    shift 2
+    if [ "$(eval echo \$$varname)" != '' ]; then
+        eval $varname=\$value
+    fi
+}
+
 #
 # Determine what to do based on "$MODE"
 #
 
 if [ "$MODE" = 'minimal-no-vim' ] || [ "$MODE" = 'update' ]; then
-    SETUP_VIM='no'
+    _set_if_not SETUP_VIM 'no'
 fi
 if [ "$MODE" = 'minimal-no-vim' ] || [ "$MODE" = 'update' ]; then
-    SETUP_SUDO='no'
-    HAS_SUDO='no'
+    _set_if_not SETUP_SUDO 'no'
+    _set_if_not HAS_SUDO 'no'
 fi
 if [ "$MODE" != 'minimal' ] || [ "$MODE" = 'minimal-no-vim' ] || [ "$MODE" = 'update' ]; then
-    SETUP_NEEDS_BUILDING='no'
-    SETUP_NEEDS_INSTALLING='no'
+    _set_if_not SETUP_NEEDS_BUILDING 'no'
+    _set_if_not SETUP_NEEDS_INSTALLING 'no'
 fi
 
 echo
@@ -277,7 +286,8 @@ setup_windows_symlinks() {
 #    _move_and_link_home_dir .ssh
 }
 setup_windows_packages() {
-    _install_apt gnome-terminal
+#    _install_apt gnome-terminal
+    true
 }
 setup_windows_bashrc() {
     lines=$(cat <<EOF
@@ -529,9 +539,9 @@ setup_packages() {
         python-pip \
         entr \
     )
+#        libevent
     local apt_packages=( \
         libevent-dev \
-        libevent \
         build-essential autotools-dev autoconf \
         libssl-dev \
     )
@@ -552,6 +562,7 @@ setup_pip() {
         paramiko \
         ipython \
         ipdb \
+        psutil \
     )
     _install_pip "${pip_packages[@]}"
 }

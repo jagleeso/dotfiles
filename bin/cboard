@@ -1,2 +1,18 @@
-#!/usr/bin/env sh
-xclip -i -selection clipboard
+#!/usr/bin/env bash
+set -e
+
+remove_last_newline() {
+    # Remove only the very last newline from stdout
+    perl -pe 'chomp if eof'
+}
+
+copy_to_clipboard() {
+    xclip -i -selection clipboard
+}
+
+main() {
+    remove_last_newline | \
+        copy_to_clipboard
+}
+
+main "$@"

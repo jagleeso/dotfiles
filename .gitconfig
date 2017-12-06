@@ -9,6 +9,10 @@
     tool = vimdiff
 [difftool]
     prompt = false
+    # Be able to abort all diffs with `:cq` or `:cquit`
+    #
+    # https://stackoverflow.com/questions/34060557/git-and-vimdiff-close-all-files-at-once
+    trustExitCode = true
 [alias]
     d = difftool
     st = status

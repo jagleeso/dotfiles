@@ -408,6 +408,15 @@ do_kill_gdbserver() {
 EOF
 }
 
+_set_if_not() {
+    local varname="$1"
+    local value="$2"
+    shift 2
+    if [ "$(eval echo \$$varname)" != '' ]; then
+        eval $varname=\$value
+    fi
+}
+
 if [ "$RUN_COMMON" == "yes" ]; then
     "$@"
 fi

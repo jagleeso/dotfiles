@@ -1,0 +1,17 @@
+#!/bin/bash
+source $HOME/.dot_common.sh
+
+_set_if_not SKIP_DIFF 'no'
+
+main() {
+
+    cd $DOT_HOME
+    if [ "$SKIP_DIFF" != 'yes' ]; then
+        git d
+    fi
+    git commit -a
+    git push
+
+}
+
+main "$@"

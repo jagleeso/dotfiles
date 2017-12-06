@@ -2,16 +2,23 @@
 set -e
 source $HOME/.dot_common.sh
 
-# tunnel_amd_gdb
-# tunnel_amd_ssh
-# tunnel_ml_gdb
-# tunnel_ml_ssh
-# tunnel_ml_jupyter
-tunnel_xen1_gdb
-tunnel_xen1_gdb_mathunittests
-tunnel_xen1_ssh
-tunnel_xen1_gdbgui
-# tunnel_xen1_jupyter
+_tunnel() {
+  # Don't skip tunnels if one of the tunnels fails.
+  "$@" || true
+}
 
-tunnel_logan_ssh
-tunnel_cluster1_ssh
+#_tunnel tunnel_amd_gdb &
+#_tunnel tunnel_amd_ssh &
+#_tunnel tunnel_ml_gdb &
+#_tunnel tunnel_ml_ssh &
+#_tunnel tunnel_ml_jupyter &
+#_tunnel tunnel_xen1_jupyter &
+
+_tunnel tunnel_xen1_gdb &
+_tunnel tunnel_xen1_gdb_mathunittests &
+_tunnel tunnel_xen1_ssh &
+_tunnel tunnel_xen1_gdbgui &
+_tunnel tunnel_logan_ssh &
+_tunnel tunnel_cluster1_ssh &
+
+wait
