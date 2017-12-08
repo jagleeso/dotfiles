@@ -4,6 +4,7 @@ from __future__ import print_function
 
 import argparse
 import pprint
+import re
 
 import subprocess
 
@@ -42,12 +43,33 @@ class Sh(object):
         print("Failed to import things. To fix:")
         print("  (1) PYTHONPATH={pythonpath}".format(**locals()))
 
+    VARNAME_RE = r'(?:[a-zA-Z][_a-zA-Z]*)'
+    VALUE_RE = r'(?:.*)'
+    def check_sh_set(self, sh_set):
+        '''
+        Make sure it looks like:
+
+        varname=value
+        '''
+        m = re.search(r'{varname}={value}'.format(
+            varname=Sh.VARNAME_RE,
+            value=Sh.VALUE_RE,
+        ), sh_set)
+        if not m:
+            self.parser.error('Invalid environment variable: '
+                              '--sh-set {sh_set}'.format(**locals()))
+
     def main(self):
         args = self.args
         parser = self.parser
 
+        for sh_set in args.sh_set:
+            self.check_sh_set(sh_set)
+        sh_set_args = ["WINDOWS_SCRIPT=yes"] + args.sh_set
+
         cmd = ["bash", "-c",
-               Sh.quote_cmd_as_str(["WINDOWS_SCRIPT=yes", "zsh", "-i", "-c", Sh.quote_cmd_as_str(args.arguments)])]
+               Sh.quote_cmd_as_str(sh_set_args +
+                                   ["zsh", "-i", "-c", Sh.quote_cmd_as_str(args.arguments)])]
 
         if self._dry_run:
             return
@@ -90,6 +112,8 @@ def main():
         "",
         add_help=False)
     parser.add_argument('arguments', nargs='*')
+    parser.add_argument('--sh-set', nargs='*', action='append',
+                        help="set shell environment variables; e.g. --sh-set SHELL=/bin/bash")
     parser.add_argument('--sh-dry-run', action='store_true',
                         help="dry run")
     parser.add_argument('--sh-help', action='store_true',
@@ -97,6 +121,9 @@ def main():
     parser.add_argument('--sh-debug', action='store_true',
                         help="debug this script")
     args = parser.parse_args()
+
+    if args.sh_set is None:
+        args.sh_set = []
 
     if args.sh_help:
         parser.print_usage()

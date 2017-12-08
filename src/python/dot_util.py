@@ -735,8 +735,17 @@ def human2bytes(s):
     return int(num * prefix[letter])
 
 def is_windows_on_ubuntu():
-    out, ret_code = sh_run(['is_ubuntu_on_windows'])
+    if is_windows():
+        return False
+    # if os.environ.get('WINDOWS_SCRIPT', 'no') == 'yes':
+    #     return True
+    # TODO: This fails on windows...
+    out, ret_code = sh_run(['is_ubuntu_on_windows'], errcode=True)
     return ret_code == SHELL_SUCCESS
+
+def is_windows():
+    # True if Windows python, not WSL python.
+    return os.name == 'nt'
 
 @contextlib.contextmanager
 def _as_stream(path, mode='r', default=sys.stdin):
@@ -788,3 +797,7 @@ class ShellScript(object):
     def _log(self, msg):
         if self._debug:
             print(msg)
+
+# Define some constants.
+IS_WSL = is_windows_on_ubuntu()
+IS_WINDOWS = is_windows()

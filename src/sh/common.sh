@@ -21,6 +21,7 @@ XEN1_GDB_PORT=1234
 XEN1_GDB_MATHUNITTESTS_PORT=1236
 CLUSTER1_SSH_PORT=8181
 LOGAN_SSH_PORT=8282
+LOGAN_GDB_PORT=1238
 
 DOT_HOME="$HOME/clone/dotfiles"
 
@@ -120,8 +121,9 @@ CN=$HOME/clone/CNTK
 _do_sync_cntk_gdb() {
     local remote_node="$1"
     local remote_cntk_root="$2"
+    local remote_user="$3"
     
-    shift 2
+    shift 3
 
     local local_sysroot_path=$CN/sysroot/$remote_node
     local local_cntk_path=$local_sysroot_path/$remote_cntk_root
@@ -143,14 +145,14 @@ _do_sync_cntk_gdb() {
             /lib64/ld-linux-x86-64.so.2 \
             /pkgs/cuda-8.0/lib64/libcudart.so.8.0 \
             /usr/lib/x86_64-linux-gnu/libnvidia-ml.so.1 \
-            /home/jgleeson/clone/RDMA-GPU/install/CNTKCustomMKL/3/x64/parallel/libiomp5.so \
+            /home/$remote_user/clone/RDMA-GPU/install/CNTKCustomMKL/3/x64/parallel/libiomp5.so \
             /lib/x86_64-linux-gnu/libpthread.so.0 \
-            /home/jgleeson/clone/CNTK/build/debug/bin/../lib/libCntk.Math-2.1d.so \
-            /home/jgleeson/clone/CNTK/build/debug/bin/../lib/libCntk.PerformanceProfiler-2.1d.so \
-            /home/jgleeson/clone/CNTK/build/debug/bin/../lib/libmultiverso.so \
+            /home/$remote_user/clone/CNTK/build/debug/bin/../lib/libCntk.Math-2.1d.so \
+            /home/$remote_user/clone/CNTK/build/debug/bin/../lib/libCntk.PerformanceProfiler-2.1d.so \
+            /home/$remote_user/clone/CNTK/build/debug/bin/../lib/libmultiverso.so \
             /lib/x86_64-linux-gnu/libdl.so.2 \
-            /home/jgleeson/clone/RDMA-GPU/install/lib/libmpi_cxx.so.1 \
-            /home/jgleeson/clone/RDMA-GPU/install/lib/libmpi.so.12 \
+            /home/$remote_user/clone/RDMA-GPU/install/lib/libmpi_cxx.so.1 \
+            /home/$remote_user/clone/RDMA-GPU/install/lib/libmpi.so.12 \
             /usr/lib/x86_64-linux-gnu/libstdc++.so.6 \
             /lib/x86_64-linux-gnu/libm.so.6 \
             /lib/x86_64-linux-gnu/libgcc_s.so.1 \
@@ -159,17 +161,17 @@ _do_sync_cntk_gdb() {
             /pkgs/cuda-8.0/lib64/libcublas.so.8.0 \
             /pkgs/cuda-8.0/lib64/libcurand.so.8.0 \
             /pkgs/cuda-8.0/lib64/libcusparse.so.8.0 \
-            /home/jgleeson/clone/cudnn/cuda/lib64/libcudnn.so.5 \
-            /home/jgleeson/clone/RDMA-GPU/install/CNTKCustomMKL/3/x64/parallel/libmkl_cntk_p.so \
-            /home/jgleeson/clone/RDMA-GPU/install/lib/libopen-pal.so.13 \
-            /home/jgleeson/clone/RDMA-GPU/install/lib/libopen-rte.so.12 \
+            /home/$remote_user/clone/cudnn/cuda/lib64/libcudnn.so.5 \
+            /home/$remote_user/clone/RDMA-GPU/install/CNTKCustomMKL/3/x64/parallel/libmkl_cntk_p.so \
+            /home/$remote_user/clone/RDMA-GPU/install/lib/libopen-pal.so.13 \
+            /home/$remote_user/clone/RDMA-GPU/install/lib/libopen-rte.so.12 \
             /usr/lib/x86_64-linux-gnu/libnuma.so.1 \
             /usr/lib/x86_64-linux-gnu/libpciaccess.so.0 \
             /lib/x86_64-linux-gnu/libutil.so.1 \
             /lib/x86_64-linux-gnu/libz.so.1 \
             /usr/lib/x86_64-linux-gnu/libcuda.so.1 \
             /usr/lib/x86_64-linux-gnu/libnvidia-fatbinaryloader.so.375.39 \
-            /home/jgleeson/clone/CNTK/build/debug/bin/../lib/Cntk.Deserializers.TextFormat-2.1d.so \
+            /home/$remote_user/clone/CNTK/build/debug/bin/../lib/Cntk.Deserializers.TextFormat-2.1d.so \
         )
 
         local files_from="$(mktemp)"
@@ -198,10 +200,13 @@ _kill_remote_gdb() {
     ssh $remote_node 'bash -c "killall --quiet gdbserver || true"'
 }
 do_sync_cntk_gdb_xen1() {
-    _do_sync_cntk_gdb xen1 $CN
+    _do_sync_cntk_gdb xen1 $CN james
 }
 do_sync_cntk_gdb_ml() {
-    _do_sync_cntk_gdb ml /home/jgleeson/clone/CNTK
+    _do_sync_cntk_gdb ml /home/jgleeson/clone/CNTK jgleeson
+}
+do_sync_cntk_gdb_logan() {
+    _do_sync_cntk_gdb logan /home/james/clone/CNTK james
 }
 
 _rsync_files_from() {
@@ -365,11 +370,36 @@ do_cntk_test_log() {
 is_ubuntu_on_windows() {
     grep -q Microsoft /proc/version
 }
+WINDOWS_HOME="C:/Users/James"
 
 do_cntk_remote_compile() {
     local remote_node="$1"
     shift 1
 
+    local local_cntk=
+    local args=()
+    if is_ubuntu_on_windows; then
+        local_cntk="$WINDOWS_HOME/clone/CNTK"
+        args=("${args[@]}" --wsl-windows-path)
+    else
+        local_cntk="$HOME/clone/CNTK"
+    fi
+
+    filter_out() {
+        # Filter out:
+        #Warning: No xauth data; using fake authentication data for X11 forwarding.
+        #Welcome to Ubuntu 16.04.3 LTS (GNU/Linux 4.10.0-38-generic x86_64)
+        #
+        #* Documentation:  https://help.ubuntu.com
+        #* Management:     https://landscape.canonical.com
+        #* Support:        https://ubuntu.com/advantage
+        #
+        #29 packages can be updated.
+        #0 updates are security updates.
+        #
+        #*** System restart required ***
+        grep -v --perl-regexp 'Documentation:.*ubuntu|Management:.*canonical|Support:.*ubuntu|Welcome to Ubuntu|packages can be updated|update are security|System restart required'
+    }
     local build_remote_sh="$(cat <<EOF
 set -e
 cd ~/clone/CNTK
@@ -381,9 +411,11 @@ EOF
     cd $HOME/clone/CNTK
     ( ssh $remote_node 2>&1 ) <<<"$build_remote_sh" | \
         replace_paths.py \
-            --local "$HOME/clone/CNTK" \
+            --local "$local_cntk" \
             --remote "$(remote_home $remote_node)/clone/CNTK" \
-            --full-path
+            --full-path \
+            "${args[@]}" | \
+            filter_out
     )
 }
 
