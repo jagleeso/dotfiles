@@ -740,7 +740,9 @@ def is_windows_on_ubuntu():
     # if os.environ.get('WINDOWS_SCRIPT', 'no') == 'yes':
     #     return True
     # TODO: This fails on windows...
-    out, ret_code = sh_run(['is_ubuntu_on_windows'], errcode=True)
+    out, ret_code = sh_run(['is_ubuntu_on_windows'],
+                           errcode=True,
+                           silent=True)
     return ret_code == SHELL_SUCCESS
 
 def is_windows():
