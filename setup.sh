@@ -350,10 +350,10 @@ setup_dotfiles() {
     cd $HOME
     for f in $DOT_HOME/.*; do
         if [ -f $f ]; then
-	    local new_f="$(basename $f)"
-	    if [ -e "$new_f" ]; then
-                bkup $new_f || true
-	    fi
+            local new_f="$(basename $f)"
+            if [ -e "$new_f" ]; then
+                    bkup $new_f || true
+            fi
             (
                 ln -s -T $f $new_f 2>&1 | grep -v 'File exists'
             ) || true
@@ -875,7 +875,6 @@ setup_xclip() {
     _configure_make_install
 }
 setup_libevent() {
-
     if [ "$FORCE" != 'yes' ] && [ $HAS_LIB_EVENT = 'yes' ]; then
         return
     fi
@@ -888,6 +887,10 @@ setup_libevent() {
     cd $dir
     _configure_make_install
     )
+}
+setup_fonts() {
+    _ln $HOME/.fonts $DOT_HOME/.fonts
+    fc-cache
 }
 setup_all() {
     if [ "$SETUP_WINDOWS" = 'yes' ]; then
@@ -903,6 +906,7 @@ setup_all() {
         do_setup setup_pip
     fi
     do_setup setup_bin
+    do_setup setup_fonts
     do_setup setup_zsh
     do_setup setup_ipython
     do_setup setup_fzf

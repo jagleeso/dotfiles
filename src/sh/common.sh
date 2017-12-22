@@ -22,6 +22,8 @@ XEN1_GDB_MATHUNITTESTS_PORT=1236
 CLUSTER1_SSH_PORT=8181
 LOGAN_SSH_PORT=8282
 LOGAN_GDB_PORT=1238
+LOGAN_SNAKEVIZ_PORT=6226
+LOGAN_TENSORBOARD_PORT=6116
 
 DOT_HOME="$HOME/clone/dotfiles"
 
@@ -447,6 +449,53 @@ _set_if_not() {
     if [ "$(eval echo \$$varname)" != '' ]; then
         eval $varname=\$value
     fi
+}
+
+is_dir_empty() {
+    local dirpath="$1"
+    shift 1
+    if [ ! -e "$dirpath" ] || [ ! -d "$dirpath" ]; then
+        echo "ERROR: dirpath=$dirpath must be a dir in is_dir_empty"
+        exit 1
+    fi
+    (
+    shopt -s nullglob dotglob     # To include hidden files
+    local files=("$dirpath"/*)
+    [ "${#files[@]}" -eq 0 ]
+    )
+}
+
+is_remote_home_mounted() {
+    local remote_node="$1"
+    shift 1
+    df -h | grep "$remote_node:" --quiet
+}
+
+is_remote_home_mountpoint() {
+    local remote_node="$1"
+    shift 1
+    df -h | grep "$remote_node:" | perl -lane '{print $F[5]}'
+}
+
+mount_remote_home() {
+    # Does this:
+    #   $ mkdir -p ~/logan
+    #   $ sshfs logan: ~/logan
+
+    local remote_node="$1"
+    shift 1
+
+    local mount_dir="$HOME/$remote_node"
+    mkdir -p "$mount_dir"
+    if is_remote_home_mounted; then
+        return
+    fi
+    if ! is_dir_empty "$mount_dir"; then
+        echo "ERROR: failed to mount remote home directory $remote_node:~ since local mount directory folder $mount_dir was not an empty dir"
+        exit 1
+    fi
+
+    sshfs $remote_node: "$mount_dir"
 }
 
 if [ "$RUN_COMMON" == "yes" ]; then

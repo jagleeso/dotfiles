@@ -1,0 +1,12 @@
+#!/bin/bash
+set -e
+source $HOME/.dot_common.sh
+
+_do() {
+  # Don't skip mount if one of the mounts fails.
+  "$@" || true
+}
+
+_do mount_remote_home $REMOTE_LOGAN_NODE &
+
+wait
