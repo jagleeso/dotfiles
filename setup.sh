@@ -257,8 +257,8 @@ _ln() {
     local link="$2"
     shift 2
     if [ -e "$target" ]; then
-        if [ -L "$link" ]; then
-            rm "$link"
+        if [ -L "$target" ]; then
+            rm "$target"
         fi
         ln -s -T "$target" "$link"
     fi
@@ -833,6 +833,7 @@ do_setup() {
 }
 setup_dot_common() {
     ln -s -f -T $DOT_HOME/src/sh/common.sh $HOME/.dot_common.sh
+    ln -s -f -T $DOT_HOME/src/sh/exports.sh $HOME/.dot_exports.sh
 }
 
 setup_ipython() {

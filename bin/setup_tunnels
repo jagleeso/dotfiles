@@ -1,5 +1,11 @@
 #!/bin/bash
 set -e
+
+export FAILED_TUNNEL_CMDS="$HOME/setup_tunnels.sh"
+if [ -e "$FAILED_TUNNEL_CMDS" ]; then
+    rm "$FAILED_TUNNEL_CMDS"
+fi
+
 source $HOME/.dot_common.sh
 
 _tunnel() {
@@ -24,4 +30,13 @@ _tunnel tunnel_logan_tensorboard &
 _tunnel tunnel_logan_snakeviz &
 #_tunnel tunnel_cluster1_ssh &
 
+set +e
 wait
+ret=$?
+set -e
+
+if [ -e "$FAILED_TUNNEL_CMDS" ]; then
+    echo "Tunnel commands saved to: $FAILED_TUNNEL_CMDS"
+fi
+
+exit $ret
