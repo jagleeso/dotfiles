@@ -3,7 +3,7 @@ source $HOME/.dot_common.sh
 
 remote_node="$REMOTE_ML_NODE"
 
-mount_ml
+mount_remote_home $remote_node
 
 do_kill_gdbserver \
     $remote_node

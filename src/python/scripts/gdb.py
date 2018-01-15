@@ -5,6 +5,7 @@ import os
 import shutil
 import re
 import pprint
+from os.path import join as _j, abspath as _P, dirname as _d, realpath as _r, basename as _b
 
 import dot_util
 import time
@@ -23,43 +24,13 @@ class GDB(object):
         cmdline = dot_util.sanitize_cmdline(gdbserver_cmd)
 
         while True:
-            if args.debug:
-                out = dot_util.run_cmd(cmdline, errcode=True)
-            else:
-                out, ret = dot_util.run_cmd(cmdline, errcode=True)
-                if ret != 0:
-                    dot_util.log("gdbserver stopped; restarting")
-                    time.sleep(0.5)
-
-    def check_paths(self, src, dst):
-        if not os.path.exists(src):
-            print "{src} doesn't exist; skip.".format(**locals())
-            return False
-        if not self.args.clobber and os.path.exists(dst):
-            print "{dst} already exists; skip (use -f).".format(**locals())
-            return False
-        return True
-
-    def recover(self, path):
-        if not self.is_bkup_file(path):
-            path = self.bkup_file(path)
-        assert self.is_bkup_file(path)
-        new_path = self.recov_file(path)
-        if not self.check_paths(path, new_path):
-            return False
-        self.move_file(path, new_path)
-
-    def move_file(self, old_path, new_path):
-        if self.args.copy:
-            shutil.copy(old_path, new_path)
-        else:
-            shutil.move(old_path, new_path)
-
-    def bkup(self, path):
-        new_path = self.bkup_file(path)
-        if not self.check_paths(path, new_path):
-            return False
-        self.move_file(path, new_path)
+            out, ret = dot_util.run_cmd(cmdline,
+                                        errcode=True,
+                                        to_stdout=True,
+                                        tee_file=args.out)
+            if ret != 0:
+                dot_util.log("gdbserver stopped; restarting")
+                time.sleep(0.5)
 
 def main():
     parser = argparse.ArgumentParser("file.ext -> file.ext.bkup")
@@ -69,11 +40,19 @@ def main():
     parser.add_argument('-p', '--port', type=int,
                         default=1234)
     parser.add_argument('--gdbserver', default="gdbserver")
+    parser.add_argument('--out', help="log output")
     args = parser.parse_args()
+
+    if args.out is None:
+        args.out = 'gdb.txt'
 
     if dot_util.which(args.gdbserver) is None:
         parser.error("Couldn't find --gdbserver = {gdbserver}".format(
             gdbserver=args.gdbserver))
+
+    if args.out:
+        print('Logging output to: {path}'.format(
+            path=_P(args.out)))
 
     gdb = GDB(args, parser)
     gdb.main()

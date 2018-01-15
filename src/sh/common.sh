@@ -1,32 +1,17 @@
 #!/usr/bin/env bash
+DOT_HOME="$HOME/clone/dotfiles"
+set -e
+source "$DOT_HOME/src/sh/exports.sh"
 
-REMOTE_XEN1_NODE=xen1
-REMOTE_AMD_NODE=amd
-REMOTE_ML_NODE=ml
-REMOTE_CLUSTER1_NODE=cluster1
-REMOTE_LOGAN_NODE=logan
+#REMOTE_XEN1_NODE=xen1
+#REMOTE_AMD_NODE=amd
+#REMOTE_ML_NODE=ml
+#REMOTE_CLUSTER1_NODE=cluster1
+#REMOTE_LOGAN_NODE=logan
+
 # VERBOSE="-v"
 VERBOSE=
 TUNNEL_FLAGS="$VERBOSE -f -N"
-
-# Local tunneling ports that have been allocated.
-AMD_GDB_PORT=1235
-AMD_SSH_PORT=8686
-ML_GDB_PORT=1237
-ML_SSH_PORT=8989
-#ML_JUPYTER_PORT=5757
-LOGAN_JUPYTER_PORT=5757
-XEN1_GDBGUI_PORT=8888
-XEN1_SSH_PORT=8787
-XEN1_GDB_PORT=1234
-XEN1_GDB_MATHUNITTESTS_PORT=1236
-CLUSTER1_SSH_PORT=8181
-LOGAN_SSH_PORT=8282
-LOGAN_GDB_PORT=1238
-LOGAN_SNAKEVIZ_PORT=6226
-LOGAN_TENSORBOARD_PORT=6116
-
-DOT_HOME="$HOME/clone/dotfiles"
 
 if [ "$DEBUG" = 'yes' ] && [ "$DEBUG_SHELL" != 'no' ]; then
     set -x
@@ -76,6 +61,8 @@ _get_intrm_node() {
     ssh_config.py --proxy-command --host=$remote_node | \
         perl -lape 's/ssh -q (\w+) nc.*/$1/'
 }
+# File to output commands to for setting up tunnels elsewhere.
+# FAILED_TUNNEL_CMDS=
 tunnel_to_intrm() {
     local local_port="$1"
     local remote_intrm_port="$2"
@@ -89,7 +76,11 @@ tunnel_to_intrm() {
     if ! intrm_is_tunneling_to_dst $remote_node $remote_intrm_port; then
         echo "ERROR: You need to login to $intrm_node and tunnel from $intrm_node to $remote_node:"
         echo "  $ ssh $intrm_node"
-        echo "  $ ssh $TUNNEL_FLAGS -L $remote_intrm_port:localhost:$remote_dst_port $remote_username@$remote_node -i $remote_identity_file"
+        tunnel_cmd="ssh $TUNNEL_FLAGS -L $remote_intrm_port:localhost:$remote_dst_port $remote_username@$remote_node -i $remote_identity_file"
+        echo "  $ $tunnel_cmd"
+        if [ "$FAILED_TUNNEL_CMDS" != "" ]; then
+            echo "$tunnel_cmd" >> "$FAILED_TUNNEL_CMDS"
+        fi
         exit 1
     fi
     # Try using autossh locally to keep connection alive.
@@ -125,7 +116,7 @@ _do_sync_cntk_gdb() {
     local remote_node="$1"
     local remote_cntk_root="$2"
     local remote_user="$3"
-    
+
     shift 3
 
     local local_sysroot_path=$CN/sysroot/$remote_node
@@ -403,11 +394,18 @@ do_cntk_remote_compile() {
         #*** System restart required ***
         grep -v --perl-regexp 'Documentation:.*ubuntu|Management:.*canonical|Support:.*ubuntu|Welcome to Ubuntu|packages can be updated|update are security|System restart required'
     }
+    local restart_cmd="true"
+    if [ "$RESTART" = 'yes' ]; then
+        # Re-start emacs debugger.
+        restart_cmd="killall gdb_cntk || true"
+    fi
     local build_remote_sh="$(cat <<EOF
 set -e
 cd ~/clone/CNTK
-./make.sh
+./make.sh $@
+$restart_cmd
 EOF
+#./make.sh "$@"
 )"
 
     (
@@ -426,13 +424,6 @@ _is_mounted() {
     local mount_point="$1"
     shift 1
     cat /proc/mounts | grep -q --fixed-strings "$mount_point"
-}
-REMOTE_ML_MOUNTPOINT=$HOME/clone/ml
-mount_ml() {
-    mkdir -p $REMOTE_ML_MOUNTPOINT
-    if ! _is_mounted "$REMOTE_ML_MOUNTPOINT"; then
-        sshfs $REMOTE_ML_NODE:/ $REMOTE_ML_MOUNTPOINT
-    fi
 }
 do_kill_gdbserver() {
     local remote_node="$1"
