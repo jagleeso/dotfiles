@@ -254,12 +254,14 @@ _install_pip() {
     fi
 }
 _ln() {
+    # target = the path we are linking to
+    # link   = the actual link we are creating
     local target="$1"
     local link="$2"
     shift 2
-    if [ -e "$target" ]; then
-        if [ -L "$target" ]; then
-            rm "$target"
+    if [ -e "$link" ]; then
+        if [ -L "$link" ]; then
+            rm "$link"
         fi
         ln -s -T "$target" "$link"
     fi
