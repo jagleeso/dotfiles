@@ -13,11 +13,12 @@ _tunnel() {
 #_tunnel tunnel_ml_ssh &
 #_tunnel tunnel_ml_jupyter &
 #_tunnel tunnel_xen1_jupyter &
-
 #_tunnel tunnel_xen1_gdb &
 #_tunnel tunnel_xen1_gdb_mathunittests &
 #_tunnel tunnel_xen1_ssh &
 #_tunnel tunnel_xen1_gdbgui &
+
+_tunnel tunnel_logan_jupyter &
 _tunnel tunnel_logan_ssh &
 _tunnel tunnel_logan_gdb &
 _tunnel tunnel_logan_tensorboard &

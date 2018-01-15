@@ -47,13 +47,16 @@ SETUP_NEEDS_INSTALLING='yes'
 SETUP_WINDOWS="$(_yes_or_no is_ubuntu_on_windows)"
 
 WINDOWS_DRIVE='c'
-_windows_home() {
+# /mnt/c/Users/<username>
+WSL_WINDOWS_HOME=
+_set_windows_home() {
     if [ ! -d /mnt/$WINDOWS_DRIVE/Users ]; then
         echo "ERROR: couldn't guess WINDOWS_DRIVE (it's not $WINDOWS_DRIVE)"
         exit 1
     fi
     __windows_home_folders() {
-        ls /mnt/$WINDOWS_DRIVE/Users/* -d | grep --perl-regexp -v '/(desktop\.ini|Public|Default)$'
+        find /mnt/$WINDOWS_DRIVE/Users -mindepth 1 -maxdepth 1 -type d | \
+            grep --perl-regexp -v '/(Public|Default)$'
     }
     local num_home_folders=$(__windows_home_folders | wc --lines)
     if [ $num_home_folders -gt 1 ]; then
@@ -62,12 +65,10 @@ _windows_home() {
         exit 1
     fi
     [ $num_home_folders -eq 1 ]
-    __windows_home_folders
+    WSL_WINDOWS_HOME="$(__windows_home_folders)"
 }
-# /mnt/c/Users/<username>
-WSL_WINDOWS_HOME=
 if is_ubuntu_on_windows; then
-    WSL_WINDOWS_HOME=$(_windows_home)
+    _set_windows_home
 fi
 # /home/<username>/windows -> /mnt/c/Users/<username>
 WINDOWS_HOME=
@@ -816,8 +817,8 @@ _link_files() {
     done
 }
 setup_bin() {
-    _link_files $HOME/bin $DOT_HOME/bin
-    _link_files $HOME/bin $DOT_HOME/src/python/scripts
+    _do _link_files $HOME/bin $DOT_HOME/bin
+    _do _link_files $HOME/bin $DOT_HOME/src/python/scripts
 }
 do_setup() {
     local setup_func="$1"
@@ -958,7 +959,14 @@ _DEBUG() {
 _DEBUG_SHELL() {
     [ "$DEBUG_SHELL" = 'yes' ]
 }
-
+_do() {
+    if _DEBUG; then
+        echo "$@"
+        "$@"
+    else
+        "$@"
+    fi
+}
 append_if_not_exists() {
     local script=$(cat <<EOF
 import sys
