@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 DOT_HOME="$HOME/clone/dotfiles"
+set -e
 source "$DOT_HOME/src/sh/exports.sh"
 
 #REMOTE_XEN1_NODE=xen1
@@ -409,10 +410,16 @@ do_cntk_remote_compile() {
         #*** System restart required ***
         grep -v --perl-regexp 'Documentation:.*ubuntu|Management:.*canonical|Support:.*ubuntu|Welcome to Ubuntu|packages can be updated|update are security|System restart required'
     }
+    local restart_cmd="true"
+    if [ "$RESTART" = 'yes' ]; then
+        # Re-start emacs debugger.
+        restart_cmd="killall gdb_cntk || true"
+    fi
     local build_remote_sh="$(cat <<EOF
 set -e
 cd ~/clone/CNTK
 ./make.sh $@
+$restart_cmd
 EOF
 #./make.sh "$@"
 )"
@@ -433,13 +440,6 @@ _is_mounted() {
     local mount_point="$1"
     shift 1
     cat /proc/mounts | grep -q --fixed-strings "$mount_point"
-}
-REMOTE_ML_MOUNTPOINT=$HOME/clone/ml
-mount_ml() {
-    mkdir -p $REMOTE_ML_MOUNTPOINT
-    if ! _is_mounted "$REMOTE_ML_MOUNTPOINT"; then
-        sshfs $REMOTE_ML_NODE:/ $REMOTE_ML_MOUNTPOINT
-    fi
 }
 do_kill_gdbserver() {
     local remote_node="$1"

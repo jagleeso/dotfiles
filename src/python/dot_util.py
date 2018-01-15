@@ -40,24 +40,38 @@ import dot_config
 HOME = os.path.abspath(os.path.expanduser('~'))
 
 FLOAT_RE = r'(?:[+\-]?(?:0|[1-9]\d*)(?:\.\d*)?(?:[eE][+\-]?\d+)?)'
+VARNAME_RE = r'(?:[a-zA-Z][_a-zA-Z0-9]*)'
 
 SHELL_SUCCESS = 0
 
 def yes_or_no(boolean):
     return 'yes' if boolean else 'no'
 
-def sh_run(cmdargs, skip_sudo=False, sudo_passwd=None, **kwargs):
-    env = dict(os.environ)
-    env['RUN'] = 'yes'
-    env['SKIP_SUDO'] = yes_or_no(skip_sudo)
+# def sh_run(*args, stderr=sys.stderr, stdout=sys.stdout, **kwargs):
+def sh_run(*args, **kwargs):
+    if kwargs.get('stdout', None) is None:
+        kwargs['stdout'] = sys.stdout
+    if kwargs.get('stderr', None) is None:
+        kwargs['stderr'] = sys.stderr
+    return _sh_run(*args, **kwargs)
+
+def _sh_run(cmdargs, skip_sudo=False, sudo_passwd=None, add_env={}, debug=False,
+           **kwargs):
+    add_env['RUN'] = 'yes'
+    add_env['DEBUG'] = yes_or_no(debug)
+    add_env['SKIP_SUDO'] = yes_or_no(skip_sudo)
+    add_env['RUN_COMMON'] = yes_or_no(True)
     if sudo_passwd is not None:
-        env['SUDO_PASSWD'] = sudo_passwd
-    return run_cmd([dot_config.COMMON_SH] + cmdargs, stderr=sys.stderr, stdout=sys.stdout,
-            env=env, **kwargs)
+        add_env['SUDO_PASSWD'] = sudo_passwd
+    return run_cmd([dot_config.COMMON_SH] + cmdargs,
+                   add_env=add_env, **kwargs)
+
+# Output to stdout, like running system('ls -l')
+def sh_script(*args, **kwargs):
+    kwargs['to_stdout'] = True
+    return _sh_run(*args, **kwargs)
 
 def run_cmd(cmdline, **kwargs):
-    if 'env' not in kwargs:
-        kwargs['env'] = dict(os.environ)
     cmdline = ignore_empty(cmdline)
     return check_call(cmdline, **kwargs)
 
@@ -383,11 +397,64 @@ def sanitize_cmdline(shell_cmd):
     assert type(shell_cmd) == str
     return shell_cmd
 
-def check_output(shell_cmd, shell=None, env=None, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-        ignore_error=False, silent=False, errcode=False, dry_run=False):
+def _gather_proc_output(proc, to_stdout=False, tee_f=None):
+
+    def write_retcode(f, retcode):
+        if f is None:
+            return
+        f.write("> Return code: {retcode}".format(**locals()))
+
+    if not to_stdout:
+        out, err = proc.communicate()
+        if tee_f is not None:
+            tee_f.write(out)
+        write_retcode(tee_f, err)
+        return out, err
+
+    outstr = StringIO()
+
+    line = proc.stdout.readline()
+    # Sadly, this buffers output internally...even with python -u!
+    #
+    # for line in proc.stdout:
+    while line:
+        new_line = str(line).rstrip("\n") + "\n"
+        outstr.write(new_line)
+        if to_stdout:
+            sys.stdout.write(new_line)
+            sys.stdout.flush()
+        if tee_f is not None:
+            tee_f.write(new_line)
+            tee_f.flush()
+        line = proc.stdout.readline()
+    err = proc.wait()
+    write_retcode(tee_f, err)
+
+    return err, outstr.getvalue()
+
+def check_output(shell_cmd, shell=None, env=None, add_env={}, stdout=None, stderr=None,
+        ignore_error=False, silent=False, to_stdout=False, tee_file=None, errcode=False, dry_run=False):
+
+    if stdout is None:
+        stdout = subprocess.PIPE
+    if stderr is None:
+        stderr = subprocess.STDOUT
+    if env is None:
+        env = dict(os.environ)
+
+    env.update(add_env)
+
     shell = type(shell_cmd) != list
 
     cmdline = sanitize_cmdline(shell_cmd)
+
+    # buffering: io.DEFAULT_BUFFER_SIZE
+    bufsize = -1
+    if to_stdout:
+        # Line buffered.
+        # bufsize = 1
+        # Unbuffered
+        bufsize = 0
 
     def should_write_manually(outstream):
         return isinstance(outstream, StringIO().__class__)
@@ -398,23 +465,31 @@ def check_output(shell_cmd, shell=None, env=None, stdout=subprocess.PIPE, stderr
         write_out = True
         stdout = subprocess.PIPE
 
+    if to_stdout:
+        user_stdout = subprocess.STDOUT
+
     user_stderr = stderr
     write_err = False
     if should_write_manually(stderr):
         write_err = True
         stderr = subprocess.PIPE
 
+    tee_f = None
+    if tee_file is not None:
+        tee_f = open(tee_file, 'w')
+
     def run_proc():
-        p = subprocess.Popen(cmdline, shell=shell, stdout=stdout, stderr=stderr, env=env)
+        p = subprocess.Popen(cmdline, shell=shell, stdout=stdout, stderr=stderr, env=env,
+                             bufsize=bufsize)
         try:
-            out, err = p.communicate()
+            out, err = _gather_proc_output(p, to_stdout=to_stdout, tee_f=tee_f)
             if write_out:
                 user_stdout.write(out)
             if write_err:
                 user_stderr.write(err)
-        except Exception as e:
+        except Exception:
             _terminate_proc(p)
-            raise e
+            raise
         def _out(stream):
             return str(stream).rstrip("\n") + "\n"
         outs = []
@@ -799,6 +874,80 @@ class ShellScript(object):
     def _log(self, msg):
         if self._debug:
             print(msg)
+
+class Exports(object):
+    def __init__(self):
+        self.path = dot_config.EXPORTS_SH
+        self.vars = None
+        self.nodes = None
+
+        self._parse()
+
+    def _parse_value(self, string):
+        try:
+            number = float(string)
+            return number
+        except ValueError:
+            pass
+        try:
+            number = int(string)
+            return number
+        except ValueError:
+            pass
+        m = re.search(r'^"(.*)"$', string)
+        if m:
+            return m.group(1)
+        return string
+
+    def _parse(self):
+        self._parse_vars()
+        self._parse_nodes()
+        self._parse_ports()
+
+    def _parse_vars(self):
+        self.vars = {}
+        with open(self.path, 'r') as f:
+            for line in f:
+                line = line.rstrip()
+                m = re.search(r'(?P<varname>{VARNAME_RE})=(?P<value>.*)'.format(
+                    VARNAME_RE=VARNAME_RE,
+                ), line )
+                if m:
+                    self.vars[m.group('varname')] = self._parse_value(m.group('value'))
+
+    def _is_node_var(self, varname):
+        return re.search(r'^REMOTE_\w+_NODE$', varname)
+
+    def _is_port_var(self, varname):
+        return re.search(r'^\w+_\w+_PORT$', varname)
+
+    def _parse_nodes(self):
+        self.nodes = [value for varname, value in self.vars.items() \
+                      if self._is_node_var(varname)]
+
+    def _parse_ports(self):
+        '''
+        AMD_GDB_PORT=1235
+
+        ->
+
+        ports = {
+            'amd': {'gdb': 1235},
+        }
+        '''
+        def _parse_port_var(varname):
+            m = re.search(r'^(?P<node>\w+)_(?P<app>\w+)_PORT$', varname)
+            node = m.group('node').lower()
+            app = m.group('app').lower()
+            return node, app
+
+        self.ports = {}
+        for varname, value in self.vars.items():
+            if self._is_port_var(varname):
+                node, app = _parse_port_var(varname)
+                if node not in self.ports:
+                    self.ports[node] = {}
+                self.ports[node][app] = value
 
 # Define some constants.
 IS_WSL = is_windows_on_ubuntu()

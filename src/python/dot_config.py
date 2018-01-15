@@ -27,6 +27,7 @@ if not os.path.exists(ROOT):
 MAX_TIME_SEC = 60
 
 COMMON_SH = _j(ROOT, "src/sh/common.sh")
+EXPORTS_SH = _j(ROOT, "src/sh/exports.sh")
 
 #
 # End of configuration

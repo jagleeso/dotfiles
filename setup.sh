@@ -844,7 +844,11 @@ setup_gdb() {
     if [ "$FORCE" != 'yes' ] && [ -e $GDB_PRETTY_PRINTERS ]; then
         return
     fi
-    svn co -r r250458 svn://gcc.gnu.org/svn/gcc/trunk/libstdc++-v3/python $GDB_PRETTY_PRINTERS
+#    svn co -r r250458 svn://gcc.gnu.org/svn/gcc/trunk/libstdc++-v3/python $GDB_PRETTY_PRINTERS
+    local commit="master"
+    _clone $HOME/clone/gdb_printers__python \
+        git@github.com:jagleeso/gdb_printers__python.git \
+        $commit
 }
 setup_entr() {
     if [ "$FORCE" != 'yes' ] && [ "$(_has_exec entr)" = 'yes' ]; then
