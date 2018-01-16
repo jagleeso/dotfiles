@@ -897,7 +897,7 @@ setup_libevent() {
     )
 }
 setup_fonts() {
-    _ln $HOME/.fonts $DOT_HOME/.fonts
+    _ln $DOT_HOME/.fonts $HOME/.fonts
     fc-cache
 }
 setup_all() {
