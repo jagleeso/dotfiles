@@ -18,9 +18,10 @@ except ImportError:
     from pipes import quote as quote_shell
 
 class Sh(object):
-    def __init__(self, args, parser):
+    def __init__(self, args, parser, arguments):
         self.args = args
         self.parser = parser
+        self.arguments = arguments
 
     @staticmethod
     def quote_cmd(arguments):
@@ -62,6 +63,7 @@ class Sh(object):
     def main(self):
         args = self.args
         parser = self.parser
+        arguments = self.arguments
 
         for sh_set in args.sh_set:
             self.check_sh_set(sh_set)
@@ -69,7 +71,7 @@ class Sh(object):
 
         cmd = ["bash", "-c",
                Sh.quote_cmd_as_str(sh_set_args +
-                                   ["zsh", "-i", "-c", Sh.quote_cmd_as_str(args.arguments)])]
+                                   ["zsh", "-i", "-c", Sh.quote_cmd_as_str(arguments)])]
 
         if self._dry_run:
             return
@@ -111,7 +113,6 @@ def main():
         "(2) $ python -m windows_scripts.sh echo hi\n"
         "",
         add_help=False)
-    parser.add_argument('arguments', nargs='*')
     parser.add_argument('--sh-set', nargs='*', action='append',
                         help="set shell environment variables; e.g. --sh-set SHELL=/bin/bash")
     parser.add_argument('--sh-dry-run', action='store_true',
@@ -120,7 +121,7 @@ def main():
                         help="help with this script")
     parser.add_argument('--sh-debug', action='store_true',
                         help="debug this script")
-    args = parser.parse_args()
+    args, arguments = parser.parse_known_args()
 
     if args.sh_set is None:
         args.sh_set = []
@@ -129,7 +130,7 @@ def main():
         parser.print_usage()
         sys.exit(0)
 
-    sh = Sh(args, parser)
+    sh = Sh(args, parser, arguments)
     sh.main()
 
 if __name__ == "__main__":
