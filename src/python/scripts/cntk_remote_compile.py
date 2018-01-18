@@ -25,15 +25,19 @@ class CNTKRemoteCompile(object):
         out, ret = dot_util.sh_script(["do_cntk_remote_compile", args.node] + extra_args,
                                       errcode=True,
                                       debug=args.debug,
-                                      add_env={'RESTART':dot_util.yes_or_no(args.restart)})
+                                      add_env={
+                                          'RESTART_GDB':dot_util.yes_or_no(args.restart is None),
+                                          'RESTART_GDB_SH_SCRIPT':'' if args.restart is None else args.restart,
+                                      })
         return ret
 
 def main():
     exports = dot_util.Exports()
     parser = argparse.ArgumentParser("compile cntk on remote machine")
     parser.add_argument('cmd', nargs='*')
-    parser.add_argument('--restart', action='store_true',
-            help="restart remote emacs debugger.")
+    parser.add_argument('--restart',
+                        choices=['gdb_cntk', 'gdb_cntk_unittest'],
+                        help="restart remote emacs debugger.")
     parser.add_argument('--debug', action='store_true',
                         help="debug")
     parser.add_argument('--node',

@@ -2,17 +2,6 @@
 set -e
 source $HOME/.dot_common.sh
 
-kill_gdbserver() {
-    killall gdbserver || true
-    sleep 0.5
-}
-run_emacs() {
-    kill_gdbserver
-    (
-    cd $CN
-    CNTK_DEBUG=yes emacs -nw
-    )
-}
 run_gdb() {
     kill_gdbserver
     (
@@ -25,7 +14,7 @@ main() {
     if [ "$GDB" = 'yes' ]; then
         run_gdb "$@"
     else
-        run_emacs "$@"
+        run_emacs_cntk "$@"
     fi
 }
 

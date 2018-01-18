@@ -1,0 +1,9 @@
+#!/bin/bash
+set -e
+source $HOME/.dot_common.sh
+
+main() {
+    run_emacs_cntk_unittest "$@"
+}
+
+main "$@"

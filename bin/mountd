@@ -7,6 +7,27 @@ _do() {
   "$@" || true
 }
 
-_do mount_remote_home $REMOTE_LOGAN_NODE &
+_mount_logan() {
+    local mount_point="$1"
+    local mount_target="$2"
+    shift 2
+    if ! is_dir_mount_point "$mount_point"; then
+        _do sudo mount "$mount_target" "$mount_point" -o uid=james,gid=james
+    fi
+}
 
-wait
+main() {
+    if [ "$(hostname)" != 'logan-ubuntu' ]; then
+        _do mount_remote_home $REMOTE_LOGAN_NODE &
+    fi
+
+    if [ "$(hostname)" == 'logan-ubuntu' ]; then
+        # Logan specific mounts.
+        local mount_point="$HOME/mnt/data"
+        local mount_target=/dev/sdb1
+        _mount_logan "$mount_point" "$mount_target"
+    fi
+
+    wait
+}
+main "$@"

@@ -395,9 +395,9 @@ do_cntk_remote_compile() {
         grep -v --perl-regexp 'Documentation:.*ubuntu|Management:.*canonical|Support:.*ubuntu|Welcome to Ubuntu|packages can be updated|update are security|System restart required'
     }
     local restart_cmd="true"
-    if [ "$RESTART" = 'yes' ]; then
+    if [ "$RESTART_GDB" = 'yes' ]; then
         # Re-start emacs debugger.
-        restart_cmd="killall gdb_cntk || true"
+        restart_cmd="killall $RESTART_GDB_SH_SCRIPT || true"
     fi
     local build_remote_sh="$(cat <<EOF
 set -e
@@ -434,6 +434,30 @@ do_kill_gdbserver() {
 EOF
 }
 
+
+kill_gdbserver() {
+    killall gdbserver || true
+    sleep 0.5
+}
+run_emacs_cntk() {
+    kill_gdbserver
+    (
+    cd $CN
+    CNTK_GDB_SOURCE_FILE=gdb.break \
+    CNTK_DEBUG=yes \
+        emacs -nw
+    )
+}
+run_emacs_cntk_unittest() {
+    kill_gdbserver
+    (
+    cd $CN
+    CNTK_GDB_SOURCE_FILE=gdb.unittest.break \
+    CNTK_DEBUG=yes \
+        emacs -nw
+    )
+}
+
 _set_if_not() {
     local varname="$1"
     local value="$2"
@@ -463,6 +487,12 @@ is_remote_home_mounted() {
     df -h | grep "$remote_node:" --quiet
 }
 
+# ret=0 if $direc is a mountpoint for something.
+is_dir_mount_point() {
+    local direc="$1"
+    shift 1
+    df -h --output=target | tail -n+2 | grep "$direc"
+}
 is_remote_home_mountpoint() {
     local remote_node="$1"
     shift 1
@@ -479,7 +509,7 @@ mount_remote_home() {
 
     local mount_dir="$HOME/$remote_node"
     mkdir -p "$mount_dir"
-    if is_remote_home_mounted; then
+    if is_remote_home_mounted "$remote_node"; then
         return
     fi
     if ! is_dir_empty "$mount_dir"; then
