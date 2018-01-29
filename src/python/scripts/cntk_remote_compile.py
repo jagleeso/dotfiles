@@ -26,8 +26,10 @@ class CNTKRemoteCompile(object):
                                       errcode=True,
                                       debug=args.debug,
                                       add_env={
-                                          'RESTART_GDB':dot_util.yes_or_no(args.restart is None),
+                                          'RESTART_GDB':dot_util.yes_or_no(args.restart is not None),
                                           'RESTART_GDB_SH_SCRIPT':'' if args.restart is None else args.restart,
+                                          'REMOTE_CNTK_HOME':args.remote_cntk_home,
+                                          'LOCAL_CNTK_HOME':args.local_cntk_home,
                                       })
         return ret
 
@@ -36,7 +38,7 @@ def main():
     parser = argparse.ArgumentParser("compile cntk on remote machine")
     parser.add_argument('cmd', nargs='*')
     parser.add_argument('--restart',
-                        choices=['gdb_cntk', 'gdb_cntk_unittest'],
+                        choices=['gdb_cntk', 'gdb_cntk_unittest', 'gdb_cntk_unittest_local'],
                         help="restart remote emacs debugger.")
     parser.add_argument('--debug', action='store_true',
                         help="debug")
@@ -44,6 +46,12 @@ def main():
                         help="remote node",
                         choices=exports.nodes,
                         default=exports.vars['REMOTE_LOGAN_NODE'])
+    parser.add_argument('--remote-cntk-home',
+                        help="remote CNTK directory",
+                        required=True)
+    parser.add_argument('--local-cntk-home',
+                        help="local CNTK directory",
+                        required=True)
     args, extra_args = parser.parse_known_args()
 
     scr = CNTKRemoteCompile(args, parser, extra_args)

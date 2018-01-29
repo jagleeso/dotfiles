@@ -370,14 +370,14 @@ do_cntk_remote_compile() {
     local remote_node="$1"
     shift 1
 
-    local local_cntk=
+#    local local_cntk=
     local args=()
-    if is_ubuntu_on_windows; then
-        local_cntk="$WINDOWS_HOME/clone/CNTK"
-        args=("${args[@]}" --wsl-windows-path)
-    else
-        local_cntk="$HOME/clone/CNTK"
-    fi
+#    if is_ubuntu_on_windows; then
+#        local_cntk="$WINDOWS_HOME/clone/CNTK"
+#        args=("${args[@]}" --wsl-windows-path)
+#    else
+#        local_cntk="$HOME/clone/CNTK"
+#    fi
 
     filter_out() {
         # Filter out:
@@ -401,22 +401,22 @@ do_cntk_remote_compile() {
     fi
     local build_remote_sh="$(cat <<EOF
 set -e
-cd ~/clone/CNTK
+cd $REMOTE_CNTK_HOME
 ./make.sh $@
 $restart_cmd
 EOF
-#./make.sh "$@"
 )"
 
     (
-    cd $HOME/clone/CNTK
+    cd $LOCAL_CNTK_HOME
     ( ssh $remote_node 2>&1 ) <<<"$build_remote_sh" | \
         replace_paths.py \
-            --local "$local_cntk" \
-            --remote "$(remote_home $remote_node)/clone/CNTK" \
+            --local "$LOCAL_CNTK_HOME" \
+            --remote "$REMOTE_CNTK_HOME" \
             --full-path \
             "${args[@]}" | \
             filter_out
+#            --remote "$(remote_home $remote_node)/clone/CNTK"
     )
 }
 
@@ -439,23 +439,26 @@ kill_gdbserver() {
     killall gdbserver || true
     sleep 0.5
 }
-run_emacs_cntk() {
+_run_emacs() {
+    local cntk_gdb_source_file="$1"
+    shift 1
     kill_gdbserver
     (
     cd $CN
-    CNTK_GDB_SOURCE_FILE=gdb.break \
+    CNTK_GDB_SOURCE_FILE=$cntk_gdb_source_file \
     CNTK_DEBUG=yes \
         emacs -nw
     )
 }
+run_emacs_cntk() {
+    _run_emacs gdb.break
+}
 run_emacs_cntk_unittest() {
-    kill_gdbserver
-    (
-    cd $CN
-    CNTK_GDB_SOURCE_FILE=gdb.unittest.break \
-    CNTK_DEBUG=yes \
-        emacs -nw
-    )
+    _run_emacs gdb.unittest.break
+}
+
+run_emacs_cntk_unittest_local() {
+    _run_emacs gdb.unittest.local.break
 }
 
 _set_if_not() {

@@ -12,15 +12,17 @@ import time
 
 
 class GDB(object):
-    def __init__(self, args, parser):
+    def __init__(self, args, parser, cmd):
         self.args = args
         self.parser = parser
+        self.cmd = cmd
 
     def main(self):
         args = self.args
         parser = self.parser
+        cmd = self.cmd
 
-        gdbserver_cmd = [args.gdbserver, "localhost:{port}".format(port=args.port)] + args.cmd
+        gdbserver_cmd = [args.gdbserver, "localhost:{port}".format(port=args.port)] + cmd
         cmdline = dot_util.sanitize_cmdline(gdbserver_cmd)
 
         while True:
@@ -34,14 +36,13 @@ class GDB(object):
 
 def main():
     parser = argparse.ArgumentParser("file.ext -> file.ext.bkup")
-    parser.add_argument('cmd', nargs='*')
     parser.add_argument('--debug', action='store_true',
             help="debug")
     parser.add_argument('-p', '--port', type=int,
                         default=1234)
     parser.add_argument('--gdbserver', default="gdbserver")
     parser.add_argument('--out', help="log output")
-    args = parser.parse_args()
+    args, cmd = parser.parse_known_args()
 
     if args.out is None:
         args.out = 'gdb.txt'
@@ -54,7 +55,7 @@ def main():
         print('Logging output to: {path}'.format(
             path=_P(args.out)))
 
-    gdb = GDB(args, parser)
+    gdb = GDB(args, parser, cmd)
     gdb.main()
 
 if __name__ == "__main__":
