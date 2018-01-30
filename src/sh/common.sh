@@ -3,6 +3,23 @@ DOT_HOME="$HOME/clone/dotfiles"
 set -e
 source "$DOT_HOME/src/sh/exports.sh"
 
+COL_BLACK='\033[0;30m'
+COL_RED='\033[0;31m'
+COL_GREEN='\033[0;32m'
+COL_BROWN_ORANGE='\033[0;33m'
+COL_BLUE='\033[0;34m'
+COL_PURPLE='\033[0;35m'
+COL_CYAN='\033[0;36m'
+COL_LIGHT_GRAY='\033[0;37m'
+COL_DARK_GRAY='\033[1;30m'
+COL_LIGHT_RED='\033[1;31m'
+COL_LIGHT_GREEN='\033[1;32m'
+COL_YELLOW='\033[1;33m'
+COL_LIGHT_BLUE='\033[1;34m'
+COL_LIGHT_PURPLE='\033[1;35m'
+COL_LIGHT_CYAN='\033[1;36m'
+COL_WHITE='\033[1;37m'
+
 #REMOTE_XEN1_NODE=xen1
 #REMOTE_AMD_NODE=amd
 #REMOTE_ML_NODE=ml
@@ -406,9 +423,8 @@ cd $REMOTE_CNTK_HOME
 $restart_cmd
 EOF
 )"
-
+    set +e
     (
-    cd $LOCAL_CNTK_HOME
     ( ssh $remote_node 2>&1 ) <<<"$build_remote_sh" | \
         replace_paths.py \
             --local "$LOCAL_CNTK_HOME" \
@@ -416,8 +432,15 @@ EOF
             --full-path \
             "${args[@]}" | \
             filter_out
-#            --remote "$(remote_home $remote_node)/clone/CNTK"
     )
+    local ret=$?
+    set -e
+    if [ "$ret" = '0' ]; then
+        echo_green "BUILD SUCCESS"
+    else
+        echo_green "BUILD FAILED; status = $ret"
+    fi
+    return "$ret"
 }
 
 _is_mounted() {
@@ -434,6 +457,16 @@ do_kill_gdbserver() {
 EOF
 }
 
+echo_green() {
+    local msg="$1"
+    shift 1
+    echo -e "${COL_GREEN}${msg}${COL_NONE}"
+}
+echo_red() {
+    local msg="$1"
+    shift 1
+    echo -e "${COL_RED}${msg}${COL_NONE}"
+}
 
 kill_gdbserver() {
     killall gdbserver || true
@@ -443,8 +476,11 @@ _run_emacs() {
     local cntk_gdb_source_file="$1"
     shift 1
     kill_gdbserver
+    if [ "$CNTK_DIR" = "" ]; then
+        CNTK_DIR="$CN"
+    fi
     (
-    cd $CN
+    cd $CNTK_DIR
     CNTK_GDB_SOURCE_FILE=$cntk_gdb_source_file \
     CNTK_DEBUG=yes \
         emacs -nw

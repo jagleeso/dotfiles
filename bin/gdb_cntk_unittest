@@ -3,6 +3,7 @@ set -e
 source $HOME/.dot_common.sh
 
 main() {
+    export CNTK_DIR="$HOME/clone/CNTK.fresh"
     run_emacs_cntk_unittest "$@"
 }
 

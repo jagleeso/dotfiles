@@ -80,7 +80,9 @@ class Sh(object):
             dot_util.run_cmd(cmd,
                              stdout=sys.stdout,
                              stderr=sys.stderr,
-                             silent=not self._debug)
+                             silent=not self._debug,
+                             # to_stdout=True
+                             )
         except subprocess.CalledProcessError as e:
             sys.exit(e.returncode)
 

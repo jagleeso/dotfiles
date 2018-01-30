@@ -40,7 +40,7 @@ class ReplacePaths(ShellScript):
         path_str = None
         if os.path.exists(path):
             path_str = os.path.realpath(path)
-            if dot_util.IS_WSL and wsl_windows_path:
+            if wsl_windows_path:
                 path_str = win2dos(path_str)
         else:
             path_str = path
@@ -70,6 +70,7 @@ class ReplacePaths(ShellScript):
                       full_path=True, debug=False, wsl_windows_path=False):
         # for line in f:
         #     line = line.rstrip()
+        pprint.pprint(locals())
         while True:
             line = f.readline()
             if line == '':
@@ -110,7 +111,7 @@ class ReplacePaths(ShellScript):
              ShellScript.as_output_stream(args.out) as out:
             ReplacePaths.replace_paths(f, out, args.local, args.remote,
                                        debug=args.debug,
-                                       wsl_windows_path=args.wsl_windows_path)
+                                       wsl_windows_path=dot_util.IS_WSL)
 
 
 def main():
@@ -128,9 +129,9 @@ def main():
                              "output to stderr not stdout")
     parser.add_argument('--full-path', action='store_true',
                         help="replace with full path, if it exists locally")
-    parser.add_argument('--wsl-windows-path', action='store_true',
-                        help=r"if using windows subsystem on linux (WSL), "
-                             r"output paths like C:\Users\James\...")
+    # parser.add_argument('--wsl-windows-path', action='store_true',
+    #                     help=r"if using windows subsystem on linux (WSL), "
+    #                          r"output paths like C:\Users\James\...")
     parser.add_argument('--debug', action='store_true',
                         help="debug")
     args = parser.parse_args()

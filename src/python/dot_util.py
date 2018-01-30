@@ -485,8 +485,10 @@ def check_output(shell_cmd, shell=None, env=None, add_env={}, stdout=None, stder
             out, err = _gather_proc_output(p, to_stdout=to_stdout, tee_f=tee_f)
             if write_out:
                 user_stdout.write(out)
+                user_stdout.flush()
             if write_err:
                 user_stderr.write(err)
+                user_stderr.flush()
         except Exception:
             _terminate_proc(p)
             raise
