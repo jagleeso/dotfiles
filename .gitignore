@@ -7,3 +7,6 @@ tags
 
 # python
 *.pyc
+
+# bkup.py
+*.bkup
