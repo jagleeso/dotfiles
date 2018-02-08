@@ -42,9 +42,10 @@ export RD=$HOME/clone/RDMA-GPU
 
 export CN=$HOME/clone/CNTK
 export PY=$HOME/clone/pytorch
+export SK=$HOME/clone/sockeye
 export CF=$HOME/clone/CNTK.fresh
 export RV=$HOME/clone/parallel-revnet
-activate_cntk() {
+activate_rdma_gpu() {
     if [ -e $RD/source_me.sh ]; then
         source $RD/source_me.sh 2>& /dev/null
     fi
@@ -69,7 +70,7 @@ activate_rllab3() {
         source ~/anaconda3/envs/rllab3/bin/activate rllab3
     fi
 }
-( activate_cntk > /dev/null 2>&1 ) || true
+activate_rdma_gpu || true
 
 fresh_cntk() {
     $CN/build/fresh/bin/cntk "$@"

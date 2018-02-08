@@ -74,7 +74,7 @@ _source_if ~/.zshrc.tensorflow
 _source_if ~/.zshrc.cuda
 _source_if ~/.zshrc.school
 _source_if ~/.zshrc.mpi
-_source_if ~/.zshrc.mxnet
+#_source_if ~/.zshrc.mxnet
 _source_if ~/.zshrc.windows
 export DOT_HOME="$HOME/clone/dotfiles"
 _source_if ~/.dot_exports.sh
