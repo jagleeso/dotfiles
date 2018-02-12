@@ -383,18 +383,11 @@ is_ubuntu_on_windows() {
 }
 WINDOWS_HOME="C:/Users/James"
 
-do_cntk_remote_compile() {
+do_remote_compile() {
     local remote_node="$1"
     shift 1
 
-#    local local_cntk=
     local args=()
-#    if is_ubuntu_on_windows; then
-#        local_cntk="$WINDOWS_HOME/clone/CNTK"
-#        args=("${args[@]}" --wsl-windows-path)
-#    else
-#        local_cntk="$HOME/clone/CNTK"
-#    fi
 
     filter_out() {
         # Filter out:
@@ -418,7 +411,7 @@ do_cntk_remote_compile() {
     fi
     local build_remote_sh="$(cat <<EOF
 set -e
-cd $REMOTE_CNTK_HOME
+cd $REMOTE_HOME
 ./make.sh $@
 $restart_cmd
 EOF
@@ -427,8 +420,8 @@ EOF
     (
     ( ssh $remote_node 2>&1 ) <<<"$build_remote_sh" | \
         replace_paths.py \
-            --local "$LOCAL_CNTK_HOME" \
-            --remote "$REMOTE_CNTK_HOME" \
+            --local "$LOCAL_HOME" \
+            --remote "$REMOTE_HOME" \
             --full-path \
             "${args[@]}" | \
             filter_out

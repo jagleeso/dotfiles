@@ -11,7 +11,7 @@ from os.path import join as _j, abspath as _P, dirname as _d, realpath as _r, ba
 import dot_util
 import time
 
-class CNTKRemoteCompile(object):
+class MXNetRemoteCompile(object):
     def __init__(self, args, parser, extra_args):
         self.args = args
         self.parser = parser
@@ -35,10 +35,10 @@ class CNTKRemoteCompile(object):
 
 def main():
     exports = dot_util.Exports()
-    parser = argparse.ArgumentParser("compile cntk on remote machine")
+    parser = argparse.ArgumentParser("compile mxnet on remote machine")
     parser.add_argument('cmd', nargs='*')
     parser.add_argument('--restart',
-                        choices=['gdb_cntk', 'gdb_cntk_unittest', 'gdb_cntk_unittest_local'],
+                        choices=['gdb_mxnet', 'gdb_mxnet_unittest', 'gdb_mxnet_unittest_local'],
                         help="restart remote emacs debugger.")
     parser.add_argument('--debug', action='store_true',
                         help="debug")
@@ -47,14 +47,14 @@ def main():
                         choices=exports.nodes,
                         default=exports.vars['REMOTE_LOGAN_NODE'])
     parser.add_argument('--remote-home',
-                        help="remote CNTK directory",
+                        help="remote MXNet directory",
                         required=True)
     parser.add_argument('--local-home',
-                        help="local CNTK directory",
+                        help="local MXNet directory",
                         required=True)
     args, extra_args = parser.parse_known_args()
 
-    scr = CNTKRemoteCompile(args, parser, extra_args)
+    scr = MXNetRemoteCompile(args, parser, extra_args)
     ret = scr.main()
     sys.exit(ret)
 
