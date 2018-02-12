@@ -1,0 +1,6 @@
+#!/bin/bash
+source $HOME/.dot_common.sh
+
+# do_sync_cntk_gdb_xen1
+#do_sync_cntk_gdb_ml
+do_sync_mxnet_gdb_logan
