@@ -849,6 +849,9 @@ setup_gdb() {
     fi
 #    svn co -r r250458 svn://gcc.gnu.org/svn/gcc/trunk/libstdc++-v3/python $GDB_PRETTY_PRINTERS
     local commit="master"
+    # Allows you to use 'py-bt' in gdb to get a python stacktrace!
+    # (Useful if you have python calling into C/C++ code).
+    _install_apt python3-dbg
     _clone $HOME/clone/gdb_printers__python \
         git@github.com:jagleeso/gdb_printers__python.git \
         $commit
