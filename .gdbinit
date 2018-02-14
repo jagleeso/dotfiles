@@ -16,3 +16,5 @@ if os.path.exists(GDB_PRETTY_PRINTERS):
     register_libstdcxx_printers (None)
 
 end
+
+source ~/.gdbinit.dashboard

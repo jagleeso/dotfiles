@@ -852,6 +852,10 @@ setup_gdb() {
     _clone $HOME/clone/gdb_printers__python \
         git@github.com:jagleeso/gdb_printers__python.git \
         $commit
+    _clone $HOME/clone/gdb-dashboard \
+        git@github.com:cyrus-and/gdb-dashboard.git \
+        master
+    _ln $HOME/clone/gdb-dashboard/.gdbinit $HOME/.gdbinit.dashboard
 }
 setup_entr() {
     if [ "$FORCE" != 'yes' ] && [ "$(_has_exec entr)" = 'yes' ]; then
