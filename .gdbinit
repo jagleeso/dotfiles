@@ -18,3 +18,5 @@ if os.path.exists(GDB_PRETTY_PRINTERS):
 end
 
 source ~/.gdbinit.dashboard
+dashboard -layout source stack expressions
+echo TIP:\n (1) Start a new tmux pane, and run "tty | cboard" in it\n (2) Run "dashboard -output <PASTE>" to redirect dashboard to it\n
