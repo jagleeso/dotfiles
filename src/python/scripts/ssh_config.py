@@ -102,6 +102,11 @@ class SSHConfig(object):
         attrs = config[self.args.host]
         # Whatever option they provided that is NOT false
         attr_name = self.attrs_asked_for[0]
+        if attr_name not in attrs:
+            parser.error('no attr = {attr} found in config for Host = {host}'.format(
+                host=self.args.host,
+                attr=attr_name,
+            ))
         value = attrs[attr_name]
         if self.args.no_newline:
             sys.stdout.write(value)
