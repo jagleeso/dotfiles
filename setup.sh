@@ -163,7 +163,8 @@ _find_python_config_dir() {
     ( find /usr -type d | \
         grep --perl-regexp "python${pymajor_version}.*/config.*" | \
         perl -lane 'if (/config[^\/]*$/) { print; }' | \
-        grep -v dist-packages ) \
+        grep -v dist-packages | \
+        head -n 1 ) \
         || true
 }
 # _python_config_dir() {
