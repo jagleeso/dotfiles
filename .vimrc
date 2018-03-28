@@ -556,4 +556,12 @@ function! AddSystemTags()
 endfunction
 call AddSystemTags()
 
+" Maps F2 to go to next compile error.
+" Maps leader-F2 to go to previous compile error.
+" NOTE: shift+F2 (i.e. <S-F2>) doesn't work
+" This link advises against modifiers + F-keys:
+" https://superuser.com/questions/508655/map-shift-f3-in-vimrc
+map <silent> <F2> :cnext<CR>
+map <silent> <Leader><F2> :cprev<CR>
+
 source ~/.vimrc.rocm
