@@ -163,7 +163,8 @@ _find_python_config_dir() {
     ( find /usr -type d | \
         grep --perl-regexp "python${pymajor_version}.*/config.*" | \
         perl -lane 'if (/config[^\/]*$/) { print; }' | \
-        grep -v dist-packages ) \
+        grep -v dist-packages | \
+        head -n 1 ) \
         || true
 }
 # _python_config_dir() {
@@ -849,9 +850,16 @@ setup_gdb() {
     fi
 #    svn co -r r250458 svn://gcc.gnu.org/svn/gcc/trunk/libstdc++-v3/python $GDB_PRETTY_PRINTERS
     local commit="master"
+    # Allows you to use 'py-bt' in gdb to get a python stacktrace!
+    # (Useful if you have python calling into C/C++ code).
+    _install_apt python3-dbg
     _clone $HOME/clone/gdb_printers__python \
         git@github.com:jagleeso/gdb_printers__python.git \
         $commit
+    _clone $HOME/clone/gdb-dashboard \
+        git@github.com:cyrus-and/gdb-dashboard.git \
+        master
+    _ln $HOME/clone/gdb-dashboard/.gdbinit $HOME/.gdbinit.dashboard
 }
 setup_entr() {
     if [ "$FORCE" != 'yes' ] && [ "$(_has_exec entr)" = 'yes' ]; then

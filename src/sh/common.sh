@@ -30,6 +30,47 @@ COL_WHITE='\033[1;37m'
 VERBOSE=
 TUNNEL_FLAGS="$VERBOSE -f -N"
 
+
+ONE_OF_EXACT=no
+_one_of() {
+    local x="$1"
+    shift 1
+
+    match() {
+        local y="$1"
+        shift 1
+        if [ "$ONE_OF_EXACT" = 'yes' ]; then
+            [ "$y" = "$x" ]
+        else
+            echo "$x" | grep --quiet --perl-regexp "$y"
+        fi
+    }
+
+    for y in "$@"; do
+        if match "$y"; then
+            return 0
+        fi
+    done
+    return 1
+}
+
+_yes_or_no() {
+#    if "$@"; then
+    if "$@" > /dev/null 2>&1; then
+        echo yes
+    else
+        echo no
+    fi
+}
+_ssid() {
+    iwgetid -r
+}
+_is_wifi_lowbandwidth() {
+    local ssid="$(_ssid)"
+    _one_of "$ssid" "${WIFI_LOW_BANDWIDTH_SSIDS[@]}"
+}
+IS_WIFI_LOW_BANDWIDTH="$(_yes_or_no _is_wifi_lowbandwidth)"
+
 if [ "$DEBUG" = 'yes' ] && [ "$DEBUG_SHELL" != 'no' ]; then
     set -x
 fi
@@ -128,6 +169,418 @@ _rsync_remote_dir() {
     _rsync -L -avz $remote_node:$remote_root/$dir/ $local_path/$dir/
 }
 
+## info sharedlibrary:
+#/lib/x86_64-linux-gnu/libpthread.so.0
+#/lib/x86_64-linux-gnu/libc.so.6
+#/lib/x86_64-linux-gnu/libdl.so.2
+#/lib/x86_64-linux-gnu/libutil.so.1
+#/lib/x86_64-linux-gnu/libexpat.so.1
+#/lib/x86_64-linux-gnu/libz.so.1
+#/lib/x86_64-linux-gnu/libm.so.6
+#/lib64/ld-linux-x86-64.so.2
+#/usr/lib/python3.5/lib-dynload/_ctypes.cpython-35m-x86_64-linux-gnu.so
+#/usr/lib/python3.5/lib-dynload/_opcode.cpython-35m-x86_64-linux-gnu.so
+#/usr/local/lib/python3.5/dist-packages/numpy/core/multiarray.cpython-35m-x86_64-linux-gnu.so
+#/usr/local/lib/python3.5/dist-packages/numpy/core/../.libs/libopenblasp-r0-39a31c03.2.18.so
+#/usr/local/lib/python3.5/dist-packages/numpy/core/../.libs/libgfortran-ed201abd.so.3.0.0
+#/usr/local/lib/python3.5/dist-packages/numpy/core/umath.cpython-35m-x86_64-linux-gnu.so
+#/usr/lib/python3.5/lib-dynload/_bz2.cpython-35m-x86_64-linux-gnu.so
+#/lib/x86_64-linux-gnu/libbz2.so.1.0
+#/usr/lib/python3.5/lib-dynload/_lzma.cpython-35m-x86_64-linux-gnu.so
+#/lib/x86_64-linux-gnu/liblzma.so.5
+#/usr/lib/python3.5/lib-dynload/_hashlib.cpython-35m-x86_64-linux-gnu.so
+#/lib/x86_64-linux-gnu/libcrypto.so.1.0.0
+#/usr/local/lib/python3.5/dist-packages/numpy/linalg/lapack_lite.cpython-35m-x86_64-linux-gnu.so
+#/usr/local/lib/python3.5/dist-packages/numpy/linalg/_umath_linalg.cpython-35m-x86_64-linux-gnu.so
+#/usr/lib/python3.5/lib-dynload/_decimal.cpython-35m-x86_64-linux-gnu.so
+#/usr/lib/x86_64-linux-gnu/libmpdec.so.2
+#/usr/local/lib/python3.5/dist-packages/numpy/fft/fftpack_lite.cpython-35m-x86_64-linux-gnu.so
+#/usr/local/lib/python3.5/dist-packages/numpy/random/mtrand.cpython-35m-x86_64-linux-gnu.so
+#/home/james/clone/mxnet/python/mxnet/../../lib/libmxnet.so
+#/usr/local/cuda/lib64/libcudart.so.8.0
+#/usr/local/cuda/lib64/libcublas.so.8.0
+#/usr/local/cuda/lib64/libcurand.so.8.0
+#/usr/local/cuda/lib64/libcusolver.so.8.0
+#/usr/lib/libopenblas.so.0
+#/lib/x86_64-linux-gnu/librt.so.1
+#/usr/lib/x86_64-linux-gnu/libopencv_core.so.2.4
+#/usr/lib/x86_64-linux-gnu/libopencv_highgui.so.2.4
+#/usr/lib/x86_64-linux-gnu/libopencv_imgproc.so.2.4
+#/usr/lib/x86_64-linux-gnu/libjemalloc.so.1
+#/usr/local/cuda/lib64/libcufft.so.8.0
+#/usr/lib/x86_64-linux-gnu/libcuda.so.1
+#/usr/local/cuda/lib64/libnvrtc.so.8.0
+#/usr/lib/x86_64-linux-gnu/libstdc++.so.6
+#/usr/lib/x86_64-linux-gnu/libgomp.so.1
+#/lib/x86_64-linux-gnu/libgcc_s.so.1
+#/usr/lib/x86_64-linux-gnu/libgfortran.so.3
+#/usr/lib/x86_64-linux-gnu/libGL.so.1
+#/usr/lib/x86_64-linux-gnu/libtbb.so.2
+#/usr/lib/x86_64-linux-gnu/libjpeg.so.8
+#/lib/x86_64-linux-gnu/libpng12.so.0
+#/usr/lib/x86_64-linux-gnu/libtiff.so.5
+#/usr/lib/x86_64-linux-gnu/libjasper.so.1
+#/usr/lib/x86_64-linux-gnu/libIlmImf-2_2.so.22
+#/usr/lib/x86_64-linux-gnu/libHalf.so.12
+#/usr/lib/x86_64-linux-gnu/libgtk-x11-2.0.so.0
+#/usr/lib/x86_64-linux-gnu/libgdk-x11-2.0.so.0
+#/usr/lib/x86_64-linux-gnu/libgobject-2.0.so.0
+#/lib/x86_64-linux-gnu/libglib-2.0.so.0
+#/usr/lib/x86_64-linux-gnu/libgtkglext-x11-1.0.so.0
+#/usr/lib/x86_64-linux-gnu/libgdkglext-x11-1.0.so.0
+#/usr/lib/x86_64-linux-gnu/libdc1394.so.22
+#/usr/lib/x86_64-linux-gnu/libv4l1.so.0
+#/usr/lib/x86_64-linux-gnu/libavcodec-ffmpeg.so.56
+#/usr/lib/x86_64-linux-gnu/libavformat-ffmpeg.so.56
+#/usr/lib/x86_64-linux-gnu/libavutil-ffmpeg.so.54
+#/usr/lib/x86_64-linux-gnu/libswscale-ffmpeg.so.3
+#/usr/lib/x86_64-linux-gnu/libnvidia-fatbinaryloader.so.384.111
+#/usr/lib/x86_64-linux-gnu/libquadmath.so.0
+#/usr/lib/x86_64-linux-gnu/libGLX.so.0
+#/usr/lib/x86_64-linux-gnu/libGLdispatch.so.0
+#/usr/lib/x86_64-linux-gnu/libjbig.so.0
+#/usr/lib/x86_64-linux-gnu/libIex-2_2.so.12
+#/usr/lib/x86_64-linux-gnu/libIlmThread-2_2.so.12
+#/usr/lib/x86_64-linux-gnu/libgmodule-2.0.so.0
+#/usr/lib/x86_64-linux-gnu/libpangocairo-1.0.so.0
+#/usr/lib/x86_64-linux-gnu/libX11.so.6
+#/usr/lib/x86_64-linux-gnu/libXfixes.so.3
+#/usr/lib/x86_64-linux-gnu/libatk-1.0.so.0
+#/usr/lib/x86_64-linux-gnu/libcairo.so.2
+#/usr/lib/x86_64-linux-gnu/libgdk_pixbuf-2.0.so.0
+#/usr/lib/x86_64-linux-gnu/libgio-2.0.so.0
+#/usr/lib/x86_64-linux-gnu/libpangoft2-1.0.so.0
+#/usr/lib/x86_64-linux-gnu/libpango-1.0.so.0
+#/usr/lib/x86_64-linux-gnu/libfontconfig.so.1
+#/usr/lib/x86_64-linux-gnu/libXrender.so.1
+#/usr/lib/x86_64-linux-gnu/libXinerama.so.1
+#/usr/lib/x86_64-linux-gnu/libXi.so.6
+#/usr/lib/x86_64-linux-gnu/libXrandr.so.2
+#/usr/lib/x86_64-linux-gnu/libXcursor.so.1
+#/usr/lib/x86_64-linux-gnu/libXcomposite.so.1
+#/usr/lib/x86_64-linux-gnu/libXdamage.so.1
+#/usr/lib/x86_64-linux-gnu/libXext.so.6
+#/usr/lib/x86_64-linux-gnu/libffi.so.6
+#/lib/x86_64-linux-gnu/libpcre.so.3
+#/usr/lib/x86_64-linux-gnu/libGLU.so.1
+#/usr/lib/x86_64-linux-gnu/libXmu.so.6
+#/usr/lib/x86_64-linux-gnu/libpangox-1.0.so.0
+#/usr/lib/x86_64-linux-gnu/libraw1394.so.11
+#/lib/x86_64-linux-gnu/libusb-1.0.so.0
+#/usr/lib/x86_64-linux-gnu/libv4l2.so.0
+#/usr/lib/x86_64-linux-gnu/libswresample-ffmpeg.so.1
+#/usr/lib/x86_64-linux-gnu/libva.so.1
+#/usr/lib/x86_64-linux-gnu/libzvbi.so.0
+#/usr/lib/x86_64-linux-gnu/libxvidcore.so.4
+#/usr/lib/x86_64-linux-gnu/libx265.so.79
+#/usr/lib/x86_64-linux-gnu/libx264.so.148
+#/usr/lib/x86_64-linux-gnu/libwebp.so.5
+#/usr/lib/x86_64-linux-gnu/libwavpack.so.1
+#/usr/lib/x86_64-linux-gnu/libvpx.so.3
+#/usr/lib/x86_64-linux-gnu/libvorbisenc.so.2
+#/usr/lib/x86_64-linux-gnu/libvorbis.so.0
+#/usr/lib/x86_64-linux-gnu/libtwolame.so.0
+#/usr/lib/x86_64-linux-gnu/libtheoraenc.so.1
+#/usr/lib/x86_64-linux-gnu/libtheoradec.so.1
+#/usr/lib/x86_64-linux-gnu/libspeex.so.1
+#/usr/lib/x86_64-linux-gnu/libsnappy.so.1
+#/usr/lib/x86_64-linux-gnu/libshine.so.3
+#/usr/lib/x86_64-linux-gnu/libschroedinger-1.0.so.0
+#/usr/lib/x86_64-linux-gnu/libopus.so.0
+#/usr/lib/x86_64-linux-gnu/libopenjpeg.so.5
+#/usr/lib/x86_64-linux-gnu/libmp3lame.so.0
+#/usr/lib/x86_64-linux-gnu/libgsm.so.1
+#/usr/lib/x86_64-linux-gnu/libcrystalhd.so.3
+#/usr/lib/x86_64-linux-gnu/libssh-gcrypt.so.4
+#/usr/lib/x86_64-linux-gnu/librtmp.so.1
+#/usr/lib/x86_64-linux-gnu/libmodplug.so.1
+#/usr/lib/x86_64-linux-gnu/libgme.so.0
+#/usr/lib/x86_64-linux-gnu/libbluray.so.1
+#/usr/lib/x86_64-linux-gnu/libgnutls.so.30
+#/usr/lib/x86_64-linux-gnu/libfreetype.so.6
+#/usr/lib/x86_64-linux-gnu/libxcb.so.1
+#/usr/lib/x86_64-linux-gnu/libpixman-1.so.0
+#/usr/lib/x86_64-linux-gnu/libxcb-shm.so.0
+#/usr/lib/x86_64-linux-gnu/libxcb-render.so.0
+#/lib/x86_64-linux-gnu/libselinux.so.1
+#/lib/x86_64-linux-gnu/libresolv.so.2
+#/usr/lib/x86_64-linux-gnu/libharfbuzz.so.0
+#/usr/lib/x86_64-linux-gnu/libthai.so.0
+#/usr/lib/x86_64-linux-gnu/libXt.so.6
+#/lib/x86_64-linux-gnu/libudev.so.1
+#/usr/lib/x86_64-linux-gnu/libv4lconvert.so.0
+#/usr/lib/x86_64-linux-gnu/libsoxr.so.0
+#/usr/lib/x86_64-linux-gnu/libnuma.so.1
+#/usr/lib/x86_64-linux-gnu/libogg.so.0
+#/usr/lib/x86_64-linux-gnu/liborc-0.4.so.0
+#/lib/x86_64-linux-gnu/libgcrypt.so.20
+#/usr/lib/x86_64-linux-gnu/libgssapi_krb5.so.2
+#/usr/lib/x86_64-linux-gnu/libhogweed.so.4
+#/usr/lib/x86_64-linux-gnu/libnettle.so.6
+#/usr/lib/x86_64-linux-gnu/libgmp.so.10
+#/usr/lib/x86_64-linux-gnu/libxml2.so.2
+#/usr/lib/x86_64-linux-gnu/libp11-kit.so.0
+#/usr/lib/x86_64-linux-gnu/libidn.so.11
+#/usr/lib/x86_64-linux-gnu/libtasn1.so.6
+#/usr/lib/x86_64-linux-gnu/libXau.so.6
+#/usr/lib/x86_64-linux-gnu/libXdmcp.so.6
+#/usr/lib/x86_64-linux-gnu/libgraphite2.so.3
+#/usr/lib/x86_64-linux-gnu/libdatrie.so.1
+#/usr/lib/x86_64-linux-gnu/libSM.so.6
+#/usr/lib/x86_64-linux-gnu/libICE.so.6
+#/lib/x86_64-linux-gnu/libgpg-error.so.0
+#/usr/lib/x86_64-linux-gnu/libkrb5.so.3
+#/usr/lib/x86_64-linux-gnu/libk5crypto.so.3
+#/lib/x86_64-linux-gnu/libcom_err.so.2
+#/usr/lib/x86_64-linux-gnu/libkrb5support.so.0
+#/usr/lib/x86_64-linux-gnu/libicuuc.so.55
+#/lib/x86_64-linux-gnu/libuuid.so.1
+#/lib/x86_64-linux-gnu/libkeyutils.so.1
+#/usr/lib/x86_64-linux-gnu/libicudata.so.55
+#/usr/lib/python3.5/lib-dynload/_json.cpython-35m-x86_64-linux-gnu.so
+#/usr/lib/python3.5/lib-dynload/_ssl.cpython-35m-x86_64-linux-gnu.so
+#/lib/x86_64-linux-gnu/libssl.so.1.0.0
+#/usr/lib/python3.5/lib-dynload/_multiprocessing.cpython-35m-x86_64-linux-gnu.so
+#/usr/lib/python3.5/lib-dynload/termios.cpython-35m-x86_64-linux-gnu.so
+#/usr/lib/python3.5/lib-dynload/resource.cpython-35m-x86_64-linux-gnu.so
+#/usr/lib/python3.5/lib-dynload/_sqlite3.cpython-35m-x86_64-linux-gnu.so
+#/usr/lib/x86_64-linux-gnu/libsqlite3.so.0
+#/usr/lib/python3.5/lib-dynload/_lsprof.cpython-35m-x86_64-linux-gnu.so
+#/usr/lib/python3.5/lib-dynload/readline.cpython-35m-x86_64-linux-gnu.so
+#/lib/x86_64-linux-gnu/libreadline.so.6
+#/lib/x86_64-linux-gnu/libtinfo.so.5
+
+MX=$HOME/clone/mxnet
+_do_sync_mxnet_gdb() {
+    local remote_node="$1"
+    local remote_root="$2"
+    local remote_user="$3"
+
+    shift 3
+
+    local local_sysroot_path=$MX/sysroot/$remote_node
+    local local_path=$local_sysroot_path/$remote_root
+
+    _rsync_dir() {
+        local dir="$1"
+        shift 1
+
+        _rsync_remote_dir $local_path $remote_node $remote_root $dir
+    }
+
+    # NOTE:
+    # Always make sure you go into GDB and type "info sharedlibrary"
+    # and sync over all those .so files.
+    # For some reason, it appears GDB won't read symbols from your
+    # binary even if its missed those.
+    _sync_gdb_files() {
+        # info sharedlibrary:
+        GDB_FILES=( \
+        /lib/x86_64-linux-gnu/libpthread.so.0 \
+        /lib/x86_64-linux-gnu/libc.so.6 \
+        /lib/x86_64-linux-gnu/libdl.so.2 \
+        /lib/x86_64-linux-gnu/libutil.so.1 \
+        /lib/x86_64-linux-gnu/libexpat.so.1 \
+        /lib/x86_64-linux-gnu/libz.so.1 \
+        /lib/x86_64-linux-gnu/libm.so.6 \
+        /lib64/ld-linux-x86-64.so.2 \
+        /usr/lib/python3.5/lib-dynload/_ctypes.cpython-35m-x86_64-linux-gnu.so \
+        /usr/lib/python3.5/lib-dynload/_opcode.cpython-35m-x86_64-linux-gnu.so \
+        /usr/local/lib/python3.5/dist-packages/numpy/core/multiarray.cpython-35m-x86_64-linux-gnu.so \
+        /usr/local/lib/python3.5/dist-packages/numpy/core/../.libs/libopenblasp-r0-39a31c03.2.18.so \
+        /usr/local/lib/python3.5/dist-packages/numpy/core/../.libs/libgfortran-ed201abd.so.3.0.0 \
+        /usr/local/lib/python3.5/dist-packages/numpy/core/umath.cpython-35m-x86_64-linux-gnu.so \
+        /usr/lib/python3.5/lib-dynload/_bz2.cpython-35m-x86_64-linux-gnu.so \
+        /lib/x86_64-linux-gnu/libbz2.so.1.0 \
+        /usr/lib/python3.5/lib-dynload/_lzma.cpython-35m-x86_64-linux-gnu.so \
+        /lib/x86_64-linux-gnu/liblzma.so.5 \
+        /usr/lib/python3.5/lib-dynload/_hashlib.cpython-35m-x86_64-linux-gnu.so \
+        /lib/x86_64-linux-gnu/libcrypto.so.1.0.0 \
+        /usr/local/lib/python3.5/dist-packages/numpy/linalg/lapack_lite.cpython-35m-x86_64-linux-gnu.so \
+        /usr/local/lib/python3.5/dist-packages/numpy/linalg/_umath_linalg.cpython-35m-x86_64-linux-gnu.so \
+        /usr/lib/python3.5/lib-dynload/_decimal.cpython-35m-x86_64-linux-gnu.so \
+        /usr/lib/x86_64-linux-gnu/libmpdec.so.2 \
+        /usr/local/lib/python3.5/dist-packages/numpy/fft/fftpack_lite.cpython-35m-x86_64-linux-gnu.so \
+        /usr/local/lib/python3.5/dist-packages/numpy/random/mtrand.cpython-35m-x86_64-linux-gnu.so \
+        /home/$remote_user/clone/mxnet/python/mxnet/../../lib/libmxnet.so \
+        /usr/local/cuda/lib64/libcudart.so.8.0 \
+        /usr/local/cuda/lib64/libcublas.so.8.0 \
+        /usr/local/cuda/lib64/libcurand.so.8.0 \
+        /usr/local/cuda/lib64/libcusolver.so.8.0 \
+        /usr/lib/libopenblas.so.0 \
+        /lib/x86_64-linux-gnu/librt.so.1 \
+        /usr/lib/x86_64-linux-gnu/libopencv_core.so.2.4 \
+        /usr/lib/x86_64-linux-gnu/libopencv_highgui.so.2.4 \
+        /usr/lib/x86_64-linux-gnu/libopencv_imgproc.so.2.4 \
+        /usr/lib/x86_64-linux-gnu/libjemalloc.so.1 \
+        /usr/local/cuda/lib64/libcufft.so.8.0 \
+        /usr/lib/x86_64-linux-gnu/libcuda.so.1 \
+        /usr/local/cuda/lib64/libnvrtc.so.8.0 \
+        /usr/lib/x86_64-linux-gnu/libstdc++.so.6 \
+        /usr/lib/x86_64-linux-gnu/libgomp.so.1 \
+        /lib/x86_64-linux-gnu/libgcc_s.so.1 \
+        /usr/lib/x86_64-linux-gnu/libgfortran.so.3 \
+        /usr/lib/x86_64-linux-gnu/libGL.so.1 \
+        /usr/lib/x86_64-linux-gnu/libtbb.so.2 \
+        /usr/lib/x86_64-linux-gnu/libjpeg.so.8 \
+        /lib/x86_64-linux-gnu/libpng12.so.0 \
+        /usr/lib/x86_64-linux-gnu/libtiff.so.5 \
+        /usr/lib/x86_64-linux-gnu/libjasper.so.1 \
+        /usr/lib/x86_64-linux-gnu/libIlmImf-2_2.so.22 \
+        /usr/lib/x86_64-linux-gnu/libHalf.so.12 \
+        /usr/lib/x86_64-linux-gnu/libgtk-x11-2.0.so.0 \
+        /usr/lib/x86_64-linux-gnu/libgdk-x11-2.0.so.0 \
+        /usr/lib/x86_64-linux-gnu/libgobject-2.0.so.0 \
+        /lib/x86_64-linux-gnu/libglib-2.0.so.0 \
+        /usr/lib/x86_64-linux-gnu/libgtkglext-x11-1.0.so.0 \
+        /usr/lib/x86_64-linux-gnu/libgdkglext-x11-1.0.so.0 \
+        /usr/lib/x86_64-linux-gnu/libdc1394.so.22 \
+        /usr/lib/x86_64-linux-gnu/libv4l1.so.0 \
+        /usr/lib/x86_64-linux-gnu/libavcodec-ffmpeg.so.56 \
+        /usr/lib/x86_64-linux-gnu/libavformat-ffmpeg.so.56 \
+        /usr/lib/x86_64-linux-gnu/libavutil-ffmpeg.so.54 \
+        /usr/lib/x86_64-linux-gnu/libswscale-ffmpeg.so.3 \
+        /usr/lib/x86_64-linux-gnu/libnvidia-fatbinaryloader.so.384.111 \
+        /usr/lib/x86_64-linux-gnu/libquadmath.so.0 \
+        /usr/lib/x86_64-linux-gnu/libGLX.so.0 \
+        /usr/lib/x86_64-linux-gnu/libGLdispatch.so.0 \
+        /usr/lib/x86_64-linux-gnu/libjbig.so.0 \
+        /usr/lib/x86_64-linux-gnu/libIex-2_2.so.12 \
+        /usr/lib/x86_64-linux-gnu/libIlmThread-2_2.so.12 \
+        /usr/lib/x86_64-linux-gnu/libgmodule-2.0.so.0 \
+        /usr/lib/x86_64-linux-gnu/libpangocairo-1.0.so.0 \
+        /usr/lib/x86_64-linux-gnu/libX11.so.6 \
+        /usr/lib/x86_64-linux-gnu/libXfixes.so.3 \
+        /usr/lib/x86_64-linux-gnu/libatk-1.0.so.0 \
+        /usr/lib/x86_64-linux-gnu/libcairo.so.2 \
+        /usr/lib/x86_64-linux-gnu/libgdk_pixbuf-2.0.so.0 \
+        /usr/lib/x86_64-linux-gnu/libgio-2.0.so.0 \
+        /usr/lib/x86_64-linux-gnu/libpangoft2-1.0.so.0 \
+        /usr/lib/x86_64-linux-gnu/libpango-1.0.so.0 \
+        /usr/lib/x86_64-linux-gnu/libfontconfig.so.1 \
+        /usr/lib/x86_64-linux-gnu/libXrender.so.1 \
+        /usr/lib/x86_64-linux-gnu/libXinerama.so.1 \
+        /usr/lib/x86_64-linux-gnu/libXi.so.6 \
+        /usr/lib/x86_64-linux-gnu/libXrandr.so.2 \
+        /usr/lib/x86_64-linux-gnu/libXcursor.so.1 \
+        /usr/lib/x86_64-linux-gnu/libXcomposite.so.1 \
+        /usr/lib/x86_64-linux-gnu/libXdamage.so.1 \
+        /usr/lib/x86_64-linux-gnu/libXext.so.6 \
+        /usr/lib/x86_64-linux-gnu/libffi.so.6 \
+        /lib/x86_64-linux-gnu/libpcre.so.3 \
+        /usr/lib/x86_64-linux-gnu/libGLU.so.1 \
+        /usr/lib/x86_64-linux-gnu/libXmu.so.6 \
+        /usr/lib/x86_64-linux-gnu/libpangox-1.0.so.0 \
+        /usr/lib/x86_64-linux-gnu/libraw1394.so.11 \
+        /lib/x86_64-linux-gnu/libusb-1.0.so.0 \
+        /usr/lib/x86_64-linux-gnu/libv4l2.so.0 \
+        /usr/lib/x86_64-linux-gnu/libswresample-ffmpeg.so.1 \
+        /usr/lib/x86_64-linux-gnu/libva.so.1 \
+        /usr/lib/x86_64-linux-gnu/libzvbi.so.0 \
+        /usr/lib/x86_64-linux-gnu/libxvidcore.so.4 \
+        /usr/lib/x86_64-linux-gnu/libx265.so.79 \
+        /usr/lib/x86_64-linux-gnu/libx264.so.148 \
+        /usr/lib/x86_64-linux-gnu/libwebp.so.5 \
+        /usr/lib/x86_64-linux-gnu/libwavpack.so.1 \
+        /usr/lib/x86_64-linux-gnu/libvpx.so.3 \
+        /usr/lib/x86_64-linux-gnu/libvorbisenc.so.2 \
+        /usr/lib/x86_64-linux-gnu/libvorbis.so.0 \
+        /usr/lib/x86_64-linux-gnu/libtwolame.so.0 \
+        /usr/lib/x86_64-linux-gnu/libtheoraenc.so.1 \
+        /usr/lib/x86_64-linux-gnu/libtheoradec.so.1 \
+        /usr/lib/x86_64-linux-gnu/libspeex.so.1 \
+        /usr/lib/x86_64-linux-gnu/libsnappy.so.1 \
+        /usr/lib/x86_64-linux-gnu/libshine.so.3 \
+        /usr/lib/x86_64-linux-gnu/libschroedinger-1.0.so.0 \
+        /usr/lib/x86_64-linux-gnu/libopus.so.0 \
+        /usr/lib/x86_64-linux-gnu/libopenjpeg.so.5 \
+        /usr/lib/x86_64-linux-gnu/libmp3lame.so.0 \
+        /usr/lib/x86_64-linux-gnu/libgsm.so.1 \
+        /usr/lib/x86_64-linux-gnu/libcrystalhd.so.3 \
+        /usr/lib/x86_64-linux-gnu/libssh-gcrypt.so.4 \
+        /usr/lib/x86_64-linux-gnu/librtmp.so.1 \
+        /usr/lib/x86_64-linux-gnu/libmodplug.so.1 \
+        /usr/lib/x86_64-linux-gnu/libgme.so.0 \
+        /usr/lib/x86_64-linux-gnu/libbluray.so.1 \
+        /usr/lib/x86_64-linux-gnu/libgnutls.so.30 \
+        /usr/lib/x86_64-linux-gnu/libfreetype.so.6 \
+        /usr/lib/x86_64-linux-gnu/libxcb.so.1 \
+        /usr/lib/x86_64-linux-gnu/libpixman-1.so.0 \
+        /usr/lib/x86_64-linux-gnu/libxcb-shm.so.0 \
+        /usr/lib/x86_64-linux-gnu/libxcb-render.so.0 \
+        /lib/x86_64-linux-gnu/libselinux.so.1 \
+        /lib/x86_64-linux-gnu/libresolv.so.2 \
+        /usr/lib/x86_64-linux-gnu/libharfbuzz.so.0 \
+        /usr/lib/x86_64-linux-gnu/libthai.so.0 \
+        /usr/lib/x86_64-linux-gnu/libXt.so.6 \
+        /lib/x86_64-linux-gnu/libudev.so.1 \
+        /usr/lib/x86_64-linux-gnu/libv4lconvert.so.0 \
+        /usr/lib/x86_64-linux-gnu/libsoxr.so.0 \
+        /usr/lib/x86_64-linux-gnu/libnuma.so.1 \
+        /usr/lib/x86_64-linux-gnu/libogg.so.0 \
+        /usr/lib/x86_64-linux-gnu/liborc-0.4.so.0 \
+        /lib/x86_64-linux-gnu/libgcrypt.so.20 \
+        /usr/lib/x86_64-linux-gnu/libgssapi_krb5.so.2 \
+        /usr/lib/x86_64-linux-gnu/libhogweed.so.4 \
+        /usr/lib/x86_64-linux-gnu/libnettle.so.6 \
+        /usr/lib/x86_64-linux-gnu/libgmp.so.10 \
+        /usr/lib/x86_64-linux-gnu/libxml2.so.2 \
+        /usr/lib/x86_64-linux-gnu/libp11-kit.so.0 \
+        /usr/lib/x86_64-linux-gnu/libidn.so.11 \
+        /usr/lib/x86_64-linux-gnu/libtasn1.so.6 \
+        /usr/lib/x86_64-linux-gnu/libXau.so.6 \
+        /usr/lib/x86_64-linux-gnu/libXdmcp.so.6 \
+        /usr/lib/x86_64-linux-gnu/libgraphite2.so.3 \
+        /usr/lib/x86_64-linux-gnu/libdatrie.so.1 \
+        /usr/lib/x86_64-linux-gnu/libSM.so.6 \
+        /usr/lib/x86_64-linux-gnu/libICE.so.6 \
+        /lib/x86_64-linux-gnu/libgpg-error.so.0 \
+        /usr/lib/x86_64-linux-gnu/libkrb5.so.3 \
+        /usr/lib/x86_64-linux-gnu/libk5crypto.so.3 \
+        /lib/x86_64-linux-gnu/libcom_err.so.2 \
+        /usr/lib/x86_64-linux-gnu/libkrb5support.so.0 \
+        /usr/lib/x86_64-linux-gnu/libicuuc.so.55 \
+        /lib/x86_64-linux-gnu/libuuid.so.1 \
+        /lib/x86_64-linux-gnu/libkeyutils.so.1 \
+        /usr/lib/x86_64-linux-gnu/libicudata.so.55 \
+        /usr/lib/python3.5/lib-dynload/_json.cpython-35m-x86_64-linux-gnu.so \
+        /usr/lib/python3.5/lib-dynload/_ssl.cpython-35m-x86_64-linux-gnu.so \
+        /lib/x86_64-linux-gnu/libssl.so.1.0.0 \
+        /usr/lib/python3.5/lib-dynload/_multiprocessing.cpython-35m-x86_64-linux-gnu.so \
+        /usr/lib/python3.5/lib-dynload/termios.cpython-35m-x86_64-linux-gnu.so \
+        /usr/lib/python3.5/lib-dynload/resource.cpython-35m-x86_64-linux-gnu.so \
+        /usr/lib/python3.5/lib-dynload/_sqlite3.cpython-35m-x86_64-linux-gnu.so \
+        /usr/lib/x86_64-linux-gnu/libsqlite3.so.0 \
+        /usr/lib/python3.5/lib-dynload/_lsprof.cpython-35m-x86_64-linux-gnu.so \
+        /usr/lib/python3.5/lib-dynload/readline.cpython-35m-x86_64-linux-gnu.so \
+        /lib/x86_64-linux-gnu/libreadline.so.6 \
+        /lib/x86_64-linux-gnu/libtinfo.so.5 \
+        )
+
+        mkdir -p \
+            $local_path/python/mxnet
+
+        local files_from="$(mktemp)"
+        for f in "${GDB_FILES[@]}"; do
+            echo "$f" >> $files_from
+        done
+
+        mkdir -p $local_sysroot_path
+        _rsync_files_from $files_from $remote_node $local_sysroot_path
+        rm $files_from
+    }
+
+    _sync_files() {
+#        _rsync_dir lib
+        _sync_gdb_files
+    }
+    if [ "$IS_WIFI_LOW_BANDWIDTH" != 'yes' ]; then
+        _sync_files &
+    fi
+    _kill_remote_gdb $remote_node &
+    wait
+}
+
 CN=$HOME/clone/CNTK
 _do_sync_cntk_gdb() {
     local remote_node="$1"
@@ -218,6 +671,9 @@ do_sync_cntk_gdb_ml() {
 }
 do_sync_cntk_gdb_logan() {
     _do_sync_cntk_gdb logan /home/james/clone/CNTK james
+}
+do_sync_mxnet_gdb_logan() {
+    _do_sync_mxnet_gdb logan /home/james/clone/mxnet james
 }
 
 _rsync_files_from() {
@@ -383,18 +839,11 @@ is_ubuntu_on_windows() {
 }
 WINDOWS_HOME="C:/Users/James"
 
-do_cntk_remote_compile() {
+do_remote_compile() {
     local remote_node="$1"
     shift 1
 
-#    local local_cntk=
     local args=()
-#    if is_ubuntu_on_windows; then
-#        local_cntk="$WINDOWS_HOME/clone/CNTK"
-#        args=("${args[@]}" --wsl-windows-path)
-#    else
-#        local_cntk="$HOME/clone/CNTK"
-#    fi
 
     filter_out() {
         # Filter out:
@@ -418,7 +867,7 @@ do_cntk_remote_compile() {
     fi
     local build_remote_sh="$(cat <<EOF
 set -e
-cd $REMOTE_CNTK_HOME
+cd $REMOTE_HOME
 ./make.sh $@
 $restart_cmd
 EOF
@@ -427,8 +876,8 @@ EOF
     (
     ( ssh $remote_node 2>&1 ) <<<"$build_remote_sh" | \
         replace_paths.py \
-            --local "$LOCAL_CNTK_HOME" \
-            --remote "$REMOTE_CNTK_HOME" \
+            --local "$LOCAL_HOME" \
+            --remote "$REMOTE_HOME" \
             --full-path \
             "${args[@]}" | \
             filter_out

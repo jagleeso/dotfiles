@@ -22,6 +22,7 @@
     trustExitCode = true
 [alias]
     d = difftool
+    dm = difftool --ignore-submodules
     st = status
     co = checkout
     l = log --name-status
