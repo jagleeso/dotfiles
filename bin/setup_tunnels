@@ -32,6 +32,11 @@ _tunnel tunnel_logan_tensorboard &
 _tunnel tunnel_logan_snakeviz &
 #_tunnel tunnel_cluster1_ssh &
 
+_tunnel tunnel_grant_ssh &
+_tunnel tunnel_grant_jupyter &
+
+_tunnel tunnel_multigpu_jenkins &
+
 set +e
 wait
 ret=$?

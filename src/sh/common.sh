@@ -146,6 +146,20 @@ tunnel_to_intrm() {
         -L $local_port:localhost:$remote_intrm_port $intrm_node
 }
 
+tunnel_direct() {
+    local local_port="$1"
+#    local remote_intrm_port="$2"
+    local remote_dst_port="$2"
+    local remote_node="$3"
+    shift 3
+    # NOTE: this assumes a tunnel is already setup on syslab.
+    local remote_username="$(ssh_config.py --user --host=$remote_node)"
+    local remote_identity_file="$(ssh_config.py --identity-file --host=$remote_node)"
+    # Try using autossh locally to keep connection alive.
+#    autossh $TUNNEL_FLAGS \ -L $local_port:localhost:$remote_intrm_port $intrm_node
+    autossh $TUNNEL_FLAGS -L $local_port:localhost:$remote_dst_port $remote_username@$remote_node -i $remote_identity_file
+}
+
 RSYNC_DEBUG_FLAGS=
 if [ "$DEBUG" = 'yes' ]; then
 #    RSYNC_DEBUG_FLAGS="-n"
