@@ -11,6 +11,7 @@ export REMOTE_CLUSTER1_NODE=cluster1
 export REMOTE_LOGAN_NODE=logan
 export REMOTE_GRANT_NODE=grant
 export REMOTE_MULTIGPU_NODE=multi-gpu
+export REMOTE_SINGLEGPU_NODE=single-gpu
 
 # Local tunneling ports that have been allocated.
 export AMD_GDB_PORT=1235
@@ -32,5 +33,6 @@ export GRANT_JUPYTER_PORT=8124
 export MULTIGPU_JENKINS_PORT=8782
 export MULTIGPU_GDB_PORT=1237
 export MULTIGPU_SSH_PORT=8989
+export SINGLEGPU_SSH_PORT=8125
 
 export WIFI_LOW_BANDWIDTH_SSIDS=("SM-G900W8_1592")

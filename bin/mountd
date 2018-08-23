@@ -25,6 +25,10 @@ main() {
         _do mount_remote_home $REMOTE_MULTIGPU_NODE &
     fi
 
+    if [ "$(hostname)" != 'mel-15' ]; then
+        _do mount_remote_home $REMOTE_SINGLEGPU_NODE &
+    fi
+
     if [ "$(hostname)" == 'logan-ubuntu' ]; then
         # Logan specific mounts.
         local mount_point="$HOME/mnt/data"

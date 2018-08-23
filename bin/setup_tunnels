@@ -38,6 +38,8 @@ _tunnel tunnel_logan_gdb_unittest &
 _tunnel tunnel_multigpu_ssh &
 _tunnel tunnel_multigpu_jenkins &
 
+_tunnel tunnel_singlegpu_ssh &
+
 set +e
 wait
 ret=$?
