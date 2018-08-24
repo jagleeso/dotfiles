@@ -24,13 +24,21 @@ _tunnel() {
 #_tunnel tunnel_xen1_ssh &
 #_tunnel tunnel_xen1_gdbgui &
 
-_tunnel tunnel_logan_jupyter &
+#_tunnel tunnel_logan_jupyter &
 _tunnel tunnel_logan_ssh &
 _tunnel tunnel_logan_gdb &
 _tunnel tunnel_logan_gdb_unittest &
-_tunnel tunnel_logan_tensorboard &
-_tunnel tunnel_logan_snakeviz &
+#_tunnel tunnel_logan_tensorboard &
+#_tunnel tunnel_logan_snakeviz &
 #_tunnel tunnel_cluster1_ssh &
+
+#_tunnel tunnel_grant_ssh &
+#_tunnel tunnel_grant_jupyter &
+
+_tunnel tunnel_multigpu_ssh &
+_tunnel tunnel_multigpu_jenkins &
+
+_tunnel tunnel_singlegpu_ssh &
 
 set +e
 wait

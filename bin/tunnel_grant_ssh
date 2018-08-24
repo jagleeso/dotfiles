@@ -1,0 +1,11 @@
+#!/bin/bash
+source $HOME/.dot_common.sh
+
+local_port=$GRANT_SSH_PORT
+remote_port=22
+remote_dst_node="$REMOTE_GRANT_NODE"
+
+tunnel_direct \
+    $local_port \
+    $remote_port \
+    $remote_dst_node

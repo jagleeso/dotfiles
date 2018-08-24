@@ -260,12 +260,10 @@ _ln() {
     local target="$1"
     local link="$2"
     shift 2
-    if [ -e "$link" ]; then
-        if [ -L "$link" ]; then
-            rm "$link"
-        fi
-        ln -s -T "$target" "$link"
+    if [ -e "$link" ] && [ -L "$link" ]; then
+        rm "$link"
     fi
+    ln -s -T "$target" "$link"
 }
 setup_windows_symlinks() {
     # Move ~/clone to windows directory, so we can access it from windows.

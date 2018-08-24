@@ -1,0 +1,13 @@
+#!/bin/bash
+source $HOME/.dot_common.sh
+
+local_port=$MULTIGPU_JENKINS_PORT
+remote_intrm_port=$MULTIGPU_JENKINS_PORT
+remote_port=8080
+remote_dst_node="$REMOTE_MULTIGPU_NODE"
+
+tunnel_to_intrm \
+    $local_port \
+    $remote_intrm_port \
+    $remote_port \
+    $remote_dst_node
