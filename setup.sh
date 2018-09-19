@@ -820,6 +820,8 @@ _link_files() {
 setup_bin() {
     _do _link_files $HOME/bin $DOT_HOME/bin
     _do _link_files $HOME/bin $DOT_HOME/src/python/scripts
+    # Ignore dangling simlink errors.
+    chmod -f +x $HOME/bin/* || true
 }
 do_setup() {
     local setup_func="$1"

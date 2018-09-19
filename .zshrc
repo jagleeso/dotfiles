@@ -69,7 +69,7 @@ _source_if ~/.zshrc.gpu
 _source_if ~/.zshrc.vnc
 _source_if ~/.zshrc.vmgl
 # _source_if ~/.zshrc.mic
-_source_if ~/.zshrc.rocm
+# _source_if ~/.zshrc.rocm
 _source_if ~/.zshrc.tensorflow
 _source_if ~/.zshrc.cuda
 _source_if ~/.zshrc.school

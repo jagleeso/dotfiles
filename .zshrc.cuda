@@ -52,7 +52,7 @@ activate_rdma_gpu() {
         source $RD/source_me.sh 2>& /dev/null || true
     fi
 }
-export LD_LIBRARY_PATH=/usr/local/cuda-8.0/lib64:$LD_LIBRARY_PATH
+# export LD_LIBRARY_PATH=/usr/local/cuda-8.0/lib64:$LD_LIBRARY_PATH
 activate_cntk_fresh() {
     if [ -e  $HOME/clone/CNTK_fresh ] && [ -e $RD/source_me.sh ]; then
         CNTK_DIR=$HOME/clone/CNTK_fresh source $RD/source_me.sh 2>& /dev/null
