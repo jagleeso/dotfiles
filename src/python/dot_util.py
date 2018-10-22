@@ -147,6 +147,21 @@ def kill_matching(pattern):
 """
 Misc.
 """
+def flatten(xs):
+    """
+    >>> flatten([[1], [[2]]])
+    [1, 2]
+    """
+    def _flatten(xs):
+        for x in xs:
+            if type(x) == list:
+                for y in flatten(x):
+                    yield y
+            else:
+                yield x
+
+    return list(_flatten(xs))
+
 def memoize_newer_than_subdirs(func, args, pickle_file, directory):
     """
     A pickle_file is invalid if at least one subdirectory is newer than it.

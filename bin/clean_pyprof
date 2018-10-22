@@ -1,0 +1,21 @@
+#!/bin/bash
+set -e
+source $HOME/.dot_common.sh
+
+_do() {
+  # Don't skip mount if one of the mounts fails.
+  "$@" || true
+}
+
+#Type|Time(%)|Avg|Std|Std/Avg(%)|Call#|Name|Time|Calls|Min|Max
+#Python|63.75%|940.2039017369892us|23.271149683956242us|2.48%|0|{built-in method _pywrap_tensorflow_internal.TF_SessionRun_wrapper}|9.402039017369875sec|10000|832.905047916944us|1.0599065785970985ms
+
+# =>
+
+#Type    Time(%)  Avg       Std       Std/Avg(%)  Call#  Name                                                                                                                                             Time      Calls   Min       Max
+#Python  63.75%   940.2us   23.27us   2.48%       0      {built-in method _pywrap_tensorflow_internal.TF_SessionRun_wrapper}                                                                              9.4sec    10000   832.91us  1.06ms
+
+main() {
+    round.py | column -t -s$'|'
+}
+main "$@"
