@@ -41,23 +41,30 @@ class Add(object):
             sample_text = lines[1]
         else:
             sample_text = lines[0]
-        AddendType = get_addend_type(sample_text)
-        if AddendType is None:
+        self.AddendType = get_addend_type(sample_text)
+        if self.AddendType is None:
             print("ERROR: Failed to guess addend type from sample text: \"{t}\"".format(t=sample_text))
             sys.exit(1)
-        AddendObj = AddendType()
+        self.AddendObj = self.AddendType()
 
         def maybe_skip(xs):
             if self.args.skip_header:
                 return xs[1:]
             return xs
 
-        the_sum = 0.
+        # the_sum = 0.
+        values = []
         for i, line in enumerate(maybe_skip(lines)):
-            value = AddendObj.value(line)
-            the_sum += value
+            value = self.AddendObj.value(line)
+            values.append(value)
+            # the_sum += value
 
-        print(AddendObj.pretty(the_sum))
+        self.output("Sum", np.sum(values))
+        self.output("Avg", np.mean(values))
+        self.output("Std", np.std(values))
+
+    def output(self, name, value):
+        print("> {name} = {value}".format(name=name, value=self.AddendObj.pretty(value)))
 
 class Addend(object):
     def __init__(self, regex):
@@ -185,6 +192,8 @@ def main():
                         help="file input (default stdin)")
     parser.add_argument('--debug', action='store_true',
             help="debug")
+    # parser.add_argument('--stat', action='store_true',
+    #                     help="debug")
     parser.add_argument('--skip-header', action='store_true',
                         help="Skip first line")
     # parser.add_argument('--match',
