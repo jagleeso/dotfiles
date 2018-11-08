@@ -563,6 +563,7 @@ setup_packages() {
         libevent-dev \
         build-essential autotools-dev autoconf \
         libssl-dev \
+	fontconfig \
     )
     local yum_packages=( \
         epel-release \
