@@ -62,6 +62,8 @@ class Add(object):
         self.output("Sum", np.sum(values))
         self.output("Avg", np.mean(values))
         self.output("Std", np.std(values))
+        self.output("Min", np.min(values))
+        self.output("Max", np.max(values))
 
     def output(self, name, value):
         print("> {name} = {value}".format(name=name, value=self.AddendObj.pretty(value)))

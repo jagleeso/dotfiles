@@ -1,3 +1,10 @@
+# set auto-solib-add 0
+
+# TensorFlow
+set auto-solib-add 1
+# directory /home/james/clone/tensorflow
+# directory /home/james/clone/tensorflow.patch
+
 set print pretty on
 set breakpoint pending on
 
@@ -18,6 +25,7 @@ if os.path.exists(GDB_PRETTY_PRINTERS):
 end
 
 source ~/.gdbinit.dashboard
+# assembly
 dashboard -layout source stack expressions
 dashboard stack -style limit 10
 dashboard stack -style compact True
@@ -46,3 +54,11 @@ end
 define hookpost-next
 dashboard
 end
+
+define segaddr
+p $_siginfo._sifields._sigfault.si_addr
+end
+
+set logging on
+echo Logging gdb output to ./gdb.log.txt
+set logging file gdb.log.txt

@@ -1,0 +1,14 @@
+#!/bin/bash
+source $HOME/.dot_common.sh
+
+local_port=$LOGAN_POSTGRES_PORT
+remote_intrm_port=$LOGAN_POSTGRES_PORT
+#remote_dst_port=$LOGAN_POSTGRES_PORT
+remote_dst_port=5432
+remote_node=$REMOTE_LOGAN_NODE
+
+tunnel_to_intrm \
+    $local_port \
+    $remote_intrm_port \
+    $remote_dst_port \
+    $remote_node

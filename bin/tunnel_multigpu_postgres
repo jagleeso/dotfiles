@@ -1,0 +1,14 @@
+#!/bin/bash
+source $HOME/.dot_common.sh
+
+local_port=$MULTIGPU_POSTGRES_PORT
+remote_intrm_port=$MULTIGPU_POSTGRES_PORT
+# Default port used by postgres
+remote_dst_port=5432
+remote_node=$REMOTE_MULTIGPU_NODE
+
+tunnel_to_intrm \
+    $local_port \
+    $remote_intrm_port \
+    $remote_dst_port \
+    $remote_node
