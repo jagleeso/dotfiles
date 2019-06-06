@@ -59,6 +59,6 @@ define segaddr
 p $_siginfo._sifields._sigfault.si_addr
 end
 
-set logging on
-echo Logging gdb output to ./gdb.log.txt
-set logging file gdb.log.txt
+# set logging on
+# echo Logging gdb output to ./gdb.log.txt
+# set logging file gdb.log.txt

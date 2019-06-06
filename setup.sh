@@ -372,6 +372,7 @@ setup_oh_my_zsh() {
         return
     fi
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
+    git clone https://github.com/zsh-users/zsh-syntax-highlighting.git $HOME/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
     cp -r $DOT_HOME/.oh-my-zsh/* $HOME/.oh-my-zsh
 }
 setup_zsh_syntax_highlighting() {

@@ -1,6 +1,5 @@
 # Path to your oh-my-zsh configuration.
 export ZSH_DISABLE_COMPFIX=true
-ZSH=$HOME/.oh-my-zsh
 
 # fix bug where updates don't work
 export ZSH=$HOME/.oh-my-zsh
