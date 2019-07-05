@@ -2,12 +2,10 @@
 source $HOME/.dot_common.sh
 
 local_port=$ECO_SSH_PORT
-remote_syslab_port=$ECO_SSH_PORT
 remote_port=22
 remote_dst_node="$REMOTE_ECO_NODE"
 
-tunnel_to_intrm \
+tunnel_direct \
     $local_port \
-    $remote_syslab_port \
     $remote_port \
     $remote_dst_node

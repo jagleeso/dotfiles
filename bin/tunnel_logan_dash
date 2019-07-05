@@ -2,12 +2,17 @@
 source $HOME/.dot_common.sh
 
 local_port=$LOGAN_DASH_PORT
-remote_intrm_port=$LOGAN_DASH_PORT
-remote_dst_port=$LOGAN_DASH_PORT
-remote_node=$REMOTE_LOGAN_NODE
+remote_port=$LOGAN_DASH_PORT
+remote_dst_node="$REMOTE_LOGAN_NODE"
 
-tunnel_to_intrm \
+tunnel_direct \
     $local_port \
-    $remote_intrm_port \
-    $remote_dst_port \
-    $remote_node
+    $remote_port \
+    $remote_dst_node
+NUM_INSTANCES=2
+for i in $(seq 1 $((NUM_INSTANCES-1)) ); do
+    tunnel_direct \
+        $((local_port+1)) \
+        $((remote_port+1)) \
+        $remote_dst_node
+done

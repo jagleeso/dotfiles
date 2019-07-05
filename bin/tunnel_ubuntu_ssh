@@ -1,9 +1,9 @@
 #!/bin/bash
 source $HOME/.dot_common.sh
 
-local_port=$LOGAN_POSTGRES_PORT
-remote_port=5432
-remote_dst_node="$REMOTE_LOGAN_NODE"
+local_port=$UBUNTU_SSH_PORT
+remote_port=22
+remote_dst_node="$REMOTE_UBUNTU_NODE"
 
 tunnel_direct \
     $local_port \
