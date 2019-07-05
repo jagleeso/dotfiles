@@ -38,7 +38,18 @@ zstyle ':completion:*' cache-path ~/.zsh/cache
 # Which plugins would you like to load? (plugins can be found in ~/.oh-my-zsh/plugins/*)
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # plugins=(zsh-syntax-highlighting)
-plugins=(git svn zsh-syntax-highlighting)
+plugins=(git svn zsh-syntax-highlighting ssh-agent)
+
+# ssh-agent: Load these identity files
+#
+# NOTE: 
+# - If you add new identities, you must kill existing ssh-agent and re-login.
+#   Use this command to locate the running ssh-agent process.
+#   $ ps aux | grep ssh-agent | grep $USER | grep -v grep
+# - This line must come before sourcing oh-my-zsh.sh
+#
+# https://github.com/robbyrussell/oh-my-zsh/tree/master/plugins/ssh-agent
+zstyle :omz:plugins:ssh-agent identities id_rsa id_rsa_git
 
 source $ZSH/oh-my-zsh.sh
 
