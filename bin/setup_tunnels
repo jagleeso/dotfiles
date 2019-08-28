@@ -26,6 +26,7 @@ _tunnel() {
 
 #_tunnel tunnel_ubuntu_ssh &
 _tunnel tunnel_eco_ssh &
+_tunnel tunnel_mel17_ssh &
 #_tunnel tunnel_logan_jupyter &
 #_tunnel tunnel_logan_ssh &
 _tunnel tunnel_logan_postgres &
