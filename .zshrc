@@ -174,6 +174,8 @@ export GOROOT=$HOME/golang
 PATH=$HOME/bin:$HOME/local/bin:~/.fzf:$PATH:$HOME/.rvm/bin:$GOPATH/bin
 
 # set tmux options requiring if-statement checks (tmux.conf doesn't support this)
+# Tell tmux we support utf-8 so fancy characters in oh-my-zsh prompt show up.
+alias tmux='tmux -u'
 if [ -n "$TMUX" ]; then
 
     # platform specific options

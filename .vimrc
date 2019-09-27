@@ -2,6 +2,8 @@
 
 set nocompatible              " be iMproved, required
 filetype off                  " required
+" YouCompleteMe needs this.
+set encoding=utf-8
 
 
 "
@@ -44,7 +46,8 @@ Plugin 'https://github.com/vim-scripts/Tail-Bundle.git'
 Plugin 'https://github.com/tpope/vim-dispatch.git'
 Plugin 'https://github.com/vim-scripts/Conque-GDB.git'
 Plugin 'https://github.com/Valloric/YouCompleteMe.git'
-Plugin 'fatih/vim-go'
+" Need to upgrade vim for this to work.
+" Plugin 'fatih/vim-go'
 Plugin 'rdnetto/YCM-Generator'
 
 Plugin 'MarcWeber/vim-addon-mw-utils'
