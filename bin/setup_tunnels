@@ -25,11 +25,16 @@ _tunnel() {
 #_tunnel tunnel_xen1_gdbgui &
 
 #_tunnel tunnel_ubuntu_ssh &
-_tunnel tunnel_eco_ssh &
-_tunnel tunnel_mel17_ssh &
+# _tunnel tunnel_eco_ssh &
+_tunnel tunnel_eco14_ssh &
+_tunnel tunnel_eco14_postgres &
+_tunnel tunnel_eco13_ssh &
+_tunnel tunnel_eco13_postgres &
+# _tunnel tunnel_mel17_ssh &
 #_tunnel tunnel_logan_jupyter &
 #_tunnel tunnel_logan_ssh &
 _tunnel tunnel_logan_postgres &
+# _tunnel tunnel_mel17_postgres &
 #_tunnel tunnel_logan_gdb &
 #_tunnel tunnel_logan_gdb_unittest &
 #_tunnel tunnel_logan_tensorboard &
