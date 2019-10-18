@@ -1,5 +1,13 @@
 # Path to your oh-my-zsh configuration.
-export ZSH_DISABLE_COMPFIX=true
+export ZSH_DISABLE_COMPFIX="true"
+
+# UTF-8 locale needed to prevent remnant characters when pressing "TAB" for autocomplete.
+#
+# NOTE: this issue appeared after using "tmux -u" to make oh-my-zsh's unicode 
+# term-prompt characters show up in tmux.
+#
+# https://stackoverflow.com/questions/19305291/remnant-characters-when-tab-completing-with-zsh
+export LC_ALL="en_US.UTF-8"
 
 # fix bug where updates don't work
 export ZSH=$HOME/.oh-my-zsh
@@ -9,6 +17,7 @@ export ZSH=$HOME/.oh-my-zsh
 # Optionally, if you set this to "random", it'll load a random theme each
 # time that oh-my-zsh is loaded.
 # ZSH_THEME="robbyrussell"
+# ZSH_THEME="af-magic"
 ZSH_THEME="james"
 # ZSH_THEME="james-remote"
 #ZSH_THEME="blinks"
