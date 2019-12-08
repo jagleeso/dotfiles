@@ -60,7 +60,9 @@ plugins=(git svn zsh-syntax-highlighting ssh-agent)
 # https://github.com/robbyrussell/oh-my-zsh/tree/master/plugins/ssh-agent
 zstyle :omz:plugins:ssh-agent identities id_rsa id_rsa_git
 
-source $ZSH/oh-my-zsh.sh
+if [ -e $ZSH/oh-my-zsh.sh ]; then
+    source $ZSH/oh-my-zsh.sh
+fi
 
 export PYTHONPATH
 # http://www.zsh.org/mla/users/2012/msg00785.html

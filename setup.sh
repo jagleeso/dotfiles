@@ -96,7 +96,8 @@ if [ "$MODE" = 'minimal-no-vim' ] || [ "$MODE" = 'update' ]; then
     _set_if_not SETUP_SUDO 'no'
     _set_if_not HAS_SUDO 'no'
 fi
-if [ "$MODE" != 'minimal' ] || [ "$MODE" = 'minimal-no-vim' ] || [ "$MODE" = 'update' ]; then
+if ( [ "$MODE" != 'full' ] && [ "$MODE" != 'minimal' ] ) && ( [ "$MODE" = 'minimal-no-vim' ] || [ "$MODE" = 'update' ] ); then
+    echo "MODE=$MODE :: SETUP_NEEDS_BUILDING = no"
     _set_if_not SETUP_NEEDS_BUILDING 'no'
     _set_if_not SETUP_NEEDS_INSTALLING 'no'
 fi
@@ -140,7 +141,8 @@ INSTALL_DIR=$HOME/local
 DOT_HOME=$HOME/clone/dotfiles
 
 # Hopefully the most stable one.
-VIM_TAG="v8.0.0000"
+# VIM_TAG="v8.0.0000"
+VIM_TAG="v8.1.2402"
 # VIM_TAG="master"
 # VIM_PY2_CONFIG_DIR=/usr/lib64/python2.7/config
 # VIM_PY3_CONFIG_DIR=/usr/lib64/python3.5/config
@@ -371,7 +373,8 @@ setup_oh_my_zsh() {
     if [ "$FORCE" != 'yes' ] && [ -d $HOME/.oh-my-zsh ]; then
         return
     fi
-    sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
+    # sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
+    sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
     git clone https://github.com/zsh-users/zsh-syntax-highlighting.git $HOME/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
     cp -r $DOT_HOME/.oh-my-zsh/* $HOME/.oh-my-zsh
 }
@@ -534,9 +537,14 @@ setup_ycm_after() {
     fi
     ( 
         cd $HOME/.vim/bundle/YouCompleteMe
+
+        # HACK: https://github.com/ycm-core/YouCompleteMe/issues/3232#issuecomment-454651557
+        rm -rf YouCompleteMe/third_party/ycmd/third_party/cregex
+        git submodule update --init --recursive
+
         ./install.py --clang-completer
     )
-    ln -s $HOME/.vim/bundle/YCM-Generator/config_gen.py . || true
+    ln -s -T $HOME/.vim/bundle/YCM-Generator/config_gen.py $HOME/local/bin/config_gen.py || true
 }
 setup_vim_after() {
     mkdir -p $HOME/bin
@@ -565,6 +573,7 @@ setup_packages() {
         build-essential autotools-dev autoconf \
         libssl-dev \
 	fontconfig \
+        byacc \
     )
     local yum_packages=( \
         epel-release \
@@ -941,7 +950,7 @@ setup_all() {
         do_setup setup_tmux
         do_setup setup_emacs
         do_setup setup_spacemacs
-        do_setup setup_autossh
+        # do_setup setup_autossh
         do_setup setup_ag
         do_setup setup_entr
         do_setup setup_xclip

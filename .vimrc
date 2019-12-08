@@ -30,12 +30,20 @@ Plugin 'kopischke/vim-fetch'
 Plugin 'tComment'
 Plugin 'git://github.com/zeis/vim-kolor.git'
 Plugin 'https://github.com/scrooloose/nerdtree.git'
-Plugin 'Align'
+" This plugin maps <leader>t* to stuff; screws up plain-old <leader>t for symbol search.
+" Plugin 'Align'
+Plugin 'junegunn/vim-easy-align'
+" Start interactive EasyAlign in visual mode (e.g. vipga)
+xmap ga <Plug>(EasyAlign)
+" Start interactive EasyAlign for a motion/text object (e.g. gaip)
+nmap ga <Plug>(EasyAlign)
+
 Plugin 'IndentAnything'
 Plugin 'matchit.zip'
 Plugin 'https://github.com/ervandew/supertab.git'
 Plugin 'https://github.com/tpope/vim-surround.git'
 Plugin 'Tagbar'
+Plugin 'travisjeffery/vim-gotosymbol'
 Plugin 'marvim'
 Plugin 'vim-scripts/AnsiEsc.vim'
 Plugin 'git://github.com/milkypostman/vim-togglelist'
@@ -49,15 +57,36 @@ Plugin 'https://github.com/Valloric/YouCompleteMe.git'
 " Need to upgrade vim for this to work.
 " Plugin 'fatih/vim-go'
 Plugin 'rdnetto/YCM-Generator'
+Plugin 'dense-analysis/ale'
+
+" https://sherif.io/2016/05/30/favorite-vim-plugins.html
+Plugin 'airblade/vim-gitgutter'
+" Update signs when file is saved
+autocmd BufWritePost * GitGutter
+
+Plugin 'nathanaelkane/vim-indent-guides'
+let g:indent_guides_guide_size = 1
+let g:indent_guides_color_change_percent = 3
+let g:indent_guides_enable_on_vim_startup = 1
 
 Plugin 'MarcWeber/vim-addon-mw-utils'
 Plugin 'tomtom/tlib_vim'
 Plugin 'garbas/vim-snipmate'
+Plugin 'reedes/vim-colors-pencil'
+Plugin 'sjl/badwolf'
+Plugin 'itchyny/lightline.vim'
+" Plugin 'junegunn/goyo.vim'
+
+" Plugin 'easymotion/vim-easymotion'
 
 Plugin 'https://github.com/davidhalter/jedi-vim.git'
 
 " Optional:
 Plugin 'honza/vim-snippets'
+
+" imap <C-BS> <C-W>
+" noremap! <C-BS> <C-w>
+" noremap! <C-h> <C-w>
 
 " if you use Vundle, load plugins:
 " Plugin 'ervandew/supertab'
@@ -133,7 +162,8 @@ set backspace=indent,eol,start
 ":set smartindent
 :set shiftwidth=4
 :set expandtab
-colorscheme kolor
+colorscheme badwolf
+" colorscheme kolor
 " colorscheme jellybeans
 
 " ctags
@@ -171,6 +201,8 @@ let NERDTreeIgnore=['\~$', '\.class$']
 " let g:CommandTSelectNextMap=['<Tab>', '<Down>']
 " let g:CommandTSelectPrevMap=['<S-x>', '<Up>']
 
+" Search for tags in the current buffer (same key binding as intellij).
+nnoremap <silent> <Leader>t :CtrlPBufTag<CR>
 nnoremap <silent> <Leader>p :CtrlP<CR>
 " let g:ctrlp_map = '<Leader>p'
 nnoremap <silent> <Leader>P :CtrlPMRUFiles<CR>
