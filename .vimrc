@@ -1,7 +1,6 @@
 " put this line first in ~/.vimrc
 
 set nocompatible              " be iMproved, required
-filetype off                  " required
 " YouCompleteMe needs this.
 set encoding=utf-8
 
@@ -29,7 +28,7 @@ Plug 'junegunn/vim-easy-align'
 
 Plug 'vim-scripts/IndentAnything'
 Plug 'vim-scripts/matchit.zip'
-Plug 'https://github.com/ervandew/supertab.git'
+" Plug 'https://github.com/ervandew/supertab.git'
 Plug 'https://github.com/tpope/vim-surround.git'
 " Plug 'Tagbar'
 Plug 'majutsushi/tagbar'
@@ -79,7 +78,6 @@ Plug 'honza/vim-snippets'
 
 " if you use Vundle, load plugins:
 " Plug 'ervandew/supertab'
-" Plug 'Valloric/YouCompleteMe'
 Plug 'SirVer/ultisnips'
 
 " " make YCM compatible with UltiSnips (using supertab)
@@ -103,9 +101,174 @@ Plug 'SirVer/ultisnips'
 " different version somewhere else.
 " Plug 'ascenator/L9', {'name': 'newL9'}
 
+" Plug 'neoclide/coc.nvim', {'branch': 'release'}
+Plug 'Valloric/YouCompleteMe', { 'do': './install.py --clangd-completer' }
+" --clang-completer
+
 
 " Initialize plugin system
 call plug#end()
+
+"
+" coc.nvim ccls support.
+"
+
+" if executable('ccls')
+"     " https://github.com/MaskRay/ccls/wiki/coc.nvim
+"     " https://github.com/neoclide/coc.nvim/blob/f3f43f58543135495d411ed948ac9ba2eca0880a/doc/coc.txt#L1020
+"     call coc#config('languageserver', {
+"                     \ 'ccls': {
+"                     \   "command": "ccls",
+"                     \   "trace.server": "verbose",
+"                     \   "filetypes": ["c", "cpp", "cuda", "objc", "objcpp"],
+"                     \   "rootPatterns": [".ccls-root", "compile_commands.json"],
+"                     \   "initializationOptions": {
+"                     \      "cache": {
+"                     \        "directory": ".ccls-cache"
+"                     \      }
+"                     \    }
+"                     \ }
+"                     \})
+"
+"     " nmap <silent> <M-j> <Plug>(coc-definition)
+"     " nmap <silent> <C-,> <Plug>(coc-references)
+"     " nn <silent> K :call CocActionAsync('doHover')<cr>
+"     "
+"     " set updatetime=300
+"     " au CursorHold * sil call CocActionAsync('highlight')
+"     " au CursorHoldI * sil call CocActionAsync('showSignatureHelp')
+"
+"     " if hidden is not set, TextEdit might fail.
+"     set hidden
+"
+"     " Some servers have issues with backup files, see #649
+"     set nobackup
+"     set nowritebackup
+"
+"     " Better display for messages
+"     set cmdheight=2
+"
+"     " You will have bad experience for diagnostic messages when it's default 4000.
+"     set updatetime=300
+"
+"     " don't give |ins-completion-menu| messages.
+"     set shortmess+=c
+"
+"     " always show signcolumns
+"     set signcolumn=yes
+"
+"     " Use tab for trigger completion with characters ahead and navigate.
+"     " Use command ':verbose imap <tab>' to make sure tab is not mapped by other plugin.
+"     inoremap <silent><expr> <TAB>
+"           \ pumvisible() ? "\<C-n>" :
+"           \ <SID>check_back_space() ? "\<TAB>" :
+"           \ coc#refresh()
+"     inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
+"
+"     function! s:check_back_space() abort
+"       let col = col('.') - 1
+"       return !col || getline('.')[col - 1]  =~# '\s'
+"     endfunction
+"
+"     " Use <c-space> to trigger completion.
+"     inoremap <silent><expr> <c-space> coc#refresh()
+"
+"     " Use <cr> to confirm completion, `<C-g>u` means break undo chain at current position.
+"     " Coc only does snippet and additional edit on confirm.
+"     inoremap <expr> <cr> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
+"     " Or use `complete_info` if your vim support it, like:
+"     " inoremap <expr> <cr> complete_info()["selected"] != "-1" ? "\<C-y>" : "\<C-g>u\<CR>"
+"
+"     " Use `[g` and `]g` to navigate diagnostics
+"     nmap <silent> [g <Plug>(coc-diagnostic-prev)
+"     nmap <silent> ]g <Plug>(coc-diagnostic-next)
+"
+"     " Remap keys for gotos
+"     nmap <silent> gd <Plug>(coc-definition)
+"     nmap <silent> gy <Plug>(coc-type-definition)
+"     nmap <silent> gi <Plug>(coc-implementation)
+"     nmap <silent> gr <Plug>(coc-references)
+"
+"     " Use K to show documentation in preview window
+"     nnoremap <silent> K :call <SID>show_documentation()<CR>
+"
+"     function! s:show_documentation()
+"       if (index(['vim','help'], &filetype) >= 0)
+"         execute 'h '.expand('<cword>')
+"       else
+"         call CocAction('doHover')
+"       endif
+"     endfunction
+"
+"     " Highlight symbol under cursor on CursorHold
+"     autocmd CursorHold * silent call CocActionAsync('highlight')
+"
+"     " Remap for rename current word
+"     nmap <leader>rn <Plug>(coc-rename)
+"
+"     " Remap for format selected region
+"     xmap <leader>f  <Plug>(coc-format-selected)
+"     nmap <leader>f  <Plug>(coc-format-selected)
+"
+"     augroup mygroup
+"       autocmd!
+"       " Setup formatexpr specified filetype(s).
+"       autocmd FileType typescript,json setl formatexpr=CocAction('formatSelected')
+"       " Update signature help on jump placeholder
+"       autocmd User CocJumpPlaceholder call CocActionAsync('showSignatureHelp')
+"     augroup end
+"
+"     " Remap for do codeAction of selected region, ex: `<leader>aap` for current paragraph
+"     xmap <leader>a  <Plug>(coc-codeaction-selected)
+"     nmap <leader>a  <Plug>(coc-codeaction-selected)
+"
+"     " Remap for do codeAction of current line
+"     nmap <leader>ac  <Plug>(coc-codeaction)
+"     " Fix autofix problem of current line
+"     nmap <leader>qf  <Plug>(coc-fix-current)
+"
+"     " Create mappings for function text object, requires document symbols feature of languageserver.
+"     xmap if <Plug>(coc-funcobj-i)
+"     xmap af <Plug>(coc-funcobj-a)
+"     omap if <Plug>(coc-funcobj-i)
+"     omap af <Plug>(coc-funcobj-a)
+"
+"     " Use <C-d> for select selections ranges, needs server support, like: coc-tsserver, coc-python
+"     nmap <silent> <C-d> <Plug>(coc-range-select)
+"     xmap <silent> <C-d> <Plug>(coc-range-select)
+"
+"     " Use `:Format` to format current buffer
+"     command! -nargs=0 Format :call CocAction('format')
+"
+"     " Use `:Fold` to fold current buffer
+"     command! -nargs=? Fold :call     CocAction('fold', <f-args>)
+"
+"     " use `:OR` for organize import of current buffer
+"     command! -nargs=0 OR   :call     CocAction('runCommand', 'editor.action.organizeImport')
+"
+"     " Add status line support, for integration with other plugin, checkout `:h coc-status`
+"     set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
+"
+"     " Using CocList
+"     " Show all diagnostics
+"     nnoremap <silent> <space>a  :<C-u>CocList diagnostics<cr>
+"     " Manage extensions
+"     nnoremap <silent> <space>e  :<C-u>CocList extensions<cr>
+"     " Show commands
+"     nnoremap <silent> <space>c  :<C-u>CocList commands<cr>
+"     " Find symbol of current document
+"     nnoremap <silent> <space>o  :<C-u>CocList outline<cr>
+"     " Search workspace symbols
+"     nnoremap <silent> <space>s  :<C-u>CocList -I symbols<cr>
+"     " Do default action for next item.
+"     nnoremap <silent> <space>j  :<C-u>CocNext<CR>
+"     " Do default action for previous item.
+"     nnoremap <silent> <space>k  :<C-u>CocPrev<CR>
+"     " Resume latest coc list
+"     nnoremap <silent> <space>p  :<C-u>CocListResume<CR>
+"
+" endif
+
 
 "
 " Plugin configuration:
@@ -174,10 +337,6 @@ vmap <C-f> y/<C-r>"<CR>
 :set ruler
 
 nnoremap <silent> <c-w>t :tabnew<CR>
-
-filetype on
-filetype plugin on 
-filetype indent on
 
 " map keys for window resizing
 if bufwinnr(1)
@@ -553,20 +712,20 @@ let g:ConqueGdb_Leader = '`'
 command! MarSave call Marvim_macro_store()
 command! MarRun call Marvim_search()
 
-" https://github.com/vheon/dotvim/blob/5321347027c21e4c22dc6fcea4cc315052ed25f1/vimrc
-let g:ycm_global_ycm_extra_conf = '~/.ycm.py'
-let g:ycm_confirm_extra_conf    = 0
-" let g:ycm_global_ycm_extra_conf = g:dotvim.'/ycm.py'
-" let g:ycm_extra_conf_vim_data   = ['&filetype']
-let g:ycm_seed_identifiers_with_syntax = 1
-" Autocomplete keeps replacing text as I type for this filetypes...
-let g:ycm_min_num_of_chars_for_completion = 99
-let g:ycm_auto_trigger = 0
-" Until I figure out why lets just disable it...
-" Doesn't work.. still triggers.. just use ToggleYcm
-" let g:ycm_filetype_specific_completion_to_disable = {
-"             \ 'sh': 1
-"             \}
+" " https://github.com/vheon/dotvim/blob/5321347027c21e4c22dc6fcea4cc315052ed25f1/vimrc
+" let g:ycm_global_ycm_extra_conf = '~/.ycm.py'
+" let g:ycm_confirm_extra_conf    = 0
+" " let g:ycm_global_ycm_extra_conf = g:dotvim.'/ycm.py'
+" " let g:ycm_extra_conf_vim_data   = ['&filetype']
+" let g:ycm_seed_identifiers_with_syntax = 1
+" " Autocomplete keeps replacing text as I type for this filetypes...
+" let g:ycm_min_num_of_chars_for_completion = 99
+" let g:ycm_auto_trigger = 0
+" " Until I figure out why lets just disable it...
+" " Doesn't work.. still triggers.. just use ToggleYcm
+" " let g:ycm_filetype_specific_completion_to_disable = {
+" "             \ 'sh': 1
+" "             \}
 
 " imap <C-\> <Plug>snipMateNextOrTrigger
 " let g:snips_trigger_key = '<C-\>'

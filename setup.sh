@@ -423,6 +423,39 @@ setup_vim_python() {
     _configure_make_install
     )
 }
+# coc.nvim ccls support.
+setup_vim_ccls() {
+    local binary=$HOME/local/bin/ccls
+    if [ "$FORCE" != 'yes' ] && [ -e $binary ]; then
+        return
+    fi
+    local commit="master"
+    _clone $HOME/clone/ccls \
+        https://github.com/MaskRay/ccls \
+        $commit
+
+    (
+    cd $HOME/clone/ccls
+
+    # Download "Pre-Built Binaries" from https://releases.llvm.org/download.html
+    # and unpack to /path/to/clang+llvm-xxx.
+    # Do not unpack to a temporary directory, as the clang resource directory is hard-coded
+    # into ccls at compile time!
+    # See https://github.com/MaskRay/ccls/wiki/FAQ#verify-the-clang-resource-directory-is-correct
+    cmake -H. -BRelease -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_INSTALL_PREFIX=$HOME/local \
+        -DLLVM_INCLUDE_DIR=/usr/lib/llvm-7.0/include \
+        -DLLVM_BUILD_INCLUDE_DIR=/usr/include/llvm-7.0/
+
+    (
+    cd $HOME/clone/ccls/Release
+    make -j$(nproc)
+    make install
+    )
+
+    )
+
+}
 setup_vim() {
     if [ "$FORCE" != 'yes' ] && [ -f $HOME/local/bin/vim ]; then
         return
@@ -536,15 +569,15 @@ setup_ycm_after() {
         return
     fi
     ( 
-        cd $HOME/.vim/bundle/YouCompleteMe
+        cd $HOME/.vim/plugged/YouCompleteMe
 
-        # HACK: https://github.com/ycm-core/YouCompleteMe/issues/3232#issuecomment-454651557
-        rm -rf YouCompleteMe/third_party/ycmd/third_party/cregex
-        git submodule update --init --recursive
+        # Vundle HACK: https://github.com/ycm-core/YouCompleteMe/issues/3232#issuecomment-454651557
+        # rm -rf YouCompleteMe/third_party/ycmd/third_party/cregex
+        # git submodule update --init --recursive
 
         ./install.py --clang-completer
     )
-    ln -s -T $HOME/.vim/bundle/YCM-Generator/config_gen.py $HOME/local/bin/config_gen.py || true
+    ln -s -T $HOME/.vim/plugged/YCM-Generator/config_gen.py $HOME/local/bin/config_gen.py || true
 }
 setup_vim_after() {
     mkdir -p $HOME/bin
@@ -584,6 +617,8 @@ setup_packages() {
 	fontconfig \
         byacc \
     )
+    # clang-7 libclang-7-dev
+    #   For vim coc.nvim ccls.
     local yum_packages=( \
         epel-release \
         the_silver_searcher \
@@ -662,7 +697,7 @@ _clone() {
         )"
     fi
     if [ ! -e "$path" ]; then
-        git clone --recursive $repo $path
+        git clone --recursive $repo $path "$@"
     fi
     (
     cd $path
@@ -951,6 +986,7 @@ setup_all() {
     if [ "$SETUP_VIM" = 'yes' ]; then
         do_setup setup_ycm_before
         # do_setup setup_vim_python
+        # do_setup setup_vim_ccls
         do_setup setup_vim
         do_setup setup_vim_after
         do_setup setup_ycm_after
