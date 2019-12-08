@@ -550,11 +550,20 @@ setup_vim_after() {
     mkdir -p $HOME/bin
     cd $HOME/bin
 
-    if [ ! -d "$HOME/.vim/bundle/Vundle.vim" ]; then
-        git clone https://github.com/VundleVim/Vundle.vim.git $HOME/.vim/bundle/Vundle.vim
-    fi
+    # # Install Vundle plugin manager.
+    # if [ ! -d "$HOME/.vim/bundle/Vundle.vim" ]; then
+    #     git clone https://github.com/VundleVim/Vundle.vim.git $HOME/.vim/bundle/Vundle.vim
+    # fi
+    # $HOME/local/bin/vim -c PluginInstall -c PluginUpdate -c quit -c quit
 
-    $HOME/local/bin/vim -c PluginInstall -c PluginUpdate -c quit -c quit
+    # Install vim-plug plugin manager.
+    # https://github.com/junegunn/vim-plug
+    if [ ! -e $HOME/.vim/autoload/plug.vim ]; then
+        curl -fLo $HOME/.vim/autoload/plug.vim --create-dirs \
+            https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+    fi
+    $HOME/local/bin/vim -c PlugInstall -c PlugUpdate -c quit -c quit
+
 }
 setup_packages() {
     local apt_or_yum_packages=( \

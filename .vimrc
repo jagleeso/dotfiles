@@ -5,93 +5,82 @@ filetype off                  " required
 " YouCompleteMe needs this.
 set encoding=utf-8
 
-
-"
-" Vundle
-"
-
-" set the runtime path to include Vundle and initialize
-set rtp+=~/.vim/bundle/Vundle.vim
-call vundle#begin()
-" alternatively, pass a path where Vundle should install plugins
-"call vundle#begin('~/some/path/here')
+call plug#begin('~/.vim/plugged')
 
 " let Vundle manage Vundle, required
-Plugin 'VundleVim/Vundle.vim'
+Plug 'VundleVim/Vundle.vim'
 
 " The following are examples of different formats supported.
-" Keep Plugin commands between vundle#begin/end.
+" Keep Plug commands between vundle#begin/end.
 " plugin on GitHub repo
-" Plugin 'tpope/vim-fugitive'
+" Plug 'tpope/vim-fugitive'
 " plugin from http://vim-scripts.org/vim/scripts.html
-Plugin 'L9'
-Plugin 'ctrlp.vim'
-Plugin 'kopischke/vim-fetch'
-Plugin 'tComment'
-Plugin 'git://github.com/zeis/vim-kolor.git'
-Plugin 'https://github.com/scrooloose/nerdtree.git'
-" This plugin maps <leader>t* to stuff; screws up plain-old <leader>t for symbol search.
-" Plugin 'Align'
-Plugin 'junegunn/vim-easy-align'
-" Start interactive EasyAlign in visual mode (e.g. vipga)
-xmap ga <Plug>(EasyAlign)
-" Start interactive EasyAlign for a motion/text object (e.g. gaip)
-nmap ga <Plug>(EasyAlign)
+" Plug 'L9'
+Plug 'kien/ctrlp.vim'
+Plug 'kopischke/vim-fetch'
+" Plug 'tComment'
+Plug 'tomtom/tcomment_vim'
+Plug 'git://github.com/zeis/vim-kolor.git'
+Plug 'https://github.com/scrooloose/nerdtree.git'
 
-Plugin 'IndentAnything'
-Plugin 'matchit.zip'
-Plugin 'https://github.com/ervandew/supertab.git'
-Plugin 'https://github.com/tpope/vim-surround.git'
-Plugin 'Tagbar'
-Plugin 'travisjeffery/vim-gotosymbol'
-Plugin 'marvim'
-Plugin 'vim-scripts/AnsiEsc.vim'
-Plugin 'git://github.com/milkypostman/vim-togglelist'
-Plugin 'vimpager'
-Plugin 'https://github.com/rking/ag.vim.git'
-Plugin 'git://github.com/matze/vim-move'
-Plugin 'https://github.com/vim-scripts/Tail-Bundle.git'
-Plugin 'https://github.com/tpope/vim-dispatch.git'
-Plugin 'https://github.com/vim-scripts/Conque-GDB.git'
-Plugin 'https://github.com/Valloric/YouCompleteMe.git'
+" This plugin maps <leader>t* to stuff; screws up plain-old <leader>t for symbol search.
+" Plug 'Align'
+Plug 'junegunn/vim-easy-align'
+
+Plug 'vim-scripts/IndentAnything'
+Plug 'vim-scripts/matchit.zip'
+Plug 'https://github.com/ervandew/supertab.git'
+Plug 'https://github.com/tpope/vim-surround.git'
+" Plug 'Tagbar'
+Plug 'majutsushi/tagbar'
+Plug 'travisjeffery/vim-gotosymbol'
+" Plug 'marvim'
+Plug 'chamindra/marvim'
+Plug 'vim-scripts/AnsiEsc.vim'
+Plug 'git://github.com/milkypostman/vim-togglelist'
+" Plug 'vimpager'
+Plug 'rkitover/vimpager'
+Plug 'https://github.com/rking/ag.vim.git'
+Plug 'git://github.com/matze/vim-move'
+Plug 'https://github.com/vim-scripts/Tail-Bundle.git'
+Plug 'https://github.com/tpope/vim-dispatch.git'
+Plug 'https://github.com/vim-scripts/Conque-GDB.git'
+" Plug
+" 'neoclide/coc.nvim'
+" Plug 'https://github.com/Valloric/YouCompleteMe.git'
 " Need to upgrade vim for this to work.
-" Plugin 'fatih/vim-go'
-Plugin 'rdnetto/YCM-Generator'
-Plugin 'dense-analysis/ale'
+" Plug 'fatih/vim-go'
+Plug 'rdnetto/YCM-Generator', { 'branch': 'stable' }
+" Plug 'dense-analysis/ale'
 
 " https://sherif.io/2016/05/30/favorite-vim-plugins.html
-Plugin 'airblade/vim-gitgutter'
-" Update signs when file is saved
-autocmd BufWritePost * GitGutter
+Plug 'airblade/vim-gitgutter'
 
-Plugin 'nathanaelkane/vim-indent-guides'
-let g:indent_guides_guide_size = 1
-let g:indent_guides_color_change_percent = 3
-let g:indent_guides_enable_on_vim_startup = 1
+Plug 'nathanaelkane/vim-indent-guides'
 
-Plugin 'MarcWeber/vim-addon-mw-utils'
-Plugin 'tomtom/tlib_vim'
-Plugin 'garbas/vim-snipmate'
-Plugin 'reedes/vim-colors-pencil'
-Plugin 'sjl/badwolf'
-Plugin 'itchyny/lightline.vim'
-" Plugin 'junegunn/goyo.vim'
+Plug 'MarcWeber/vim-addon-mw-utils'
+Plug 'tomtom/tlib_vim'
+Plug 'garbas/vim-snipmate'
+Plug 'reedes/vim-colors-pencil'
+Plug 'sjl/badwolf'
+Plug 'itchyny/lightline.vim'
+" Plug 'junegunn/goyo.vim'
 
-" Plugin 'easymotion/vim-easymotion'
+" Plug 'easymotion/vim-easymotion'
 
-Plugin 'https://github.com/davidhalter/jedi-vim.git'
+Plug 'https://github.com/davidhalter/jedi-vim.git'
 
 " Optional:
-Plugin 'honza/vim-snippets'
+Plug 'honza/vim-snippets'
 
 " imap <C-BS> <C-W>
 " noremap! <C-BS> <C-w>
 " noremap! <C-h> <C-w>
 
 " if you use Vundle, load plugins:
-" Plugin 'ervandew/supertab'
-" Plugin 'Valloric/YouCompleteMe'
-Plugin 'SirVer/ultisnips'
+" Plug 'ervandew/supertab'
+" Plug 'Valloric/YouCompleteMe'
+Plug 'SirVer/ultisnips'
 
 " " make YCM compatible with UltiSnips (using supertab)
 " let g:ycm_key_list_select_completion = ['<C-n>', '<Down>']
@@ -103,45 +92,52 @@ Plugin 'SirVer/ultisnips'
 " let g:UltiSnipsJumpForwardTrigger = "<tab>"
 " let g:UltiSnipsJumpBackwardTrigger = "<s-tab>"
 
+" Git plugin not hosted on GitHub
+" Plug 'git://git.wincent.com/command-t.git'
+" git repos on your local machine (i.e. when working on your own plugin)
+" Plug 'file:///home/gmarik/path/to/plugin'
+" " The sparkup vim script is in a subdirectory of this repo called vim.
+" Pass the path to set the runtimepath properly.
+" Plug 'rstacruz/sparkup', {'rtp': 'vim/'}
+" Install L9 and avoid a Naming conflict if you've already installed a
+" different version somewhere else.
+" Plug 'ascenator/L9', {'name': 'newL9'}
+
+
+" Initialize plugin system
+call plug#end()
+
+"
+" Plugin configuration:
+"
+
+" Plug 'junegunn/vim-easy-align'
+" Start interactive EasyAlign in visual mode (e.g. vipga)
+xmap ga <Plug>(EasyAlign)
+" Start interactive EasyAlign for a motion/text object (e.g. gaip)
+nmap ga <Plug>(EasyAlign)
+
+" Plug 'airblade/vim-gitgutter'
+" Update signs when file is saved
+autocmd BufWritePost * GitGutter
+
+" Plug 'nathanaelkane/vim-indent-guides'
+let g:indent_guides_guide_size = 1
+let g:indent_guides_color_change_percent = 3
+let g:indent_guides_enable_on_vim_startup = 1
+
+" Plug 'SirVer/ultisnips'
 let g:UltiSnipsExpandTrigger= "<c-f>"
 let g:UltiSnipsJumpForwardTrigger = "<c-f>"
 
+"
+" End plugin configuration
+"
 
-" Git plugin not hosted on GitHub
-" Plugin 'git://git.wincent.com/command-t.git'
-" git repos on your local machine (i.e. when working on your own plugin)
-" Plugin 'file:///home/gmarik/path/to/plugin'
-" " The sparkup vim script is in a subdirectory of this repo called vim.
-" Pass the path to set the runtimepath properly.
-" Plugin 'rstacruz/sparkup', {'rtp': 'vim/'}
-" Install L9 and avoid a Naming conflict if you've already installed a
-" different version somewhere else.
-" Plugin 'ascenator/L9', {'name': 'newL9'}
-
-" All of your Plugins must be added before the following line
-call vundle#end()            " required
-filetype plugin indent on    " required
+filetype plugin indent on
 " To ignore plugin indent changes, instead use:
 "filetype plugin on
-"
-" Brief help
-" :PluginList       - lists configured plugins
-" :PluginInstall    - installs plugins; append `!` to update or just 
-" :PluginUpdate
-" :PluginSearch foo - searches for foo; append `!` to refresh local cache
-" :PluginClean      - confirms removal of unused plugins; append `!` to 
-" auto-approve removal
-"
-" see :h vundle for more details or wiki for FAQ
-" Put your non-Plugin stuff after this line
 
-"
-" End Vundle
-"
-
-" :map <C-v> "+gP
-" :map <C-c> "+y
-" :map <C-x> "+x
 set backspace=2
 set tabpagemax=20
 set number
@@ -407,10 +403,10 @@ if &term =~ '^screen'
     execute "set <xLeft>=\e[1;*D"
 endif
 
-call tcomment#DefineType("gsp_block", "<%%--%s--%%>\n     ")
-call tcomment#DefineType("gsp", "<%%-- %s --%%>")
+call tcomment#type#Define("gsp_block", "<%%--%s--%%>\n     ")
+call tcomment#type#Define("gsp", "<%%-- %s --%%>")
 
-call tcomment#DefineType('cmake',               '# %s'             )
+call tcomment#type#Define('cmake',               '# %s'             )
 "
 " to change the macro storage location use the following 
 " let marvim_store = '/usr/local/share/projectX/marvim' 
