@@ -701,6 +701,7 @@ _clone() {
     fi
     (
     cd $path
+    git pull || true
     git checkout $commit
     git submodule update --init
     )

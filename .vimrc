@@ -102,7 +102,7 @@ Plug 'SirVer/ultisnips'
 " Plug 'ascenator/L9', {'name': 'newL9'}
 
 " Plug 'neoclide/coc.nvim', {'branch': 'release'}
-Plug 'Valloric/YouCompleteMe', { 'do': './install.py --clangd-completer' }
+Plug 'Valloric/YouCompleteMe', { 'do': 'python3 ./install.py --clangd-completer' }
 " --clang-completer
 
 
@@ -321,8 +321,12 @@ set backspace=indent,eol,start
 ":set smartindent
 :set shiftwidth=4
 :set expandtab
-colorscheme badwolf
-" colorscheme kolor
+
+if &diff
+    colorscheme kolor
+else
+    colorscheme badwolf
+endif
 " colorscheme jellybeans
 
 " ctags
