@@ -1,0 +1,11 @@
+#!/bin/bash
+source $HOME/.dot_common.sh
+
+local_port=$MEL15_POSTGRES_PORT
+remote_port=5432
+remote_dst_node="$REMOTE_MEL15_NODE"
+
+tunnel_direct \
+    $local_port \
+    $remote_port \
+    $remote_dst_node
