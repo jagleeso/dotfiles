@@ -127,6 +127,10 @@ tunnel_to_intrm() {
     local remote_dst_port="$3"
     local remote_node="$4"
     shift 4
+    if ! ssh_config.py --has-attr --proxy-command --host=$remote_node; then
+        tunnel_direct $local_port $remote_dst_port $remote_node
+        return
+    fi
     # NOTE: this assumes a tunnel is already setup on syslab.
     local remote_username="$(ssh_config.py --user --host=$remote_node)"
     local remote_identity_file="$(ssh_config.py --identity-file --host=$remote_node)"

@@ -102,11 +102,18 @@ class SSHConfig(object):
         attrs = config[self.args.host]
         # Whatever option they provided that is NOT false
         attr_name = self.attrs_asked_for[0]
+
         if attr_name not in attrs:
+            if self.args.has_attr:
+                sys.exit(1)
             parser.error('no attr = {attr} found in config for Host = {host}'.format(
                 host=self.args.host,
                 attr=attr_name,
             ))
+
+        if self.args.has_attr:
+            sys.exit(0)
+
         value = attrs[attr_name]
         if self.args.no_newline:
             sys.stdout.write(value)
@@ -193,6 +200,8 @@ def main():
     parser.add_argument("--ssh-config", default=DEFAULT_SSH_CONFIG)
     parser.add_argument("--host", required=True,
                         help="'Host' in the ssh config file")
+    parser.add_argument("--has-attr", action='store_true',
+                        help="check if a --host has a particular ssh config set (e.g. --has-attr ProxyCommand)")
     parser.add_argument('-n', '--no-newline', action='store_true',
                         help="Don't print newline")
     def add_arg(ssh_name):
