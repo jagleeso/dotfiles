@@ -966,6 +966,10 @@ class Exports(object):
                     self.ports[node] = {}
                 self.ports[node][app] = value
 
+def print_indent(out, indent):
+    for i in range(indent):
+        out.write("  ")
+
 # Define some constants.
 IS_WSL = is_windows_on_ubuntu()
 IS_WINDOWS = is_windows()

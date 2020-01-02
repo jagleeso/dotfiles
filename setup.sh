@@ -994,8 +994,8 @@ setup_all() {
     fi
     if [ "$SETUP_NEEDS_BUILDING" = 'yes' ]; then
         do_setup setup_tmux
-        do_setup setup_emacs
-        do_setup setup_spacemacs
+        # do_setup setup_emacs
+        # do_setup setup_spacemacs
         # do_setup setup_autossh
         do_setup setup_ag
         do_setup setup_entr

@@ -55,7 +55,7 @@ Plug 'rdnetto/YCM-Generator', { 'branch': 'stable' }
 " https://sherif.io/2016/05/30/favorite-vim-plugins.html
 Plug 'airblade/vim-gitgutter'
 
-Plug 'nathanaelkane/vim-indent-guides'
+" Plug 'nathanaelkane/vim-indent-guides'
 
 Plug 'MarcWeber/vim-addon-mw-utils'
 Plug 'tomtom/tlib_vim'

@@ -7,6 +7,8 @@ from os.path import join as _j
 
 import dot_util
 
+from dot_util import print_indent
+
 SSH_CONFIG_ATTRS = [
     'User',
     'IdentityFile',
@@ -18,10 +20,15 @@ SSH_CONFIG_ATTRS = [
 DEFAULT_SSH_CONFIG = _j(dot_util.HOME, '.ssh/config')
 
 class SSHConfigParser(object):
-    def __init__(self, ssh_config):
+    def __init__(self, ssh_config, debug=False):
         self.ssh_config = ssh_config
+        self.debug = debug
         self._host = None
-        self._attrs = None
+        self._attrs = {}
+        if self.debug:
+            print("> SSHConfigParser: _attrs={attrs}".format(
+                attrs=self._attrs,
+                ))
         self.config = None
 
     def parse_host(self, line):
@@ -31,6 +38,10 @@ class SSHConfigParser(object):
         if self._host is not None:
             self._record_host()
         self._host = m.group('hostname')
+        if self.debug:
+            print("> parse_host: host={host}".format(
+                host=self._host,
+                ))
         return True
 
     def _record_host(self):
@@ -40,10 +51,15 @@ class SSHConfigParser(object):
                 host=self._host,
                 ssh_config=self.ssh_config))
         self.config[self._host] = self._attrs
+        if self.debug:
+            print("> _record_host: host={host}, attrs={attrs}".format(
+                host=self._host,
+                attrs=self._attrs,
+                ))
         self._attrs = {}
         self._host = None
 
-    ATTR_RE = r'(?:(?:[A-Z][a-z]*)+)'
+    ATTR_RE = r'(?:(?:[A-Z][a-z0-9]*)+)'
     def parse_attr(self, line):
         m = re.search('^\s+(?P<attr>{ATTR_RE})\s+(?P<value>.*)'.format(
             ATTR_RE=SSHConfigParser.ATTR_RE), line)
@@ -51,6 +67,12 @@ class SSHConfigParser(object):
             return False
         attr = m.group('attr')
         value = m.group('value').rstrip()
+        if self.debug:
+            print("> parse_attr: attrs[host={host}].{attr} = {value}".format(
+                host=self._host,
+                attr=attr,
+                value=value,
+                ))
         self._attrs[attr] = value
 
     def strip_comments(self, line):
@@ -60,9 +82,14 @@ class SSHConfigParser(object):
         self.config = {}
 
         with open(self.ssh_config) as f:
-            for line in f:
+            for i, line in enumerate(f):
                 line = self.strip_comments(line)
                 line = line.rstrip()
+                if self.debug:
+                    print("> PARSE[{lineno:03}]: {line}".format(
+                        lineno=i+1,
+                        line=line,
+                        ))
                 if self.parse_host(line):
                     continue
                 if self.parse_attr(line):
@@ -72,12 +99,24 @@ class SSHConfigParser(object):
 
         return self.config
 
+    def print_dbg(self, out, indent):
+        print_indent(out, indent)
+        out.write("SSHConfigParser: size = {size}".format(size=len(self.config)))
+        for i, (host, attrs) in enumerate(self.config.items()):
+            out.write("\n")
+            print_indent(out, indent + 1)
+            out.write("Host[{i}]: {host}, size = {size}".format(i=i, host=host, size=len(attrs)))
+            for attr, value in attrs.items():
+                out.write("\n")
+                print_indent(out, indent + 2)
+                out.write("{attr} = {value}".format(attr=attr, value=value))
+
 class SSHConfig(object):
     def __init__(self, args, parser):
         self.args = args
         self.parser = parser
 
-        self.ssh_config_parser = SSHConfigParser(self.args.ssh_config)
+        self.ssh_config_parser = SSHConfigParser(self.args.ssh_config, debug=self.args.debug)
 
     def check_args(self):
         parser = self.parser
@@ -93,6 +132,9 @@ class SSHConfig(object):
         parser = self.parser
 
         config = self.ssh_config_parser.parse()
+        if self.args.debug:
+            print("> Parsed {path}:".format(path=self.args.ssh_config))
+            self.ssh_config_parser.print_dbg(sys.stdout, 1)
 
         if self.args.host not in config:
             parser.error('no HostName = {host} found in {ssh_config}'.format(
@@ -202,6 +244,8 @@ def main():
                         help="'Host' in the ssh config file")
     parser.add_argument("--has-attr", action='store_true',
                         help="check if a --host has a particular ssh config set (e.g. --has-attr ProxyCommand)")
+    parser.add_argument("--debug", action='store_true',
+                        help="debug")
     parser.add_argument('-n', '--no-newline', action='store_true',
                         help="Don't print newline")
     def add_arg(ssh_name):
