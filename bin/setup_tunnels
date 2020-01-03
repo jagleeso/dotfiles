@@ -32,6 +32,7 @@ _tunnel tunnel_eco17_ssh &
 _tunnel tunnel_eco17_postgres &
 _tunnel tunnel_eco14_ssh &
 _tunnel tunnel_eco14_postgres &
+_tunnel tunnel_eco14_dash &
 _tunnel tunnel_eco13_ssh &
 _tunnel tunnel_eco13_postgres &
 # _tunnel tunnel_mel17_ssh &
