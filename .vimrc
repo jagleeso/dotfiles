@@ -35,7 +35,7 @@ Plug 'majutsushi/tagbar'
 Plug 'travisjeffery/vim-gotosymbol'
 " Plug 'marvim'
 Plug 'chamindra/marvim'
-Plug 'vim-scripts/AnsiEsc.vim'
+" Plug 'vim-scripts/AnsiEsc.vim'
 Plug 'git://github.com/milkypostman/vim-togglelist'
 " Plug 'vimpager'
 Plug 'rkitover/vimpager'
@@ -55,7 +55,7 @@ Plug 'rdnetto/YCM-Generator', { 'branch': 'stable' }
 " https://sherif.io/2016/05/30/favorite-vim-plugins.html
 Plug 'airblade/vim-gitgutter'
 
-Plug 'nathanaelkane/vim-indent-guides'
+" Plug 'nathanaelkane/vim-indent-guides'
 
 Plug 'MarcWeber/vim-addon-mw-utils'
 Plug 'tomtom/tlib_vim'
@@ -322,11 +322,12 @@ set backspace=indent,eol,start
 :set shiftwidth=4
 :set expandtab
 
-if &diff
-    colorscheme kolor
-else
-    colorscheme badwolf
-endif
+" if &diff
+"     colorscheme kolor
+" else
+"     colorscheme badwolf
+" endif
+colorscheme kolor
 " colorscheme jellybeans
 
 " ctags

@@ -26,6 +26,12 @@ end
 
 source ~/.gdbinit.dashboard
 # assembly
+
+# NOTE: Set background color HTML color code to: #202020 in gnome-terminal for best results 
+# with 'native' pygments color-scheme.
+# We can try out pygments colors at:
+#   https://pygments.org/demo/#try
+dashboard -style syntax_highlighting native
 dashboard -layout source stack expressions
 dashboard stack -style limit 10
 dashboard stack -style compact True
@@ -57,6 +63,23 @@ end
 
 define segaddr
 p $_siginfo._sifields._sigfault.si_addr
+end
+
+# See "document str"
+define str
+    call (void)printf("> gdb: str $arg0\n")
+    call $arg0.Print(std::cout, 1)
+    call (void)printf("\n")
+    # Flush anything that Print wrote to std::cout.
+    call fflush(0)
+end
+document str
+Helper function for calling Print method of object; 
+assumes this method exists on arg0:
+
+  class Object{ 
+    void Print(std::ostream& out, int indent) const
+  }
 end
 
 # set logging on
