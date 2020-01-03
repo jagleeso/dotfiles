@@ -725,7 +725,7 @@ command! MarRun call Marvim_search()
 " let g:ycm_seed_identifiers_with_syntax = 1
 " " Autocomplete keeps replacing text as I type for this filetypes...
 " let g:ycm_min_num_of_chars_for_completion = 99
-" let g:ycm_auto_trigger = 0
+let g:ycm_auto_trigger = 0
 " " Until I figure out why lets just disable it...
 " " Doesn't work.. still triggers.. just use ToggleYcm
 " " let g:ycm_filetype_specific_completion_to_disable = {
