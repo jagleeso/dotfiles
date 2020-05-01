@@ -1,10 +1,10 @@
 # https://davidwpearson.wordpress.com/2017/01/12/installing-nvidias-cuda-8-0-on-fedora-25/
-if [ -e /usr/local/cuda/bin ]; then
-    export PATH=$PATH:/usr/local/cuda/bin
-fi
-if [ -e /pkgs/cuda-8.0/bin ]; then
-    export PATH=$PATH:/pkgs/cuda-8.0/bin
-fi
+# if [ -e /usr/local/cuda/bin ]; then
+#     export PATH=$PATH:/usr/local/cuda/bin
+# fi
+# if [ -e /pkgs/cuda-8.0/bin ]; then
+#     export PATH=$PATH:/pkgs/cuda-8.0/bin
+# fi
 
 if [ -e $HOME/clone/CNTK_data_dir ]; then
     # wget https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz

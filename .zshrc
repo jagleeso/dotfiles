@@ -97,25 +97,55 @@ export EDITOR=vim
 
 # source ~/.zshrc_path
 
+_maybe_set_cuda_home() {
+    local cuda_home="$1"
+    shift 1
+
+    if [ "$CUDA_HOME" != "" ]; then
+        # Already set.
+        return 1
+    fi
+
+    if [ -d "$cuda_home/bin" ] && [ -d "$cuda_home/lib64" ]; then
+        export CUDA_HOME="$cuda_home"
+        export PATH=$PATH:$CUDA_HOME/bin
+        export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CUDA_HOME/lib64
+        if [ -d $CUDA_HOME/extras/CUPTI/lib64 ]; then
+            export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CUDA_HOME/extras/CUPTI/lib64
+        fi
+        return 0
+    fi
+
+    return 1
+}
+
 _source_if() {
     if [ -f "$1" ]; then
         source "$1"
     fi
 }
-_source_if ~/.zshrc.gpu
-_source_if ~/.zshrc.vnc
-_source_if ~/.zshrc.vmgl
+
+
+
+_maybe_set_cuda_home /usr/local/cuda
+# _source_if ~/.zshrc.gpu
+# _source_if ~/.zshrc.vnc
+# _source_if ~/.zshrc.vmgl
 # _source_if ~/.zshrc.mic
 # _source_if ~/.zshrc.rocm
-_source_if ~/.zshrc.tensorflow
-_source_if ~/.zshrc.cuda
-_source_if ~/.zshrc.school
-_source_if ~/.zshrc.mpi
+# _source_if ~/.zshrc.tensorflow
+# _source_if ~/.zshrc.cuda
+# _source_if ~/.zshrc.school
+# _source_if ~/.zshrc.mpi
 #_source_if ~/.zshrc.mxnet
 _source_if ~/.zshrc.windows
 export DOT_HOME="$HOME/clone/dotfiles"
 _source_if ~/.dot_exports.sh
+_source_if ~/.zshrc.vector
+# _source_if ~/.zshrc.db
 unset _source_if
+
+
 
 if [ -x "`which vimpager 2>/dev/null`" ]; then
     export PAGER="`which vimpager`"
@@ -194,8 +224,8 @@ export NODE_PATH=~/.jsctags/lib/jsctags/:$NODE_PATH
 
 # alias cboard="xsel -i --clipboard"
 
-export GOPATH=$HOME/gopath
-export GOROOT=$HOME/golang
+# export GOPATH=$HOME/gopath
+# export GOROOT=$HOME/golang
 
 PATH=$HOME/bin:$HOME/local/bin:~/.fzf:$PATH:$HOME/.rvm/bin:$GOPATH/bin
 
@@ -284,18 +314,4 @@ export FZF_COMPLETION_TRIGGER='##'
 
 if [ -e ~/anaconda3/bin/conda ]; then
     alias aconda=~/anaconda3/bin/conda
-fi
-
-if [ -f ~/.zshrc.db ]; then 
-    source ~/.zshrc.db
-fi
-
-if [ -d /usr/local/cuda ]; then
-    export CUDA_HOME=/usr/local/cuda
-    export PATH=$PATH:$CUDA_HOME/bin
-    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CUDA_HOME/lib64
-fi
-
-if [ -d $CUDA_HOME/extras/CUPTI/lib64 ]; then
-    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CUDA_HOME/extras/CUPTI/lib64
 fi

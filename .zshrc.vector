@@ -1,0 +1,4 @@
+_maybe_set_cuda_home /pkgs/cuda-10.1 || true
+if [ -d /pkgs/anaconda3/bin ]; then
+    export PATH=/pkgs/anaconda3/bin:$PATH
+fi
