@@ -35,7 +35,6 @@ Plug 'majutsushi/tagbar'
 Plug 'travisjeffery/vim-gotosymbol'
 " Plug 'marvim'
 Plug 'chamindra/marvim'
-" Plug 'vim-scripts/AnsiEsc.vim'
 Plug 'git://github.com/milkypostman/vim-togglelist'
 " Plug 'vimpager'
 Plug 'rkitover/vimpager'
@@ -104,6 +103,8 @@ Plug 'SirVer/ultisnips'
 " Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'Valloric/YouCompleteMe', { 'do': 'python3 ./install.py --clangd-completer' }
 " --clang-completer
+
+Plug 'rhysd/vim-llvm'
 
 
 " Initialize plugin system

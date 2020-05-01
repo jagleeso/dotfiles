@@ -26,24 +26,28 @@ _tunnel() {
 
 #_tunnel tunnel_ubuntu_ssh &
 # _tunnel tunnel_eco_ssh &
-_tunnel tunnel_mel15_ssh &
-_tunnel tunnel_mel15_postgres &
-_tunnel tunnel_eco17_ssh &
-_tunnel tunnel_eco17_postgres &
+# _tunnel tunnel_mel15_ssh &
+# _tunnel tunnel_mel15_postgres &
+# _tunnel tunnel_eco17_ssh &
+# _tunnel tunnel_eco17_postgres &
 _tunnel tunnel_eco14_ssh &
-_tunnel tunnel_eco14_postgres &
+# _tunnel tunnel_eco14_postgres &
 # _tunnel tunnel_eco14_dash &
-_tunnel tunnel_eco13_ssh &
-_tunnel tunnel_eco13_postgres &
+
+# _tunnel tunnel_eco13_ssh &
+# _tunnel tunnel_eco13_postgres &
+
+_tunnel tunnel_eco16_ssh &
+
 # _tunnel tunnel_mel17_ssh &
 #_tunnel tunnel_logan_jupyter &
-_tunnel tunnel_logan_ssh &
+# _tunnel tunnel_logan_ssh &
 # _tunnel tunnel_logan_gdb &
-_tunnel tunnel_logan_postgres &
+# _tunnel tunnel_logan_postgres &
 # _tunnel tunnel_mel17_postgres &
 #_tunnel tunnel_logan_gdb_unittest &
 #_tunnel tunnel_logan_tensorboard &
-_tunnel tunnel_logan_dash &
+# _tunnel tunnel_logan_dash &
 #_tunnel tunnel_logan_snakeviz &
 #_tunnel tunnel_cluster1_ssh &
 

@@ -58,7 +58,22 @@ plugins=(git svn zsh-syntax-highlighting ssh-agent)
 # - This line must come before sourcing oh-my-zsh.sh
 #
 # https://github.com/robbyrussell/oh-my-zsh/tree/master/plugins/ssh-agent
-zstyle :omz:plugins:ssh-agent identities id_rsa id_rsa_git
+SSH_KEY_LIST=()
+SSH_KEY_LIST+=()
+_maybe_add_ssh_key() {
+    local basename="$1"
+    shift 1
+    if [ -e "$HOME/.ssh/$basename" ]; then
+        SSH_KEY_LIST+=("$basename")
+    fi
+}
+_maybe_add_ssh_key id_rsa
+_maybe_add_ssh_key id_rsa_git
+_maybe_add_ssh_key google_compute_engine
+_maybe_add_ssh_key id_rsa_vector
+# echo "SSH_KEY_LIST = ${SSH_KEY_LIST[@]}"
+zstyle :omz:plugins:ssh-agent identities ${SSH_KEY_LIST[@]}
+# zstyle :omz:plugins:ssh-agent identities id_rsa id_rsa_git google_compute_engine
 
 if [ -e $ZSH/oh-my-zsh.sh ]; then
     source $ZSH/oh-my-zsh.sh
@@ -273,4 +288,14 @@ fi
 
 if [ -f ~/.zshrc.db ]; then 
     source ~/.zshrc.db
+fi
+
+if [ -d /usr/local/cuda ]; then
+    export CUDA_HOME=/usr/local/cuda
+    export PATH=$PATH:$CUDA_HOME/bin
+    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CUDA_HOME/lib64
+fi
+
+if [ -d $CUDA_HOME/extras/CUPTI/lib64 ]; then
+    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CUDA_HOME/extras/CUPTI/lib64
 fi
