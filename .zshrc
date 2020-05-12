@@ -141,6 +141,9 @@ _maybe_set_cuda_home /usr/local/cuda
 _source_if ~/.zshrc.windows
 export DOT_HOME="$HOME/clone/dotfiles"
 _source_if ~/.dot_exports.sh
+if [ "$(hostname)" = "james-tesla" ]; then
+    _source_if ~/.zshrc.azure_james_tesla
+fi
 _source_if ~/.zshrc.vector
 # _source_if ~/.zshrc.db
 unset _source_if

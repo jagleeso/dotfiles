@@ -595,7 +595,8 @@ setup_vim_after() {
         curl -fLo $HOME/.vim/autoload/plug.vim --create-dirs \
             https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
     fi
-    $HOME/local/bin/vim -c PlugInstall -c PlugUpdate -c quit -c quit
+    # $HOME/local/bin/vim -c PlugInstall -c PlugUpdate -c quit -c quit
+    vim -c PlugInstall -c PlugUpdate -c quit -c quit
 
 }
 setup_packages() {
@@ -988,7 +989,7 @@ setup_all() {
         do_setup setup_ycm_before
         # do_setup setup_vim_python
         # do_setup setup_vim_ccls
-        do_setup setup_vim
+        # do_setup setup_vim
         do_setup setup_vim_after
         do_setup setup_ycm_after
     fi
