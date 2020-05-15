@@ -71,6 +71,7 @@ _maybe_add_ssh_key id_rsa
 _maybe_add_ssh_key id_rsa_git
 _maybe_add_ssh_key google_compute_engine
 _maybe_add_ssh_key id_rsa_vector
+_maybe_add_ssh_key id_rsa_azure
 # echo "SSH_KEY_LIST = ${SSH_KEY_LIST[@]}"
 zstyle :omz:plugins:ssh-agent identities ${SSH_KEY_LIST[@]}
 # zstyle :omz:plugins:ssh-agent identities id_rsa id_rsa_git google_compute_engine
