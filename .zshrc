@@ -140,6 +140,7 @@ _maybe_set_cuda_home /usr/local/cuda
 # _source_if ~/.zshrc.mpi
 #_source_if ~/.zshrc.mxnet
 _source_if ~/.zshrc.windows
+_source_if ~/.zshrc.go
 export DOT_HOME="$HOME/clone/dotfiles"
 _source_if ~/.dot_exports.sh
 if [ "$(hostname)" = "james-tesla" ]; then
@@ -228,10 +229,7 @@ export NODE_PATH=~/.jsctags/lib/jsctags/:$NODE_PATH
 
 # alias cboard="xsel -i --clipboard"
 
-# export GOPATH=$HOME/gopath
-# export GOROOT=$HOME/golang
-
-PATH=$HOME/bin:$HOME/local/bin:~/.fzf:$PATH:$HOME/.rvm/bin:$GOPATH/bin
+PATH=$HOME/bin:$HOME/local/bin:~/.fzf:$PATH:$HOME/.rvm/bin
 
 # set tmux options requiring if-statement checks (tmux.conf doesn't support this)
 # Tell tmux we support utf-8 so fancy characters in oh-my-zsh prompt show up.
