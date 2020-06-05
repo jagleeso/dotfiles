@@ -37,11 +37,26 @@ def FileDeleter(path, keep_file=False):
             os.remove(path)
 
 def run_cmd(args, cmd_argv):
+    def print_verbose(msg):
+        if args.verbose:
+            print_log(msg)
+
+    def print_debug(msg):
+        if args.debug:
+            print_log(msg)
+
     if args.temp_path is not None:
         args.keep_output = True
 
     if args.temp_path is not None:
         temp_path = args.temp_path
+    elif args.overwrite:
+        temp_path = os.path.join(
+            os.path.abspath(os.getcwd()),
+            "{prefix}.txt".format(prefix=args.out_prefix),
+        )
+        if os.path.exists(temp_path):
+            print_verbose("(--overwrite) Overwriting {path}".format(path=temp_path))
     else:
         os_fd, temp_path = tempfile.mkstemp(
             prefix="{prefix}_".format(prefix=args.out_prefix),
@@ -50,12 +65,11 @@ def run_cmd(args, cmd_argv):
         os.close(os_fd)
 
     if args.keep_output or args.debug:
-        print_log("Putting command output in {path}".format(path=temp_path))
+        print_verbose("Putting command output in {path}".format(path=temp_path))
     with FileDeleter(temp_path, keep_file=args.keep_output) as file_deleter, \
          open(temp_path, "w+b") as f:
-        if args.debug:
-            cmd_str = ' '.join(cmd_argv)
-            print_log("$ {cmd}".format(cmd=cmd_str))
+        cmd_str = ' '.join(cmd_argv)
+        print_debug("$ {cmd}".format(cmd=cmd_str))
         proc = subprocess.Popen(cmd_argv, stdout=f, stderr=f)
 
         # retcode = proc.wait()
@@ -84,8 +98,8 @@ def run_cmd(args, cmd_argv):
             print_file(temp_path)
             return retcode
 
-        if args.keep_output:
-            print_log("Normal exit-status=0; cmd output was:")
+        if args.tee:
+            print_verbose("Normal exit-status=0; cmd output was:")
             print_file(temp_path)
         return retcode
 
@@ -104,6 +118,12 @@ def main():
         allow_abbrev=False)
     parser.add_argument('--debug-silent-py', action='store_true',
             help="debug")
+    parser.add_argument('--verbose-silent-py', action='store_true',
+                        help="verbose")
+    parser.add_argument('--overwrite', action='store_true',
+                        help="don't use random temp suffix, just overwrite existing logfile.")
+    parser.add_argument('--tee', action='store_true',
+                        help="Show output on 0 exit status")
     parser.add_argument('--keep-output', action='store_true',
                         help="don't discard temp file that stores command output, even when command succeeds")
     parser.add_argument('--out-prefix',
@@ -143,11 +163,20 @@ def main():
         #     # 'silent_argv': silent_argv,
         # })
     args.debug = args.debug_silent_py
+    args.verbose = args.verbose_silent_py
+
+    if len(cmd_argv) == 0:
+        print_log("No command present")
+        sys.exit(1)
 
     if args.out_prefix is None:
-        args.out_prefix = default_out_prefix
+        # args.out_prefix = default_out_prefix
+        args.out_prefix = cmd_argv[0]
     else:
         # If they gave --out-prefix, then they certainly want the output too.
+        args.keep_output = True
+
+    if args.overwrite:
         args.keep_output = True
 
     retcode = run_cmd(args, cmd_argv)
