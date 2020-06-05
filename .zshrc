@@ -48,6 +48,13 @@ zstyle ':completion:*' cache-path ~/.zsh/cache
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # plugins=(zsh-syntax-highlighting)
 plugins=(git svn zsh-syntax-highlighting ssh-agent)
+if which fd >&/dev/null; then
+    plugins+=(fd)
+    # When running fzf, respect .gitignore (fd inherently respects .gitignore)
+    # https://github.com/junegunn/fzf#respecting-gitignore
+    export FZF_DEFAULT_COMMAND='fd --type f'
+    export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+fi
 
 # ssh-agent: Load these identity files
 #

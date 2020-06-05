@@ -749,6 +749,19 @@ setup_fzf() {
         # git apply $DOT_HOME/patches/fzf.patch
     )
 }
+# https://github.com/sharkdp/fd
+# Modern alternative to unix find command.
+# Integrates well with fzf (apply .gitignore during search).
+FD_VERSION="v8.1.1"
+setup_fd() {
+    if [ "$FORCE" != 'yes' ] && which fd > /dev/null >&2; then
+        return
+    fi
+    _wget_tar https://github.com/sharkdp/fd/releases/download/${FD_VERSION}/fd-${FD_VERSION}-x86_64-unknown-linux-gnu.tar.gz
+    local out=$WGET_OUTPUT_DIR
+    ln --force -s -T $out $HOME/clone/fd
+    ln --force -s -T $HOME/clone/fd/fd $HOME/local/bin/fd
+}
 _wget() {
     local url="$1"
     local base="$(basename "$url")"
@@ -983,6 +996,7 @@ setup_all() {
     do_setup setup_zsh
     do_setup setup_ipython
     do_setup setup_fzf
+    do_setup setup_fd
     do_setup setup_dotfiles
     do_setup setup_gdb
     if [ "$SETUP_VIM" = 'yes' ]; then
