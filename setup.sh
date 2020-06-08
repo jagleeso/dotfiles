@@ -719,6 +719,22 @@ setup_ag() {
     cd $HOME/clone/the_silver_searcher
     _configure_make_install
 }
+setup_docker_show_context() {
+    if [ "$FORCE" != 'yes' ] && which docker-show-context > /dev/null >&2; then
+        return
+    fi
+    if ! which go &>/dev/null; then
+        # golang is needed to build docker-show-context
+        return
+    fi
+    # https://github.com/pwaller/docker-show-context#getting-started-building-from-source
+    local commit="master"
+    _clone $HOME/clone/docker-show-context \
+        https://github.com/pwaller/docker-show-context.git \
+        $commit
+    cd $HOME/clone/docker-show-context
+    GO111MODULE=on go install -v
+}
 setup_autossh() {
     if [ "$FORCE" != 'yes' ] && which autossh > /dev/null >&2; then
         return
@@ -960,6 +976,15 @@ setup_xclip() {
     cd $srcdir
     _configure_make_install
 }
+GOLANG_VERSION="1.14.4"
+setup_golang() {
+    if [ "$FORCE" != 'yes' ] && which go > /dev/null >&2; then
+        return
+    fi
+    _wget_tar https://dl.google.com/go/go${GOLANG_VERSION}.linux-amd64.tar.gz
+    local out=$WGET_OUTPUT_DIR
+    # .zshrc.go will pickup $HOME/clone/go/bin/go
+}
 setup_libevent() {
     if [ "$FORCE" != 'yes' ] && [ $HAS_LIB_EVENT = 'yes' ]; then
         return
@@ -997,6 +1022,8 @@ setup_all() {
     do_setup setup_ipython
     do_setup setup_fzf
     do_setup setup_fd
+    do_setup setup_golang
+    do_setup setup_docker_show_context
     do_setup setup_dotfiles
     do_setup setup_gdb
     if [ "$SETUP_VIM" = 'yes' ]; then
