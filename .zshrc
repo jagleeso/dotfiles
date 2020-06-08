@@ -52,7 +52,9 @@ if which fd >&/dev/null; then
     plugins+=(fd)
     # When running fzf, respect .gitignore (fd inherently respects .gitignore)
     # https://github.com/junegunn/fzf#respecting-gitignore
-    export FZF_DEFAULT_COMMAND='fd --type f'
+    # export FZF_DEFAULT_COMMAND='fd --type f'
+    # Keep directories.
+    export FZF_DEFAULT_COMMAND='fd'
     export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 fi
 
