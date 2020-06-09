@@ -374,9 +374,14 @@ setup_oh_my_zsh() {
         return
     fi
     # sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
-    sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+    # sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
     git clone https://github.com/zsh-users/zsh-syntax-highlighting.git $HOME/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting
     cp -r $DOT_HOME/.oh-my-zsh/* $HOME/.oh-my-zsh
+    # oh-my-zsh likes to create its own .zshrc for us... but I want my own.
+    if [ -e ~/.zshrc ]; then
+        mv ~/.zshrc ~/.zshrc.oh_my_zsh.old
+    fi
 }
 setup_zsh_syntax_highlighting() {
     if [ "$FORCE" != 'yes' ] && [ -d $HOME/.oh-my-zsh/custom/plugins/zsh-syntax-highlighting ]; then
@@ -592,6 +597,7 @@ setup_vim_after() {
     # Install vim-plug plugin manager.
     # https://github.com/junegunn/vim-plug
     if [ ! -e $HOME/.vim/autoload/plug.vim ]; then
+        mkdir -p $HOME/.vim/autoload
         curl -fLo $HOME/.vim/autoload/plug.vim --create-dirs \
             https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
     fi
@@ -609,6 +615,7 @@ setup_packages() {
         autossh \
         python-pip \
         entr \
+        curl \
     )
 #        libevent
     local apt_packages=( \
@@ -776,6 +783,7 @@ setup_fd() {
     _wget_tar https://github.com/sharkdp/fd/releases/download/${FD_VERSION}/fd-${FD_VERSION}-x86_64-unknown-linux-gnu.tar.gz
     local out=$WGET_OUTPUT_DIR
     ln --force -s -T $out $HOME/clone/fd
+    mkdir -p $HOME/local/bin
     ln --force -s -T $HOME/clone/fd/fd $HOME/local/bin/fd
 }
 _wget() {
@@ -1043,6 +1051,7 @@ setup_all() {
         do_setup setup_entr
         do_setup setup_xclip
     fi
+    echo "> Success!"
 }
 
 _setup_emacs_all() {
