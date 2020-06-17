@@ -21,7 +21,7 @@
     # https://stackoverflow.com/questions/34060557/git-and-vimdiff-close-all-files-at-once
     trustExitCode = true
 [alias]
-    d = difftool
+    d = -c core.fileMode=false difftool 
     dm = difftool --ignore-submodules
     st = status
     co = checkout
