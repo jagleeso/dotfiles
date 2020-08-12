@@ -1,0 +1,13 @@
+#!/bin/bash
+source $HOME/.dot_common.sh
+
+local_port=$ECO17_JUPYTER_PORT
+remote_intrm_port=$ECO17_JUPYTER_PORT
+remote_dst_port=$ECO17_JUPYTER_PORT
+remote_node=$REMOTE_ECO17_NODE
+
+tunnel_to_intrm \
+    $local_port \
+    $remote_intrm_port \
+    $remote_dst_port \
+    $remote_node \

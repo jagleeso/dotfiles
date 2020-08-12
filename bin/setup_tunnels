@@ -29,7 +29,9 @@ _tunnel() {
 # _tunnel tunnel_mel15_ssh &
 # _tunnel tunnel_mel15_postgres &
 
-# _tunnel tunnel_eco17_ssh &
+_tunnel tunnel_eco17_ssh &
+_tunnel tunnel_eco17_tensorboard &
+_tunnel tunnel_eco17_jupyter &
 # _tunnel tunnel_eco17_dashboard &
 # # _tunnel tunnel_eco17_postgres &
 
@@ -42,9 +44,9 @@ _tunnel tunnel_eco13_tensorboard &
 # _tunnel tunnel_eco13_jupyter &
 # # _tunnel tunnel_eco13_postgres &
 
-_tunnel tunnel_eco16_ssh &
+# _tunnel tunnel_eco16_ssh &
 # _tunnel tunnel_eco16_tensorboard &
-_tunnel tunnel_eco16_jupyter &
+# _tunnel tunnel_eco16_jupyter &
 
 # _tunnel tunnel_mel17_ssh &
 #_tunnel tunnel_logan_jupyter &

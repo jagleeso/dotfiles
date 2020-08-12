@@ -1,0 +1,13 @@
+#!/bin/bash
+source $HOME/.dot_common.sh
+
+local_port=$ECO13_TENSORBOARD_PORT
+remote_syslab_port=$ECO13_TENSORBOARD_PORT
+remote_port=$ECO13_TENSORBOARD_PORT
+remote_dst_node="$REMOTE_ECO13_NODE"
+
+tunnel_to_intrm \
+    $local_port \
+    $remote_syslab_port \
+    $remote_port \
+    $remote_dst_node
