@@ -672,7 +672,8 @@ set mouse=a
 set ttymouse=xterm2
 
 " have spellcheck on by default (just don't hightlight it)
-set spell
+" set spell
+set nospell
 " hi clear SpellBad
 
 map <c-f> :tnext<CR>

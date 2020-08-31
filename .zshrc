@@ -156,6 +156,7 @@ if [ "$(hostname)" = "james-tesla" ]; then
     _source_if ~/.zshrc.azure_james_tesla
 fi
 _source_if ~/.zshrc.vector
+_source_if ~/.zshrc.pyenv
 # _source_if ~/.zshrc.db
 unset _source_if
 

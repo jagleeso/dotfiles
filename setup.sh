@@ -1,8 +1,8 @@
 #!/bin/bash
 #
 # [MODE=full|minimal|minimal-no-vim|update]
-# [DEBUG=yes] 
-# [SKIP_FAILURES=yes] 
+# [DEBUG=yes]
+# [SKIP_FAILURES=yes]
 # setup.sh
 #
 
@@ -152,7 +152,7 @@ _first_exists() {
     # (doesn't fail).
     local path="$1"
     shift 1
-    for path in "$@"; do 
+    for path in "$@"; do
         if [ -e "$path" ]; then
             echo "$path"
             return
@@ -367,7 +367,7 @@ setup_dotfiles() {
     # reload dotfiles
     # if [[ $SHELL =~ zsh ]]; then
     #    source $HOME/.zshrc
-    # fi 
+    # fi
 }
 setup_oh_my_zsh() {
     if [ "$FORCE" != 'yes' ] && [ -d $HOME/.oh-my-zsh ]; then
@@ -406,7 +406,7 @@ setup_vim_python() {
     # TODO: I can't figure out how to do install a "config" directory.
     #
     # Need python-dev to build vim with python support.
-    # If we cannot install it with a package manager, 
+    # If we cannot install it with a package manager,
     # just build python from source just for vim's use.
     if [ "$FORCE" != 'yes' ] &&  \
        [ "$(_python_config_dir)" != '' ] && \
@@ -494,7 +494,7 @@ setup_vim() {
         local pymajor_version="$1"
         shift 1
         ( find /usr/include -type f | \
-            grep --perl-regexp "python${pymajor_version}.*/Python.h$" 
+            grep --perl-regexp "python${pymajor_version}.*/Python.h$"
         )
     }
     if [ $HAS_PYTHON3 = 'yes' ] && _has_python_header 3 > /dev/null; then
@@ -533,13 +533,13 @@ setup_vim() {
         # --enable-pythoninterp=yes
         # http://stackoverflow.com/questions/23023783/vim-compiled-with-python-support-but-cant-see-sys-version
         #
-        # TLDR: 
-        # Linux vim cannot load both python2 and python3, causing them to both be loaded 
+        # TLDR:
+        # Linux vim cannot load both python2 and python3, causing them to both be loaded
         # dynamically, which makes YCM angry.
         #
-        # Solution: 
+        # Solution:
         # use only one, disable the other.
-        # CFLAGS="-fPIC -O -D_FORTIFY_SOURCE=0" 
+        # CFLAGS="-fPIC -O -D_FORTIFY_SOURCE=0"
         # --prefix=$HOME/local
         # --with-tlib=ncurses
         if [ -e $VIM_PYTHON_DIR ]; then
@@ -550,7 +550,7 @@ setup_vim() {
                 "-Wl,-rpath,$VIM_PYTHON_DIR/lib -L$VIM_PYTHON_DIR/lib" \
             )
         fi
-        
+
         CONFIG_FLAGS=( \
             --with-features=huge \
             --enable-multibyte \
@@ -573,7 +573,7 @@ setup_ycm_after() {
     if [ "$FORCE" != 'yes' ] && [ "$REINSTALLED_VIM" == 'no' ]; then
         return
     fi
-    ( 
+    (
         cd $HOME/.vim/plugged/YouCompleteMe
 
         # Vundle HACK: https://github.com/ycm-core/YouCompleteMe/issues/3232#issuecomment-454651557
@@ -803,7 +803,7 @@ _wget_tar() {
         wget "$url" -O "$path"
     fi
     local first_dir=$(tar tf $path | perl -lape 's/(^[^\/]+)(\/.*)?/$1/' | sort --unique | head -n 1)
-    WGET_OUTPUT_DIR="$(dirname $path)/$first_dir" 
+    WGET_OUTPUT_DIR="$(dirname $path)/$first_dir"
     if [ ! -e $WGET_OUTPUT_DIR ]; then
         (
         cd $HOME/clone
@@ -967,7 +967,7 @@ setup_entr() {
     (
     # Custom configure script, uses environment variables.
     export PREFIX=$INSTALL_DIR
-    ./configure 
+    ./configure
     make -j$NCPU
     make install
     )
@@ -1023,7 +1023,9 @@ setup_all() {
     do_setup setup_packages
     if [ "$SETUP_NEEDS_INSTALLING" = 'yes' ]; then
         do_setup setup_pip
+        do_setup setup_pyenv
     fi
+    do_setup setup_pyenv_virtualenv_plugin
     do_setup setup_bin
     do_setup setup_fonts
     do_setup setup_zsh
@@ -1130,6 +1132,63 @@ if args.in_place is not None:
 EOF
 )
     python -c "$script" "$@"
+}
+
+PYENV_ROOT_DIR=$HOME/clone/pyenv
+setup_pyenv() {
+    if [ "$FORCE" != 'yes' ] && [ -f $PYENV_ROOT_DIR/bin/pyenv ]; then
+        return
+    fi
+
+    local apt_packages=(
+        make
+        build-essential
+        libssl-dev
+        zlib1g-dev
+        libbz2-dev
+        libreadline-dev
+        libsqlite3-dev
+        wget
+        curl
+        llvm
+        libncurses5-dev
+        xz-utils
+        tk-dev
+        libxml2-dev
+        libxmlsec1-dev
+        libffi-dev
+        liblzma-dev
+    )
+    _install_apt --no-install-recommends "${apt_packages[@]}"
+
+
+    # local commit="$(_git_latest_tag)"
+    local commit="master"
+    _clone $PYENV_ROOT_DIR \
+        https://github.com/pyenv/pyenv.git \
+        $commit
+
+    if ! $PYENV_ROOT_DIR/bin/pyenv help > /dev/null; then
+        echo "ERROR: setup_pyenv failed with retcode=$?"
+        return $?
+    fi
+}
+setup_pyenv_virtualenv_plugin() {
+    local pyenv_virtualenv_plugin_dir=$PYENV_ROOT_DIR/plugins/pyenv-virtualenv
+    if [ "$FORCE" != 'yes' ] && [ -f $pyenv_virtualenv_plugin_dir ]; then
+        return
+    fi
+    if [ ! -d $PYENV_ROOT_DIR ]; then
+        return
+    fi
+    local commit="master"
+    _clone $pyenv_virtualenv_plugin_dir \
+        https://github.com/pyenv/pyenv-virtualenv.git \
+        $commit
+    if ! $PYENV_ROOT_DIR/bin/pyenv help virtualenv > /dev/null; then
+        echo "ERROR: setup_pyenv_virtualenv_plugin failed with retcode=$?"
+        return $?
+    fi
 }
 
 (
