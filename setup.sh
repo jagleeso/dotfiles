@@ -613,7 +613,7 @@ setup_packages() {
         silversearcher-ag \
         htop zsh tree clang xclip ctags cscope \
         autossh \
-        python-pip \
+        python3-pip \
         entr \
         curl \
     )

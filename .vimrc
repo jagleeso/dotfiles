@@ -42,7 +42,7 @@ Plug 'https://github.com/rking/ag.vim.git'
 Plug 'git://github.com/matze/vim-move'
 Plug 'https://github.com/vim-scripts/Tail-Bundle.git'
 Plug 'https://github.com/tpope/vim-dispatch.git'
-Plug 'https://github.com/vim-scripts/Conque-GDB.git'
+" Plug 'https://github.com/vim-scripts/Conque-GDB.git'
 " Plug
 " 'neoclide/coc.nvim'
 " Plug 'https://github.com/Valloric/YouCompleteMe.git'
