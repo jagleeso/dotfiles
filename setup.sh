@@ -250,11 +250,7 @@ _install_pip() {
     if [ "$HAS_PIP" = 'no' ]; then
         return
     fi
-    if [ "$(_has_sudo)" = 'no' ]; then
-        pip install "$@"
-    else
-        sudo pip install "$@"
-    fi
+    pip3 install --user "$@"
 }
 _ln() {
     # target = the path we are linking to
@@ -984,9 +980,11 @@ setup_xclip() {
     cd $srcdir
     _configure_make_install
 }
-GOLANG_VERSION="1.14.4"
+# GOLANG_VERSION="1.14.4"
+GOLANG_VERSION="1.15.2"
 setup_golang() {
-    if [ "$FORCE" != 'yes' ] && which go > /dev/null >&2; then
+    # if [ "$FORCE" != 'yes' ] && which go > /dev/null >&2; then
+    if [ "$FORCE" != 'yes' ] && [ -e $HOME/clone/go/bin/go ]; then
         return
     fi
     _wget_tar https://dl.google.com/go/go${GOLANG_VERSION}.linux-amd64.tar.gz
